@@ -11,72 +11,72 @@
 |
 */
 
-use Symfony\Component\Process\Process;
-use Symfony\Component\Process\Exception\ProcessFailedException;
-use App\Device;
-Route::get('/', function () {
-    return view('welcome');
-});
+// use Symfony\Component\Process\Process;
+// use Symfony\Component\Process\Exception\ProcessFailedException;
+// use App\Device;
+// Route::get('/', function () {
+//     return view('welcome');
+// });
 
-Route::get('/api/devices/{uuid}', function($uuid) {
-	try {
-		$device = Device::where('uuid',$uuid)->firstOrFail();
+// Route::get('/api/devices/{uuid}', function($uuid) {
+// 	try {
+// 		$device = Device::where('uuid',$uuid)->firstOrFail();
 
-	} catch(Exception $e) {
-		return "Sorry no such device here :(";
-	}
+// 	} catch(Exception $e) {
+// 		return "Sorry no such device here :(";
+// 	}
 
-	$process = new Process('/home/vagrant/Desktop/readonce.py ' . $device->path);
-	$process->run();
-	return $process->getOutput();
-});
+// 	$process = new Process('/home/vagrant/Desktop/readonce.py ' . $device->path);
+// 	$process->run();
+// 	return $process->getOutput();
+// });
 
-Route::get('/api/devices/{uuid}/run', function($uuid) {
-	// try {
-	// 	$device = Device::where('uuid',$uuid)->firstOrFail();
+// Route::get('/api/devices/{uuid}/run', function($uuid) {
+// 	// try {
+// 	// 	$device = Device::where('uuid',$uuid)->firstOrFail();
 
-	// } catch(Exception $e) {
-	// 	return "Sorry no such device here :(";
-	// }
-	// $process = new Process('/var/www/run.py > /dev/null 2>/dev/null &');
-	// $process->run();
+// 	// } catch(Exception $e) {
+// 	// 	return "Sorry no such device here :(";
+// 	// }
+// 	// $process = new Process('/var/www/run.py > /dev/null 2>/dev/null &');
+// 	// $process->run();
 
-	$process = new Process('/home/vagrant/Desktop/run.py > /dev/null 2>/dev/null &');
-	$process->run();
+// 	$process = new Process('/home/vagrant/Desktop/run.py > /dev/null 2>/dev/null &');
+// 	$process->run();
 
-	$process = new Process('/home/vagrant/api/server_scripts/createfile_works.py '  . "/dev/ttyACM0" . " " . $uuid . " 15" .' > /dev/null 2>/dev/null &');
-	$process->run();
+// 	$process = new Process('/home/vagrant/api/server_scripts/createfile_works.py '  . "/dev/ttyACM0" . " " . $uuid . " 15" .' > /dev/null 2>/dev/null &');
+// 	$process->run();
 
-	if(!$process->isSuccessful()) {
-		throw new ProcessFailedException($process);
-	}
-});
-Route::get('/api/devices/{uuid}/stop', function($uuid) {
-	// try {
-	// 	$device = Device::where('uuid',$uuid)->firstOrFail();
+// 	if(!$process->isSuccessful()) {
+// 		throw new ProcessFailedException($process);
+// 	}
+// });
+// Route::get('/api/devices/{uuid}/stop', function($uuid) {
+// 	// try {
+// 	// 	$device = Device::where('uuid',$uuid)->firstOrFail();
 
-	// } catch(Exception $e) {
-	// 	return "Sorry no such device here :(";
-	// }
-	$process = new Process('/home/vagrant/Desktop/stop.py');
-	$process->run();
+// 	// } catch(Exception $e) {
+// 	// 	return "Sorry no such device here :(";
+// 	// }
+// 	$process = new Process('/home/vagrant/Desktop/stop.py');
+// 	$process->run();
 
-	return $process->getOutput();
-});
+// 	return $process->getOutput();
+// });
 
-Route::get('/api/devices/{uuid}/read', function($uuid) {
-	// try {
-	// 	$device = Device::where('uuid',$uuid)->firstOrFail();
+// Route::get('/api/devices/{uuid}/read', function($uuid) {
+// 	// try {
+// 	// 	$device = Device::where('uuid',$uuid)->firstOrFail();
 
-	// } catch(Exception $e) {
-	// 	return "Sorry no such device here :(";
-	// }
-	// $process = new Process('cat /home/vagrant/api/files/' . $uuid);
-	// $process->run();
+// 	// } catch(Exception $e) {
+// 	// 	return "Sorry no such device here :(";
+// 	// }
+// 	// $process = new Process('cat /home/vagrant/api/files/' . $uuid);
+// 	// $process->run();
 
 
-	return $process->getOutput();
-});
+// 	return $process->getOutput();
+// });
 
 
 /*

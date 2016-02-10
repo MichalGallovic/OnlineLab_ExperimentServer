@@ -2,15 +2,38 @@
 
 use Illuminate\Database\Seeder;
 
-class DatabaseSeeder extends Seeder
-{
-    /**
-     * Run the database seeds.
-     *
-     * @return void
-     */
-    public function run()
-    {
-        // $this->call(UserTableSeeder::class);
-    }
+class DatabaseSeeder extends Seeder{
+
+	protected $tables = [
+		'devices'
+	];
+
+	protected $seeders = [
+		'DevicesTableSeeder'
+	];
+
+	public function run()
+	{
+		Eloquent::unguard();
+
+		$this->cleanDatabase();
+
+		foreach($this->seeders as $seedClass)
+		{
+			$this->call($seedClass);
+		}
+	} 
+
+	private function cleanDatabase()
+	{
+		DB::statement('SET FOREIGN_KEY_CHECKS=0');
+
+		foreach($this->tables as $table)
+		{
+			DB::table($table)->truncate();
+		}
+
+		DB::statement('SET FOREIGN_KEY_CHECKS=1');
+	} 
+
 }
