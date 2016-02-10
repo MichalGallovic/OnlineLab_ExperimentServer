@@ -15,7 +15,11 @@ class CreateDevicesTable extends Migration
         Schema::create('devices', function (Blueprint $table) {
             $table->increments('id');
             $table->string('uuid');
-            $table->string('path');
+            $table->string('status')->default("offline");
+            $table->string('active_token')->nullable();
+            $table->string('device_type');
+            $table->string('experiment_type')->nullable();
+            $table->string('port')->nullable();
             $table->timestamps();
         });
     }
