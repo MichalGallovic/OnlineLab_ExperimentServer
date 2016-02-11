@@ -30,21 +30,28 @@ class CheckSuccessfullRun
     public function handle(ProcessWasRan $event)
     {
         // Checks if the process ended without errors
+
         if(!$event->process->isSuccessful()) {
-            // Create a verbal representation of a process error
-            $exception = new ProcessFailedException($event->process);
-            // Get latest process log (the one that failed)
-            $loggedProcess = ProcessLog::where('device_id',$event->device->id)
-                            ->latest()->first();
-
-            // Log error to database
-            $errorLogger = new FailedProcessLog;
-            $errorLogger->process_log_id = $loggedProcess->id;
-            $errorLogger->reason = $exception->getMessage();
-            $errorLogger->save();
-
-            // @TODO
-            // fire event to notify admin about a problem
+            $this->logError($event);   
         }
+    }
+
+    protected function logError($event) {
+        // Create a verbal representation of a process error
+        $exception = new ProcessFailedException($event->process);
+        // Get latest process log (the one that failed)
+        $loggedProcess = ProcessLog::where('device_id',$event->device->id)
+                        ->latest()->first();
+
+        // Log error to database
+        $errorLogger = new FailedProcessLog;
+        $errorLogger->process_log_id = $loggedProcess->id;
+        $errorLogger->reason = $exception->getMessage();
+        $errorLogger->save();
+
+        // @TODO
+        // fire event to notify admin about a problem
+
+        // we could also parse the exit code and at correct reason
     }
 }

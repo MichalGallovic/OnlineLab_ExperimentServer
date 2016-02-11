@@ -24,7 +24,7 @@ class DeviceController extends Controller
     		// nieco
     	}
 
-    	DeviceDriverContract $deviceDriver = $device->driver();
+    	$deviceDriver = $device->driver();
 
     	$status = $deviceDriver->readOnce();
 
