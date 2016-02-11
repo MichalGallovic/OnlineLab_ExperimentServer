@@ -18,8 +18,10 @@ class CreateDevicesTable extends Migration
             $table->string('status')->default("offline");
             $table->string('active_token')->nullable();
             $table->string('device_type');
-            $table->string('experiment_type')->nullable();
+            $table->integer('experiment_type_id')->unsigned()->nullable();
+            $table->foreign("experiment_type_id")->references('id')->on('experiment_types');
             $table->string('port')->nullable();
+            $table->integer('attached_pid')->nullable();
             $table->timestamps();
         });
     }

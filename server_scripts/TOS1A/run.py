@@ -14,20 +14,8 @@ def makeCommand( msg ):
 
 import serial
 import time
-import sys
-import glob
 
-if len(sys.argv) == 1:
-    print "give me a path to com"
-    sys.exit()
-
-port = sys.argv[1]
-
-ports = glob.glob('/dev/tty[A-Za-z]*');
-if port not in ports:
-    sys.exit(1);
-
-ser = serial.Serial(port, 115200)
-ser.write(makeCommand("SGV"))
-out = ser.readline()
-print out
+ser = serial.Serial("/dev/ttyACM0", 115200)
+ser.write(makeCommand('SSE'))
+ser.write(makeCommand('SGV,50.00,50.00,50.00'))
+#ser.write(makeCommand('SEE'))

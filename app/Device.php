@@ -7,7 +7,6 @@ use App\Devices\DeviceManager;
 use Illuminate\Support\Str;
 use App\Devices\Exceptions\DriverDoesNotExistException;
 
-
 class Device extends Model
 {
     /**
@@ -19,7 +18,7 @@ class Device extends Model
 
         // when experiment type is null, there is no experiment
         //  running on the device
-        if(is_null($this->experiment_type)) {
+        if(is_null($this->experiment)) {
             // when $experimentType is null, we are just checking
             // the state of the device
             $experimentType = is_null($experimentType) ? "loop" : $experimentType;
@@ -27,7 +26,7 @@ class Device extends Model
             // otherwise, we use the experiment is running,
             // so we will instantiate the concrete type
             // of device driver implementation
-            $experimentType = $this->experiment_type;
+            $experimentType = $this->experiment->name;
         }
 
         // we create the method name, so we can instantiate the 
@@ -40,5 +39,9 @@ class Device extends Model
     	}
 
     	return $deviceManager->$method();
+    }
+
+    public function experiment() {
+        return $this->belongsTo(ExperimentType::class,'experiment_type_id');
     }
 }

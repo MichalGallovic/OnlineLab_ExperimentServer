@@ -11,25 +11,13 @@
 |
 */
 
-// use Symfony\Component\Process\Process;
-// use Symfony\Component\Process\Exception\ProcessFailedException;
+use Symfony\Component\Process\Process;
+use Symfony\Component\Process\Exception\ProcessFailedException;
 // use App\Device;
 // Route::get('/', function () {
 //     return view('welcome');
 // });
 
-Route::get('/api/devices/{uuid}', function($uuid) {
-	try {
-		$device = Device::where('uuid',$uuid)->firstOrFail();
-
-	} catch(Exception $e) {
-		return "Sorry no such device here :(";
-	}
-
-	$process = new Process('/home/vagrant/Desktop/readonce.py ' . $device->path);
-	$process->run();
-	return $process->getOutput();
-});
 
 // Route::get('/api/devices/{uuid}/run', function($uuid) {
 // 	try {
@@ -90,6 +78,13 @@ Route::get('/api/devices/{uuid}', function($uuid) {
 |
 */
 
+Route::get('testik', function() {
+	$process = new Process("pstree -p 1 | grep -o '([0-9]\+)' | grep -o '[0-9]\+'");
+	$process->run();
+
+	return array_filter(explode("\n",$process->getOutput()));
+});
+
 Route::group(['prefix' => 'api'], function() {
 	/*
 	* GET JSON OF ALL EXPERIMENTS
@@ -108,7 +103,7 @@ Route::group(['prefix' => 'api'], function() {
 	*	status: offline | online | experiment
 	* }
 	*/
-	Route::get('devices/{uuid}',['uses' => 'DeviceController@statusOne']);
+	Route::get('devices/{uuid}',['uses' => 'DeviceController@readOne']);
 	/*
 	* RUN experiment on concrete device
 	* with params, with or without environment
@@ -123,7 +118,7 @@ Route::group(['prefix' => 'api'], function() {
 	*	} 
 	* }
  	*/
-	Route::post('devices/{uuid}/run',['uses' => 'DeviceController@run']);
+	Route::get('devices/{uuid}/run',['uses' => 'DeviceController@run']);
 	/*
 	* STOP experiment
 	* with type, so we can also do some clean up, like stopping
@@ -133,7 +128,7 @@ Route::group(['prefix' => 'api'], function() {
 	*	type: matlab|modelica|scilab|loop 
 	* }
  	*/
-	Route::post('devices/{uuid}/stop',['uses' => 'DeviceController@stop']);
+	Route::get('devices/{uuid}/stop',['uses' => 'DeviceController@stop']);
 
 
 });
