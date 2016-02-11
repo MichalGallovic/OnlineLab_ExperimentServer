@@ -25,9 +25,7 @@ port = sys.argv[1]
 
 ports = glob.glob('/dev/tty[A-Za-z]*');
 if port not in ports:
-    print "No such port, or device not connected sorry"
-    print "if device connected make sure www-data is in group dialout, or you place 666 on the path to usb device"
-    sys.exit()
+    sys.exit(1);
 
 ser = serial.Serial(sys.argv[1], 115200)
 ser.write(makeCommand("SGV"))

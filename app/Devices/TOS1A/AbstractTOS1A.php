@@ -16,7 +16,26 @@ abstract class AbstractTOS1A
 		"readonce" => "readonce.py"
 	];
 
+	protected $outputArguments = [
+		"temp_chip",
+		"f_temp_int",
+		"d_temp_ext",
+		"f_temp_ext",
+		"d_temp_ext",
+		"f_light_int_lin",
+		"d_light_int_lin",
+		"f_light_int_log",
+		"d_light_int_log",
+		"I_bulb",
+		"V_bulb",
+		"I_fan",
+		"V_fan",
+		"f_rpm",
+		"d_rmp"
+	];
+
 	protected $device;
+	protected $status;
 
 
 	public function __construct($device) {
@@ -35,7 +54,6 @@ abstract class AbstractTOS1A
 	}
 
 	public function readOnce() {
-		// read currently measured 
 		$path = $this->scriptsPath . "/" . $this->scriptsNames["readonce"];
 		$arguments = [$this->device->port];
 
@@ -48,9 +66,49 @@ abstract class AbstractTOS1A
 
 		event(new ProcessWasRan($process,$this->device));
 
-		// also check for exception - if failed write to database logs
+		$output = $this->parseOutput($process->getOutput());
+		
+		return $this->makeResponse($output, $process);
+	}
 
-		return $process->getOutput();
+	protected function parseOutput($output) {
+		$output = str_replace("$","", $output);
+		$output = preg_replace("/\*(\w|\r|\n)*/", "", $output);
+
+		$output = explode(",", $output);
+
+		return $output;
+	}
+
+	protected function checkForStatus($output) {
+
+
+	}
+
+	protected function makeResponse($output, $process) {
+		if(!$process->isSuccessful()) {
+			$this->status = "offline";
+		}
+
+		if(count($this->outputArguments) != count($output)) {
+			$this->status = "offline";
+		} else {
+			$output = array_combine($this->outputArguments, $output);
+
+			if(floatval($output['f_temp_int']) == 0.00) {
+				$this->status = "ready";
+			} else {
+				$this->status = "experiment";
+			}
+		}
+
+		return [
+			"device_uuid" => $this->device->uuid,
+			"device_type" => $this->device->device_type,
+			"experiment_type"   => $this->device->experiment_type,
+			"status" => $this->status,
+			"output" => array_filter($output)
+		];
 	}
 
 	public function readExperiment() {
@@ -59,5 +117,8 @@ abstract class AbstractTOS1A
 
 	public function status() {
 		// vola read a parsuje to do array odpovede
+		$output = $this->readOnce();
+
+
 	}
 }

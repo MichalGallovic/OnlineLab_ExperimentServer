@@ -18,28 +18,28 @@
 //     return view('welcome');
 // });
 
-// Route::get('/api/devices/{uuid}', function($uuid) {
+Route::get('/api/devices/{uuid}', function($uuid) {
+	try {
+		$device = Device::where('uuid',$uuid)->firstOrFail();
+
+	} catch(Exception $e) {
+		return "Sorry no such device here :(";
+	}
+
+	$process = new Process('/home/vagrant/Desktop/readonce.py ' . $device->path);
+	$process->run();
+	return $process->getOutput();
+});
+
+// Route::get('/api/devices/{uuid}/run', function($uuid) {
 // 	try {
 // 		$device = Device::where('uuid',$uuid)->firstOrFail();
 
 // 	} catch(Exception $e) {
 // 		return "Sorry no such device here :(";
 // 	}
-
-// 	$process = new Process('/home/vagrant/Desktop/readonce.py ' . $device->path);
+// 	$process = new Process('/var/www/run.py > /dev/null 2>/dev/null &');
 // 	$process->run();
-// 	return $process->getOutput();
-// });
-
-// Route::get('/api/devices/{uuid}/run', function($uuid) {
-// 	// try {
-// 	// 	$device = Device::where('uuid',$uuid)->firstOrFail();
-
-// 	// } catch(Exception $e) {
-// 	// 	return "Sorry no such device here :(";
-// 	// }
-// 	// $process = new Process('/var/www/run.py > /dev/null 2>/dev/null &');
-// 	// $process->run();
 
 // 	$process = new Process('/home/vagrant/Desktop/run.py > /dev/null 2>/dev/null &');
 // 	$process->run();
