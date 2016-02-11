@@ -17,7 +17,7 @@ class DeviceController extends Controller
 
     }
 
-    public function statusOne(DeviceRequest $request, $uuid) {
+    public function readOne(DeviceRequest $request, $uuid) {
     	try {
     		$device = Device::where('uuid',$uuid)->firstOrFail();
     	} catch(ModelNotFoundException $e) {
@@ -26,21 +26,36 @@ class DeviceController extends Controller
 
     	$deviceDriver = $device->driver();
 
-    	$status = $deviceDriver->readOnce();
-
-    	return $status;
-
+    	return $deviceDriver->read();
     	// checks if status has correct format
     	// json etc...
 
     	// return $status;
     }
 
-    public function run() {
+    public function run(DeviceRequest $request, $uuid) {
+        try {
+            $device = Device::where('uuid', $uuid)->firstOrFail();
+        } catch(ModelNotFoundException $e) {
 
+        }
+
+        $deviceDriver = $device->driver();
+
+        return $deviceDriver->run();
     }
 
-    public function stop() {
+    public function stop(DeviceRequest $request, $uuid) {
+        try {
+            $device = Device::where('uuid', $uuid)->firstOrFail();
+        } catch(ModelNotFoundException $e) {
 
+        }
+
+        $deviceDriver = $device->driver();
+
+        $deviceDriver->stop();
+        
+        return $deviceDriver->read();
     }
 }

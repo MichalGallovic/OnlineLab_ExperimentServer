@@ -5,10 +5,12 @@ use Illuminate\Database\Seeder;
 class DatabaseSeeder extends Seeder{
 
 	protected $tables = [
-		'devices'
+		'devices',
+		'experiment_types',
 	];
 
 	protected $seeders = [
+		'ExperimentTypesTableSeeder',
 		'DevicesTableSeeder'
 	];
 

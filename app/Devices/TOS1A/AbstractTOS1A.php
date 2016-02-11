@@ -12,8 +12,9 @@ abstract class AbstractTOS1A
 	// and initialized in constructor
 
 	protected $scriptsPath;
-	protected $scriptsNames = [
-		"readonce" => "readonce.py"
+	protected $scriptNames = [
+		"readonce" => "readonce.py",
+		"stop"     => "stop.py"
 	];
 
 	protected $outputArguments = [
@@ -36,27 +37,56 @@ abstract class AbstractTOS1A
 
 	protected $device;
 	protected $status;
-
+	protected $output;
+	protected $process;
 
 	public function __construct($device) {
 		$this->device = $device;
 		$this->scriptsPath = base_path() . "/server_scripts/TOS1A";
+		$this->output = null;
 	}
 
 	public function stop() {
 		// run stop process + additional implementation
 		// inside of each of concrete implementations
 		// stop process that is running per matlab how ?
+
+		$this->stopDevice();
 	}
 
 	public function read() {
-
+		return $this->readOnce();
 	}
 
 	public function readOnce() {
-		$path = $this->scriptsPath . "/" . $this->scriptsNames["readonce"];
+		$path = $this->getScriptPath("readonce");
 		$arguments = [$this->device->port];
 
+		$process = $this->runProcess($path, $arguments);
+
+		event(new ProcessWasRan($process,$this->device));
+
+		$output = $this->parseOutput($process->getOutput());
+		
+		$this->createStatusAndOutput($output, $process);
+
+		return $this->makeResponse($output, $process);
+	}
+
+	protected function stopDevice() {
+		$path = $this->getScriptPath("stop");
+		$arguments = [$this->device->port];
+
+		$process = $this->runProcess($path, $arguments);
+
+		event(new ProcessWasRan($process, $this->device));
+	}
+
+	protected function getScriptPath($name) {
+		return $this->scriptsPath . "/" . $this->scriptNames[$name];
+	}
+
+	protected function runProcess($path, $arguments = []) {
 		$builder = new ProcessBuilder();
 		$builder->setPrefix($path);
 		$builder->setArguments($arguments);
@@ -64,11 +94,36 @@ abstract class AbstractTOS1A
 		$process = $builder->getProcess();
 		$process->run();
 
-		event(new ProcessWasRan($process,$this->device));
+		return $process;
+	}
 
-		$output = $this->parseOutput($process->getOutput());
+	protected function runProcessAsync($path, $arguments = []) {
+		$builder = new ProcessBuilder();
+		$builder->setPrefix($path);
+		$builder->setArguments($arguments);
 		
-		return $this->makeResponse($output, $process);
+		$process = $builder->getProcess();
+		$process->setTimeout(20);
+		$process->start();
+
+		return $process;
+	}
+
+	protected function runProcessForceAsync($path, $arguments = []) {
+		// $builder = new ProcessBuilder();
+		// $builder->setPrefix($path);
+
+		// // $arguments []= "> /dev/null";
+		// // $arguments []= "2> /dev/null";
+		// // $arguments []= "&";
+
+		// $builder->setArguments($arguments);
+		
+		// $process = $builder->getProcess();
+		$process = new Process($path . " > /dev/null 2> /dev/null &");
+		$process->run();
+
+		return $process;
 	}
 
 	protected function parseOutput($output) {
@@ -80,12 +135,17 @@ abstract class AbstractTOS1A
 		return $output;
 	}
 
-	protected function checkForStatus($output) {
-
-
+	protected function makeResponse($output, $process) {
+		return [
+			"device_uuid" => $this->device->uuid,
+			"device_type" => $this->device->device_type,
+			"experiment_type"   => $this->device->experiment->name,
+			"status" => $this->status,
+			"output" => $this->output
+		];
 	}
 
-	protected function makeResponse($output, $process) {
+	protected function createStatusAndOutput($output, $process) {
 		if(!$process->isSuccessful()) {
 			$this->status = "offline";
 		}
@@ -99,16 +159,9 @@ abstract class AbstractTOS1A
 				$this->status = "ready";
 			} else {
 				$this->status = "experiment";
+				$this->output = $output;
 			}
 		}
-
-		return [
-			"device_uuid" => $this->device->uuid,
-			"device_type" => $this->device->device_type,
-			"experiment_type"   => $this->device->experiment_type,
-			"status" => $this->status,
-			"output" => array_filter($output)
-		];
 	}
 
 	public function readExperiment() {

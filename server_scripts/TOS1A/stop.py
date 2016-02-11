@@ -13,7 +13,6 @@ def makeCommand( msg ):
         return final;
 
 import serial
-import time
 import sys
 import glob
 
@@ -28,6 +27,4 @@ if port not in ports:
     sys.exit(1);
 
 ser = serial.Serial(port, 115200)
-ser.write(makeCommand("SGV"))
-out = ser.readline()
-print out
+ser.write(makeCommand('SEE'))
