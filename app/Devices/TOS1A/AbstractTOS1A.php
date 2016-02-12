@@ -39,6 +39,7 @@ abstract class AbstractTOS1A
 	protected $status;
 	protected $output;
 	protected $process;
+	protected $runtime;
 
 	public function __construct($device) {
 		$this->device = $device;
@@ -97,13 +98,13 @@ abstract class AbstractTOS1A
 		return $process;
 	}
 
-	protected function runProcessAsync($path, $arguments = []) {
+	protected function runProcessAsync($path, $arguments = [], $timeout = 20) {
 		$builder = new ProcessBuilder();
 		$builder->setPrefix($path);
 		$builder->setArguments($arguments);
 		
 		$process = $builder->getProcess();
-		$process->setTimeout(20);
+		$process->setTimeout($timeout);
 		$process->start();
 
 		return $process;
@@ -146,6 +147,8 @@ abstract class AbstractTOS1A
 	}
 
 	protected function createStatusAndOutput($output, $process) {
+		$this->device->fresh();
+
 		if(!$process->isSuccessful()) {
 			$this->status = "offline";
 		}
@@ -156,9 +159,13 @@ abstract class AbstractTOS1A
 			$output = array_combine($this->outputArguments, $output);
 
 			if(floatval($output['f_temp_int']) == 0.00) {
+				if($this->device->status == "initializing_experiment") {
+					$this->status = "initializing_experiment";
+					return;
+				}
 				$this->status = "ready";
 			} else {
-				$this->status = "experiment";
+				$this->status = "experimenting";
 				$this->output = $output;
 			}
 		}
