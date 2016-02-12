@@ -38,8 +38,10 @@ abstract class AbstractTOS1A
 	protected $device;
 	protected $status;
 	protected $output;
-	protected $process;
+	protected $assignedOutput;
 	protected $runtime;
+
+	private $process;
 
 	public function __construct($device) {
 		$this->device = $device;
@@ -56,22 +58,70 @@ abstract class AbstractTOS1A
 	}
 
 	public function read() {
-		return $this->readOnce();
+		$this->readOnce();
+		return $this->makeResponse();
 	}
 
 	public function readOnce() {
 		$path = $this->getScriptPath("readonce");
 		$arguments = [$this->device->port];
 
-		$process = $this->runProcess($path, $arguments);
+		$this->process = $this->runProcess($path, $arguments);
 
-		event(new ProcessWasRan($process,$this->device));
+		event(new ProcessWasRan($this->process,$this->device));
 
-		$output = $this->parseOutput($process->getOutput());
-		
-		$this->createStatusAndOutput($output, $process);
+		$this->output = $this->parseOutput($this->process->getOutput());
+	}
 
-		return $this->makeResponse($output, $process);
+	protected function getOutput() {
+		// Lazily instantiante the output
+		// if it was not obtained, get it
+		// upon first request
+		if(is_null($this->output)) {
+			$this->readOnce();
+		}
+
+		return $this->output;
+	}
+
+	protected function isOffline() {
+		// Empty array output is in all cases
+		// error in python script or bad
+		// port path or disconnected
+		// device
+		return empty($this->getOutput());
+	}
+
+	protected function isConnected() {
+		if($this->isOffline()) return false;
+
+		$this->assignedOutput = array_combine($this->outputArguments, $this->output);
+
+		// array_combine returns false, when number of 
+		// keys and values does not match, in our case
+		// that is when something went wrong
+		return is_array($this->assignedOutput);
+	}
+
+	protected function isReady() {
+		// device TOS1A responds with zero filtered internal temperature
+		// if is connected and not running experiment
+		return $this->isConnected() && floatval($this->assignedOutput["f_temp_int"]) == 0.0;
+	}
+
+	protected function isRunningExperiment() {
+		// device TOS1A responds with non zero filtered internal temperature
+		// when running experiment
+		return ( $this->isConnected() && 
+			floatval($this->assignedOutput["f_temp_int"]) != 0.0 ) ||
+			$this->isStartingExperiment();
+	}
+
+	protected function isStartingExperiment() {
+		// When device is ready and pid is already attached
+		// it means the experiment is initializing
+		// (i.e. starting matlab takes some time)
+		return $this->isReady() && !is_null($this->device->attached_pid);
 	}
 
 	protected function stopDevice() {
@@ -133,16 +183,33 @@ abstract class AbstractTOS1A
 
 		$output = explode(",", $output);
 
-		return $output;
+		// When device was not connected or python script gave error
+		// in case of bad port path etc. output at this
+		// point was array with empty string
+		// so lets filter it out completely
+		return array_filter($output);
 	}
 
-	protected function makeResponse($output, $process) {
+	protected function makeResponse() {
+		if($this->isRunningExperiment()) {
+			$this->status = "experimenting";
+		} else if($this->isReady()) {
+			$this->status = "ready";
+			// When device is ready, we don't necesarilly
+			// need to sent the output, but it could
+			// be set on again just, by commenting
+			// this out
+			$this->assignedOutput = null;
+		} else {
+			$this->status = "offline";
+		}
+
 		return [
 			"device_uuid" => $this->device->uuid,
 			"device_type" => $this->device->device_type,
 			"experiment_type"   => $this->device->experiment->name,
 			"status" => $this->status,
-			"output" => $this->output
+			"output" => $this->assignedOutput
 		];
 	}
 
@@ -151,24 +218,70 @@ abstract class AbstractTOS1A
 
 		if(!$process->isSuccessful()) {
 			$this->status = "offline";
+			return;
 		}
 
 		if(count($this->outputArguments) != count($output)) {
 			$this->status = "offline";
-		} else {
-			$output = array_combine($this->outputArguments, $output);
+			return;
+		}
 
-			if(floatval($output['f_temp_int']) == 0.00) {
-				if($this->device->status == "initializing_experiment") {
-					$this->status = "initializing_experiment";
-					return;
-				}
-				$this->status = "ready";
-			} else {
-				$this->status = "experimenting";
-				$this->output = $output;
+		if($this->device->status == "initializing_experiment") {
+			$this->status = "initializing_experiment";
+			return;
+		}
+
+		if($this->device->status == "experimenting") {
+			if(floatval($output["f_temp_int"]) == 0.00) {
+				// $this->status = ""
 			}
 		}
+
+		
+
+		$output = array_combine($this->outputArguments, $output);
+
+
+		if(floatval($output["f_temp_int"]) == 0.00) {
+			$this->changeStatus("ready");
+		}
+
+		// Otherwise the experiment is ON!!!
+		if($this->device->status == "experimenting") {
+			$this->output = $output;
+		}
+
+
+		// switch ($this->device->status) {
+		// 	case 'experimenting':
+		// 		$this->output = $output;
+		// 		break;
+		// 	case ""
+		// }
+
+
+
+		// if(count($this->outputArguments) != count($output)) {
+		// 	$this->status = "offline";
+		// } else {
+			
+
+		// 	if(floatval($output['f_temp_int']) == 0.00) {
+		// 		if($this->device->status == "initializing_experiment") {
+		// 			$this->status = "initializing_experiment";
+		// 			return;
+		// 		}
+		// 		$this->status = "ready";
+		// 	} else {
+		// 		$this->status = "experimenting";
+		// 		$this->output = $output;
+		// 	}
+		// }
+	}
+
+	protected function changeStatus($status) {
+		$this->device->status = $status;
+		$this->device->save();
 	}
 
 	public function readExperiment() {
