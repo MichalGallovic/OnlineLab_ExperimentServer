@@ -15,6 +15,13 @@ class Matlab extends AbstractTOS1A implements DeviceDriverContract
 	}
 
 	public function run() {
+		// !!!if something is running, respond with error
+
+		if(in_array($this->device->status, ["experimenting","initializing_experiment"])) {
+			return $this->read();
+		}
+
+		$this->changeStatus("initializing_experiment");
 		// validation
 
 		// process run experiment and pass data to python script
@@ -23,44 +30,35 @@ class Matlab extends AbstractTOS1A implements DeviceDriverContract
 		$path = $this->getScriptPath("matlab");
 		$process = $this->runProcessAsync($path);
 
-		$isPidSet = false;
 		$this->attachPid($process->getPid());
-		$pids = [];
+		
 		$seconds = 0;
 		while($process->isRunning()) {
-			// if(!$isPidSet) {
-				
-			// 	$isPidSet = true;
-			// }
-			// try {
-			// 	// When timeout is reached
-			// 	// checkTimeout automatically stops the process
-			// 	// and raises and exception
-			// 	$process->checkTimeout();
-			// } catch(ProcessTimedOutException $e) {
-			// 	$pids = $this->stop();
+
+
+			// if($seconds > 5) {
+			// 	break;
 			// }
 
-			if($seconds > 5) {
-				break;
-			}
-
-			usleep(1000000);
-			$seconds++;
+			// usleep(1000000);
+			// $seconds++;
 		}
 
-		return $this->stopExperimentRunner($this->device->attached_pid);
-
-		$this->detachPid();
+		$this->stop();
 		
-		return $pids;
+		return $this->read();
 	}
 
 	public function stop() {
-		parent::stop();
-		
-		// stop the matlab pid
-		return $this->stopExperimentRunner($this->device->attached_pid);
+		// Stops matlab and cleans up all processes
+		if(!is_null($this->device->attached_pid)) {
+			$this->stopExperimentRunner($this->device->attached_pid);
+		}
+		// Stop the experiment on the physical device
+		$this->stopDevice();
+		// Detaches the main process pid from db
+		$this->detachPid();
+		$this->changeStatus("ready");
 	}
 
 	protected function attachPid($pid) {
@@ -72,18 +70,40 @@ class Matlab extends AbstractTOS1A implements DeviceDriverContract
 		$this->attachPid(null);
 	}
 
-	protected function stopExperimentRunner($pid) {
-		$process = new Process("pstree -p ". $pid ." | grep -o '([0-9]\+)' | grep -o '[0-9]\+'");
-		 
-		$process->run();
-		$allProcesses = array_filter(explode("\n",$process->getOutput()));
+	protected function changeStatus($status) {
+		$this->device->status = $status;
+		$this->device->save();
+	}
 
-		foreach ($allProcesses as $pid) {
+	protected function stopExperimentRunner($pid) {
+		$pids = $this->getAllChildProcesses($pid);
+
+		// Kill all processes created for experiment running
+		foreach ($pids as $pid) {
 			$arguments = [
 				"-TERM",
 				$pid
 			];
 			$process = $this->runProcess("kill",$arguments);
 		}
+	}
+
+	/**
+	 * Method uses pstree to get a tree of all
+	 * subprocesses created by a process
+	 * defined with PID
+	 *
+	 * It returns array with all processes created
+	 * for python+experiment runner and also
+	 * contains the pid of parent process
+	 * @return array
+	 */
+	protected function getAllChildProcesses($pid) {
+		$process = new Process("pstree -p ". $pid ." | grep -o '([0-9]\+)' | grep -o '[0-9]\+'");
+		 
+		$process->run();
+		$allProcesses = array_filter(explode("\n",$process->getOutput()));
+
+		return $allProcesses;
 	}
 }
