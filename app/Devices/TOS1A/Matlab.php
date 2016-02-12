@@ -10,18 +10,14 @@ class Matlab extends AbstractTOS1A implements DeviceDriverContract
 
 	public function __construct($device) {
 		parent::__construct($device);
-
 		$this->scriptNames["matlab"] = "matlab/run.py";
 	}
 
 	public function run() {
-		// !!!if something is running, respond with error
-
-		if(in_array($this->device->status, ["experimenting","initializing_experiment"])) {
+		if($this->isRunningExperiment()) {
 			return $this->read();
 		}
 
-		$this->changeStatus("initializing_experiment");
 		// validation
 
 		// process run experiment and pass data to python script
@@ -33,9 +29,12 @@ class Matlab extends AbstractTOS1A implements DeviceDriverContract
 		$this->attachPid($process->getPid());
 		
 		$seconds = 0;
+		$runningStatusSet = false;
 		while($process->isRunning()) {
 
+			
 
+			// Stuff with timeout
 			// if($seconds > 5) {
 			// 	break;
 			// }
@@ -58,7 +57,6 @@ class Matlab extends AbstractTOS1A implements DeviceDriverContract
 		$this->stopDevice();
 		// Detaches the main process pid from db
 		$this->detachPid();
-		$this->changeStatus("ready");
 	}
 
 	protected function attachPid($pid) {
@@ -68,11 +66,6 @@ class Matlab extends AbstractTOS1A implements DeviceDriverContract
 
 	protected function detachPid() {
 		$this->attachPid(null);
-	}
-
-	protected function changeStatus($status) {
-		$this->device->status = $status;
-		$this->device->save();
 	}
 
 	protected function stopExperimentRunner($pid) {
