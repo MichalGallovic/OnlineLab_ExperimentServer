@@ -3,7 +3,7 @@
 interface DeviceDriverContract
 {
 	public function read();
-	public function run();
+	public function run($input);
 	public function stop();
 
 	public function status();

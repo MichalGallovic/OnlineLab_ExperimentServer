@@ -37,12 +37,31 @@ class DeviceController extends Controller
         try {
             $device = Device::where('uuid', $uuid)->firstOrFail();
         } catch(ModelNotFoundException $e) {
-
+            // Return sth
         }
+
+        if(!$request->has('experiment_type')) {
+            // Add some kind of error response
+            return redirect()->back();
+        }
+
+        try {
+            $experiment_type = ExperimentType::where('name', $request->input('experiment_type'))->first();
+        } catch(ModelNotFoundException $e) {
+            // Return sth
+        }
+
+        if(!$request->has('input')) {
+            // Add some kind of error response
+            return redirect()->back();
+        }
+
+        $device->experiment_type_id = $experiment_type->id;
+        $device->save();
 
         $deviceDriver = $device->driver();
 
-        return $deviceDriver->run();
+        return $deviceDriver->run($request->input('input'));
     }
 
     public function stop(DeviceRequest $request, $uuid) {

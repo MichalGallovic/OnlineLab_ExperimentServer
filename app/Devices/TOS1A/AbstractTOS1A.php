@@ -5,6 +5,7 @@ use Symfony\Component\Process\Process;
 use Symfony\Component\Process\ProcessBuilder;
 use Symfony\Component\Process\Exception\ProcessFailedException;
 use App\Events\ProcessWasRan;
+use Illuminate\Support\Facades\Validator;
 
 abstract class AbstractTOS1A
 {
@@ -35,11 +36,14 @@ abstract class AbstractTOS1A
 		"d_rmp"
 	];
 
+	protected $rules;
+
 	protected $device;
 	protected $status;
 	protected $output;
 	protected $assignedOutput;
 	protected $runtime;
+	protected $validator;
 
 	private $process;
 
@@ -47,6 +51,18 @@ abstract class AbstractTOS1A
 		$this->device = $device;
 		$this->scriptsPath = base_path() . "/server_scripts/TOS1A";
 		$this->output = null;
+	}
+
+	public function run($input) {
+		if($this->isRunningExperiment()) {
+			return $this->read();
+		}
+
+		$validator = Validator::make($input, $this->rules);
+
+		if($validator->fails()) {
+			return redirect()->back()->withErrors($validator);
+		}
 	}
 
 	public function stop() {
