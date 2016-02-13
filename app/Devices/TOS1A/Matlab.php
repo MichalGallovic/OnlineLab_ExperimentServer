@@ -11,14 +11,26 @@ class Matlab extends AbstractTOS1A implements DeviceDriverContract
 	public function __construct($device) {
 		parent::__construct($device);
 		$this->scriptNames["matlab"] = "matlab/run.py";
+		
+		// Definijng input arguments and rules
+		// for validation
+		$this->rules = [
+			"P" => "required",
+			"I" => "required",
+			"D" => "required",
+			"c_fan" => "required",
+			"c_lamp" => "required",
+			"c_led" => "required",
+			"in_sw" => "required",
+			"out_sw" => "required",
+			"time" => "required",
+			"ts" => "required",
+			"input" => "required"
+		];
 	}
 
-	public function run() {
-		if($this->isRunningExperiment()) {
-			return $this->read();
-		}
-
-		// validation
+	public function run($input) {
+		parent::run($input);
 
 		// process run experiment and pass data to python script
 
