@@ -4,6 +4,9 @@ use App\Devices\Contracts\DeviceDriverContract;
 use Symfony\Component\Process\Process;
 use Symfony\Component\Process\Exception\ProcessTimedOutException;
 use Symfony\Component\Process\Exception\ProcessFailedException;
+use Illuminate\Support\Facades\Validator;
+use App\Devices\Exceptions\ParametersInvalidException;
+use App\Events\ProcessWasRan;
 
 class Matlab extends AbstractTOS1A implements DeviceDriverContract
 {
@@ -23,41 +26,68 @@ class Matlab extends AbstractTOS1A implements DeviceDriverContract
 			"c_led" => "required",
 			"in_sw" => "required",
 			"out_sw" => "required",
-			"time" => "required",
-			"ts" => "required",
-			"input" => "required"
+			"t_sim" => "required",
+			"s_rate" => "required",
+			"input" => "required",
+			"scifun" => "required"
 		];
 	}
 
 	public function run($input) {
 		parent::run($input);
-
-		// process run experiment and pass data to python script
-
-		// process start reading and writing data from tos1a
-		$path = $this->getScriptPath("matlab");
-		$process = $this->runProcessAsync($path);
-
-		$this->attachPid($process->getPid());
 		
+		$process =  $this->runExperiment($input);
+		
+		// process start reading and writing data from tos1a
+
 		$seconds = 0;
-		$runningStatusSet = false;
 		while($process->isRunning()) {
-
-			
-
-			// Stuff with timeout
-			// if($seconds > 5) {
-			// 	break;
-			// }
-
-			// usleep(1000000);
-			// $seconds++;
+			// check some stuff with timeout
+			// experiment initialization
 		}
+
+		event(new ProcessWasRan($process,$this->device));
 
 		$this->stop();
 		
 		return $this->read();
+	}
+
+	protected function runExperiment($arguments) {
+		$path = $this->getScriptPath("matlab");
+
+		// matlab starts 15s this should be automated
+		$timeout = $arguments["t_sim"] + 20;
+		$arguments = $this->prepareArguments($arguments);
+		$process = $this->runProcessAsync($path, $arguments, $timeout);
+		$this->attachPid($process->getPid());
+		return $process;
+	}
+
+	protected function prepareArguments($arguments) {
+		$input = "";
+
+		foreach ($arguments as $key => $value) {
+			$input .= $key . ":" . $value . ",";
+		}
+		$input = substr($input, 0, strlen($input) - 1);
+
+		return [
+			"--port=" . $this->device->port,
+			"--input=" . $input
+		];
+	}
+
+	protected function validateInput($input) {
+		if(!is_array($input)) {
+			throw new ParametersInvalidException("Experiment Arguments");
+		}
+
+		$validator = Validator::make($input, $this->rules);
+
+		if($validator->fails()) {
+			throw new ParametersInvalidException($validator->messages());
+		}
 	}
 
 	public function stop() {

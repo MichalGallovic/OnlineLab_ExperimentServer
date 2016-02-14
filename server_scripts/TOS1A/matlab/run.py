@@ -1,23 +1,26 @@
 #!/usr/bin/python
 import time
+import sys
+import argparse
+import string
 from mlabwrap import mlab
 
-def app():
+def app(args):
    mlab.load_system("/var/www/thermo");
    mlab.clear();
-   P=0.8;
-   I=2.95;
-   D=0;
-   cfan=40;
-   clamp=30;
-   cled=0;
-   ctrltyp="NO";
-   insw=1;
-   outsw=3;
-   tsim=10;
-   ts=100;
-   vstup=30;
-   scifun="y1=u1";
+   P=args["P"]
+   I=args["I"]
+   D=args["D"]
+   cfan=args["c_fan"]
+   clamp=args["c_lamp"]
+   cled=args["c_led"]
+   ctrltyp=args["ctrltyp"]
+   insw=args["in_sw"]
+   outsw=args["out_sw"]
+   tsim=args["t_sim"]
+   ts=args["s_rate"]
+   vstup=args["input"]
+   scifun=args["scifun"]
    mlab._set('P', float(P));
    mlab._set('I', float(I));
    mlab._set('D', float(D));
@@ -39,7 +42,7 @@ def app():
    mlab._set('fTf', 0.2); #filter time constant for for angular velocity (0.1s - 10s)
    mlab._set('Umax', 100); #high input constraint
    mlab._set('Umin', 0); #low input constraint      
-   mlab._set('com','/dev/ttyACM0'); #port sustavy
+   mlab._set('com',args["port"]); #port sustavy
    mlab._set('baud', 115200);
    mlab.run('/var/www/init.m');
    #mlab.delete(mlab.instrfind({'Port'},{com}));
@@ -67,8 +70,21 @@ def app():
    return(str(output));
 
 def getArguments():
-  return "he"
+   parser = argparse.ArgumentParser()
+   parser.add_argument("--port")
+   parser.add_argument("--input")
+   args = parser.parse_args()
+   port = args.port
+   args = args.input
+   args = args.split(",")
+   args = [pair.replace(" ","") for pair in args]
+   args_map = {}
+   for arg in args:
+      argument = arg.split(":")
+      args_map[argument[0]] = argument[1]
+   args_map["port"] = port
+   return args_map
 
 if __name__ == '__main__':
    args = getArguments()
-   app()
+   app(args)

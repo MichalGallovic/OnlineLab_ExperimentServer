@@ -4,7 +4,7 @@ use App\Devices\Contracts\DeviceDriverContract;
 
 class Loop extends AbstractTOS1A implements DeviceDriverContract
 {
-	public function run() {
+	public function run($input) {
 
 	}
 }
