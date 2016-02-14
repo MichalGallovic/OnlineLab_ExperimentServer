@@ -9,6 +9,11 @@ use App\Http\Controllers\Controller;
 use App\Device;
 use App\Http\Requests\DeviceRequest;
 use App\Devices\Contracts\DeviceDriverContract;
+use App\ExperimentType;
+use App\Devices\Exceptions\DeviceNotConnectedException;
+use App\Devices\Exceptions\DeviceNotReadyException;
+use App\Devices\Exceptions\DeviceAlreadyRunningExperimentException;
+use App\Devices\Exceptions\ParametersInvalidException;
 
 class DeviceController extends Controller
 {
@@ -40,28 +45,50 @@ class DeviceController extends Controller
             // Return sth
         }
 
+        // Experiment Type & Input validation
         if(!$request->has('experiment_type')) {
             // Add some kind of error response
-            return redirect()->back();
+            return response()->json([
+                    "error" => "Experiment type not defined"
+                ], 400);
         }
 
         try {
-            $experiment_type = ExperimentType::where('name', $request->input('experiment_type'))->first();
+            $type = strtolower($request->input('experiment_type'));
+            $experiment_type = ExperimentType::where('name', $type)->first();
         } catch(ModelNotFoundException $e) {
             // Return sth
         }
 
-        if(!$request->has('input')) {
+        if(!$request->has('experiment_input')) {
             // Add some kind of error response
-            return redirect()->back();
+            return response()->json([
+                    "error" => "Experiment arguments not specified"
+                ],400);
         }
 
+        // When everything looks fine it is
+        // time to boot up classes for
+        // 
+        try {
+            $deviceDriver = $device->driver();
+        } catch(DeviceNotConnectedException $e) {
+            return $e->getResponse();
+        }
+
+        // This could be moved inside Devices class
         $device->experiment_type_id = $experiment_type->id;
         $device->save();
 
-        $deviceDriver = $device->driver();
+        try {
+            $deviceDriver->run($request->input('experiment_input'));
+        } catch(DeviceAlreadyRunningExperimentException $e) {
+            return $e->getResponse();
+        } catch(ParametersInvalidException $e) {
+            return $e->getResponse();
+        }
 
-        return $deviceDriver->run($request->input('input'));
+        return "success";
     }
 
     public function stop(DeviceRequest $request, $uuid) {

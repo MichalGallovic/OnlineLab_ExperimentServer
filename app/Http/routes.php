@@ -118,7 +118,7 @@ Route::group(['prefix' => 'api'], function() {
 	*	} 
 	* }
  	*/
-	Route::get('devices/{uuid}/run',['uses' => 'DeviceController@run']);
+	Route::post('devices/{uuid}/run',['uses' => 'DeviceController@run']);
 	/*
 	* STOP experiment
 	* with type, so we can also do some clean up, like stopping

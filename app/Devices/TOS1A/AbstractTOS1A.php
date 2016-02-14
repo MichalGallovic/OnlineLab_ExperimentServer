@@ -5,7 +5,10 @@ use Symfony\Component\Process\Process;
 use Symfony\Component\Process\ProcessBuilder;
 use Symfony\Component\Process\Exception\ProcessFailedException;
 use App\Events\ProcessWasRan;
-use Illuminate\Support\Facades\Validator;
+use App\Devices\Exceptions\DeviceNotConnectedException;
+use App\Devices\Exceptions\DeviceNotReadyException;
+use App\Devices\Exceptions\DeviceAlreadyRunningExperimentException;
+use App\Devices\Exceptions\ParametersInvalidException;
 
 abstract class AbstractTOS1A
 {
@@ -51,18 +54,24 @@ abstract class AbstractTOS1A
 		$this->device = $device;
 		$this->scriptsPath = base_path() . "/server_scripts/TOS1A";
 		$this->output = null;
+
+		// The whole meaning of this class it to operate
+		// on the physical device - so it is essential
+		// that it is connected
+		if(!$this->isConnected()) {
+			throw new DeviceNotConnectedException;
+		}
 	}
 
 	public function run($input) {
+		// We don't want to run multiple experiments
+		// at the same time, on once device
 		if($this->isRunningExperiment()) {
-			return $this->read();
+			throw new DeviceAlreadyRunningExperimentException;
 		}
 
-		$validator = Validator::make($input, $this->rules);
-
-		if($validator->fails()) {
-			return redirect()->back()->withErrors($validator);
-		}
+		// Validate the input
+		$this->validateInput($input);
 	}
 
 	public function stop() {
@@ -83,8 +92,6 @@ abstract class AbstractTOS1A
 		$arguments = [$this->device->port];
 
 		$this->process = $this->runProcess($path, $arguments);
-
-		event(new ProcessWasRan($this->process,$this->device));
 
 		$this->output = $this->parseOutput($this->process->getOutput());
 	}
@@ -145,8 +152,6 @@ abstract class AbstractTOS1A
 		$arguments = [$this->device->port];
 
 		$process = $this->runProcess($path, $arguments);
-
-		event(new ProcessWasRan($process, $this->device));
 	}
 
 	protected function getScriptPath($name) {
@@ -160,6 +165,8 @@ abstract class AbstractTOS1A
 		
 		$process = $builder->getProcess();
 		$process->run();
+
+		event(new ProcessWasRan($process,$this->device));
 
 		return $process;
 	}
