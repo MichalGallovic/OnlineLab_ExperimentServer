@@ -14,19 +14,45 @@ use App\Devices\Exceptions\DeviceNotConnectedException;
 use App\Devices\Exceptions\DeviceNotReadyException;
 use App\Devices\Exceptions\DeviceAlreadyRunningExperimentException;
 use App\Devices\Exceptions\ParametersInvalidException;
+use Illuminate\Database\Eloquent\ModelNotFoundException;
 
 class DeviceController extends Controller
 {
 
-    public function statusAll() {
+    public function statusAll(DeviceRequest $request) {
+        $devices = Device::all();
+        $statuses = [];
 
+        foreach ($devices as $device) {
+            $statuses []= [
+                "uuid"  =>  $device->uuid,
+                "status"=>  $device->status
+            ];
+        }
+
+        return response()->json($statuses);
+    }
+
+    public function statusOne(DeviceRequest $request, $uuid) {
+        try {
+            $device = Device::where('uuid',$uuid)->firstOrFail();
+        } catch(ModelNotFoundException $e) {
+            return $this->errorNotFound();
+        }
+
+        $deviceDriver = $device->driver();
+        $status = $deviceDriver->status();
+        
+        return response()->json([
+                "status" => $status
+            ]);
     }
 
     public function readOne(DeviceRequest $request, $uuid) {
     	try {
     		$device = Device::where('uuid',$uuid)->firstOrFail();
     	} catch(ModelNotFoundException $e) {
-    		// nieco
+            return $this->errorNotFound();
     	}
 
     	$deviceDriver = $device->driver();
@@ -42,7 +68,7 @@ class DeviceController extends Controller
         try {
             $device = Device::where('uuid', $uuid)->firstOrFail();
         } catch(ModelNotFoundException $e) {
-            // Return sth
+            return $this->errorNotFound();
         }
 
         // Experiment Type & Input validation
@@ -67,6 +93,12 @@ class DeviceController extends Controller
                 ],400);
         }
 
+
+
+        // This could be moved inside Devices class
+        $device->experiment_type_id = $experiment_type->id;
+        $device->save();
+
         // When everything looks fine it is
         // time to boot up classes for
         // 
@@ -76,10 +108,6 @@ class DeviceController extends Controller
             return $e->getResponse();
         }
 
-        // This could be moved inside Devices class
-        $device->experiment_type_id = $experiment_type->id;
-        $device->save();
-
         try {
             $deviceDriver->run($request->input('experiment_input'));
         } catch(DeviceAlreadyRunningExperimentException $e) {
@@ -88,7 +116,7 @@ class DeviceController extends Controller
             return $e->getResponse();
         }
 
-        return "success";
+        return $deviceDriver->read();
     }
 
     public function stop(DeviceRequest $request, $uuid) {
@@ -103,5 +131,11 @@ class DeviceController extends Controller
         $deviceDriver->stop();
         
         return $deviceDriver->read();
+    }
+
+    protected function errorNotFound() {
+        return response()->json([
+                "error" => "Device not found"
+            ],400);
     }
 }

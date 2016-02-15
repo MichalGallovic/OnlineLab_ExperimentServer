@@ -103,7 +103,8 @@ Route::group(['prefix' => 'api'], function() {
 	*	status: offline | online | experiment
 	* }
 	*/
-	Route::get('devices/{uuid}',['uses' => 'DeviceController@readOne']);
+	Route::get('devices/{uuid}',['uses' => 'DeviceController@statusOne']);
+	Route::get('devices/{uuid}/read',['uses' => 'DeviceController@readOne']);
 	/*
 	* RUN experiment on concrete device
 	* with params, with or without environment

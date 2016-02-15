@@ -8,6 +8,11 @@ use Illuminate\Auth\Access\AuthorizationException;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Symfony\Component\HttpKernel\Exception\HttpException;
 use Illuminate\Foundation\Exceptions\Handler as ExceptionHandler;
+use App\Devices\Exceptions\DeviceNotConnectedException;
+use App\Devices\Exceptions\DeviceAlreadyRunningExperimentException;
+use App\Devices\Exceptions\DeviceNotReadyException;
+use App\Devices\Exceptions\DriverDoesNotExistException;
+use App\Devices\Exceptions\ParametersInvalidException;
 
 class Handler extends ExceptionHandler
 {
@@ -21,6 +26,13 @@ class Handler extends ExceptionHandler
         HttpException::class,
         ModelNotFoundException::class,
         ValidationException::class,
+    ];
+
+    protected $deviceExceptions = [
+        DeviceAlreadyRunningExperimentException::class,
+        DeviceNotConnectedException::class,
+        DeviceNotReadyException::class,
+        ParametersInvalidException::class
     ];
 
     /**
@@ -45,6 +57,20 @@ class Handler extends ExceptionHandler
      */
     public function render($request, Exception $e)
     {
+        if($this->isDeviceException($e)) {
+            return $e->getResponse();
+        }
+
         return parent::render($request, $e);
+    }
+
+    protected function isDeviceException(Exception $e) {
+        foreach ($this->deviceExceptions as $type) {
+            if($e instanceof $type) {
+                return true;
+            }
+        }
+
+        return false;
     }
 }
