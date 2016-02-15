@@ -14,7 +14,6 @@ class EventServiceProvider extends ServiceProvider
      */
     protected $listen = [
         'App\Events\ProcessWasRan' => [
-            'App\Listeners\LogProcess',
             'App\Listeners\CheckSuccessfullRun'
         ],
     ];

@@ -21,7 +21,7 @@ class CreateDevicesTable extends Migration
             $table->integer('experiment_type_id')->unsigned()->nullable();
             $table->foreign("experiment_type_id")->references('id')->on('experiment_types');
             $table->string('port')->nullable();
-            $table->integer('attached_pid')->nullable();
+            $table->text('attached_pids')->nullable();
             $table->timestamps();
         });
     }
