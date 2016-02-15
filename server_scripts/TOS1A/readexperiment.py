@@ -42,7 +42,6 @@ ser = serial.Serial(port, 115200)
 
 try:
     file = open(filename,"w+")
-    file.write(str(os.getpid()) + "\n");
     file.close();
     while (now < end):
          file = open(filename, "a+")

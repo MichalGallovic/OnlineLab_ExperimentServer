@@ -10,6 +10,7 @@ use App\Devices\Exceptions\DeviceNotReadyException;
 use App\Devices\Exceptions\DeviceAlreadyRunningExperimentException;
 use App\Devices\Exceptions\ParametersInvalidException;
 
+
 abstract class AbstractTOS1A
 {
 	// These @vars could be inside config file
@@ -56,6 +57,7 @@ abstract class AbstractTOS1A
 		$this->device = $device;
 		$this->scriptsPath = base_path() . "/server_scripts/TOS1A";
 		$this->output = null;
+		$this->assignedOutput = null;
 		// The whole meaning of this class it to operate
 		// on the physical device - so it is essential
 		// that the device is connected
@@ -136,7 +138,11 @@ abstract class AbstractTOS1A
 	}
 
 	protected function assignOutputToArguments() {
-		$this->assignedOutput = array_combine($this->outputArguments, $this->output);
+		try {
+			$this->assignedOutput = array_combine($this->outputArguments, $this->output);
+		} catch(\Exception $e) {
+			$this->assignedOutput = null;
+		}
 	}
 
 	protected function isReady() {
@@ -273,72 +279,6 @@ abstract class AbstractTOS1A
 		];
 	}
 
-	protected function createStatusAndOutput($output, $process) {
-		$this->device->fresh();
-
-		if(!$process->isSuccessful()) {
-			$this->status = "offline";
-			return;
-		}
-
-		if(count($this->outputArguments) != count($output)) {
-			$this->status = "offline";
-			return;
-		}
-
-		if($this->device->status == "initializing_experiment") {
-			$this->status = "initializing_experiment";
-			return;
-		}
-
-		if($this->device->status == "experimenting") {
-			if(floatval($output["f_temp_int"]) == 0.00) {
-				// $this->status = ""
-			}
-		}
-
-		
-
-		$output = array_combine($this->outputArguments, $output);
-
-
-		if(floatval($output["f_temp_int"]) == 0.00) {
-			$this->changeStatus("ready");
-		}
-
-		// Otherwise the experiment is ON!!!
-		if($this->device->status == "experimenting") {
-			$this->output = $output;
-		}
-
-
-		// switch ($this->device->status) {
-		// 	case 'experimenting':
-		// 		$this->output = $output;
-		// 		break;
-		// 	case ""
-		// }
-
-
-
-		// if(count($this->outputArguments) != count($output)) {
-		// 	$this->status = "offline";
-		// } else {
-			
-
-		// 	if(floatval($output['f_temp_int']) == 0.00) {
-		// 		if($this->device->status == "initializing_experiment") {
-		// 			$this->status = "initializing_experiment";
-		// 			return;
-		// 		}
-		// 		$this->status = "ready";
-		// 	} else {
-		// 		$this->status = "experimenting";
-		// 		$this->output = $output;
-		// 	}
-		// }
-	}
-
 	protected function changeStatus($status) {
 		$this->device->status = $status;
 		$this->device->save();
@@ -350,8 +290,8 @@ abstract class AbstractTOS1A
 
 	public function status() {
 		// vola read a parsuje to do array odpovede
-		$output = $this->readOnce();
-
-
+		$this->getDeviceOutput();
+		$this->checkDeviceStatus();
+		return $this->status;
 	}
 }
