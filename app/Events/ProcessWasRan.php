@@ -7,7 +7,7 @@ use Illuminate\Queue\SerializesModels;
 use Illuminate\Contracts\Broadcasting\ShouldBroadcast;
 use Symfony\Component\Process\Process;
 use App\Device;
-
+use App\ProcessLog;
 /**
  * Event that is raised when
  * a process was run
@@ -18,6 +18,7 @@ class ProcessWasRan extends Event
 
     public $process;
     public $device;
+    public $process_log;
 
     /**
      * Create a new event instance.
@@ -26,8 +27,15 @@ class ProcessWasRan extends Event
      */
     public function __construct(Process $process, Device $device)
     {
+        // Log process to database
+        $logger = new ProcessLog;
+        $logger->device_id = $device->id;
+        $logger->command = $process->getCommandLine();
+        $logger->save();
+
         $this->process = $process;
         $this->device = $device;
+        $this->process_log = $logger;
     }
 
     /**

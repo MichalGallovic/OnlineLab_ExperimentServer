@@ -39,13 +39,10 @@ class CheckSuccessfullRun
     protected function logError($event) {
         // Create a verbal representation of a process error
         $exception = new ProcessFailedException($event->process);
-        // Get latest process log (the one that failed)
-        $loggedProcess = ProcessLog::where('device_id',$event->device->id)
-                        ->latest()->first();
 
         // Log error to database
         $errorLogger = new FailedProcessLog;
-        $errorLogger->process_log_id = $loggedProcess->id;
+        $errorLogger->process_log_id = $event->process_log->id;
         $errorLogger->reason = $exception->getMessage();
         $errorLogger->save();
 

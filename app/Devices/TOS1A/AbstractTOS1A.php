@@ -17,8 +17,9 @@ abstract class AbstractTOS1A
 
 	protected $scriptsPath;
 	protected $scriptNames = [
-		"readonce" => "readonce.py",
-		"stop"     => "stop.py"
+		"readonce" 		=> "readonce.py",
+		"stop"     		=> "stop.py",
+		"readexperiment"=> "readexperiment.py"
 	];
 
 	protected $outputArguments = [
@@ -44,8 +45,9 @@ abstract class AbstractTOS1A
 	protected $device;
 	protected $status;
 	protected $output;
+	protected $outputRetrieved;
 	protected $assignedOutput;
-	protected $runtime;
+
 	protected $validator;
 
 	private $process;
@@ -54,10 +56,9 @@ abstract class AbstractTOS1A
 		$this->device = $device;
 		$this->scriptsPath = base_path() . "/server_scripts/TOS1A";
 		$this->output = null;
-
 		// The whole meaning of this class it to operate
 		// on the physical device - so it is essential
-		// that it is connected
+		// that the device is connected
 		if(!$this->isConnected()) {
 			throw new DeviceNotConnectedException;
 		}
@@ -83,25 +84,33 @@ abstract class AbstractTOS1A
 	}
 
 	public function read() {
-		$this->readOnce();
+		$this->getDeviceOutput();
+		$this->checkDeviceStatus();
 		return $this->makeResponse();
 	}
 
-	public function readOnce() {
+	protected function readOnce() {
+
 		$path = $this->getScriptPath("readonce");
 		$arguments = [$this->device->port];
 
 		$this->process = $this->runProcess($path, $arguments);
+		$this->outputRetrieved = microtime(true)*1000;
 
 		$this->output = $this->parseOutput($this->process->getOutput());
 	}
 
-	protected function getOutput() {
+	public function getDeviceOutput() {
 		// Lazily instantiante the output
 		// if it was not obtained, get it
-		// upon first request
-		if(is_null($this->output)) {
+		// upon first request or if the value was
+		// retrieved before more than 200ms
+		$now = microtime(true)*1000;
+		$diffRetrieved = $now - $this->outputRetrieved;
+
+		if(is_null($this->output)  || ($diffRetrieved > 100)) {
 			$this->readOnce();
+			$this->assignOutputToArguments();
 		}
 
 		return $this->output;
@@ -112,18 +121,22 @@ abstract class AbstractTOS1A
 		// error in python script or bad
 		// port path or disconnected
 		// device
-		return empty($this->getOutput());
+		return empty($this->getDeviceOutput());
 	}
 
 	protected function isConnected() {
 		if($this->isOffline()) return false;
 
-		$this->assignedOutput = array_combine($this->outputArguments, $this->output);
+		$this->assignOutputToArguments();
 
 		// array_combine returns false, when number of 
 		// keys and values does not match, in our case
 		// that is when something went wrong
 		return is_array($this->assignedOutput);
+	}
+
+	protected function assignOutputToArguments() {
+		$this->assignedOutput = array_combine($this->outputArguments, $this->output);
 	}
 
 	protected function isReady() {
@@ -135,16 +148,19 @@ abstract class AbstractTOS1A
 	protected function isRunningExperiment() {
 		// device TOS1A responds with non zero filtered internal temperature
 		// when running experiment
+		return $this->isExperimenting() || $this->isStartingExperiment();
+	}
+
+	protected function isExperimenting() {
 		return ( $this->isConnected() && 
-			floatval($this->assignedOutput["f_temp_int"]) != 0.0 ) ||
-			$this->isStartingExperiment();
+			floatval($this->assignedOutput["f_temp_int"]) != 0.0 );
 	}
 
 	protected function isStartingExperiment() {
 		// When device is ready and pid is already attached
 		// it means the experiment is initializing
 		// (i.e. starting matlab takes some time)
-		return $this->isReady() && !is_null($this->device->attached_pid);
+		return $this->isReady() && !is_null($this->device->attached_pids);
 	}
 
 	protected function stopDevice() {
@@ -167,6 +183,25 @@ abstract class AbstractTOS1A
 		$process->run();
 
 		event(new ProcessWasRan($process,$this->device));
+
+		return $process;
+	}
+
+
+	// This method is temporary and only called where
+	// some error occur in calling processes
+	// i.e. killing children processes
+	// when forcing experiment to 
+	// stop
+	// Such occasion producesses lots of errors
+	// but works :) - have to fix it
+	protected function runProcessWithoutLog($path, $arguments = []) {
+		$builder = new ProcessBuilder();
+		$builder->setPrefix($path);
+		$builder->setArguments($arguments);
+		
+		$process = $builder->getProcess();
+		$process->run();
 
 		return $process;
 	}
@@ -213,7 +248,7 @@ abstract class AbstractTOS1A
 		return array_filter($output);
 	}
 
-	protected function makeResponse() {
+	public function checkDeviceStatus() {
 		if($this->isRunningExperiment()) {
 			$this->status = "experimenting";
 		} else if($this->isReady()) {
@@ -226,7 +261,9 @@ abstract class AbstractTOS1A
 		} else {
 			$this->status = "offline";
 		}
+	}
 
+	protected function makeResponse() {
 		return [
 			"device_uuid" => $this->device->uuid,
 			"device_type" => $this->device->device_type,

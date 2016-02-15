@@ -7,9 +7,13 @@ use Symfony\Component\Process\Exception\ProcessFailedException;
 use Illuminate\Support\Facades\Validator;
 use App\Devices\Exceptions\ParametersInvalidException;
 use App\Events\ProcessWasRan;
+use Illuminate\Support\Facades\Cache;
+
 
 class Matlab extends AbstractTOS1A implements DeviceDriverContract
 {
+
+	protected $simulationTime;
 
 	public function __construct($device) {
 		parent::__construct($device);
@@ -38,15 +42,45 @@ class Matlab extends AbstractTOS1A implements DeviceDriverContract
 		
 		$process =  $this->runExperiment($input);
 		
-		// process start reading and writing data from tos1a
-
-		$seconds = 0;
+		$experimentStarted = false;
+		$writingProcess = null;
+		$started = time();
+		$startedRunningExperiment = 0.00;
+		// We start the reading script only after the experiment
+		// starts running - that is after matlab initializes
+		// itself
+		// We figure that out by asking every sec
+		// if we get any different output than
+		// 0.00 from device
 		while($process->isRunning()) {
 			// check some stuff with timeout
-			// experiment initialization
+			$now = time();
+			
+			// if($now - $started > 5) break;
+
+			if(!$experimentStarted) {
+				if($this->isExperimenting()) {
+					$experimentStarted = true;
+					$startedRunningExperiment = time();
+					$writingProcess = $this->startReadingExperiment();
+					$this->attachPid($writingProcess->getPid());
+				}
+			} else {
+				if($now - $startedRunningExperiment > $this->simulationTime + 5) break;
+			}
+
+			usleep(1000000);
+
+		}
+
+		// We will wait until the process stops (if it started)
+		// because it is ran asynchronously
+		if(!is_null($writingProcess)) {
+			while($writingProcess->isRunning()) {}
 		}
 
 		event(new ProcessWasRan($process,$this->device));
+		event(new ProcessWasRan($writingProcess,$this->device));
 
 		$this->stop();
 		
@@ -57,10 +91,25 @@ class Matlab extends AbstractTOS1A implements DeviceDriverContract
 		$path = $this->getScriptPath("matlab");
 
 		// matlab starts 15s this should be automated
-		$timeout = $arguments["t_sim"] + 20;
+		$this->simulationTime = $arguments["t_sim"];
+		$timeout = $this->simulationTime + 20;
 		$arguments = $this->prepareArguments($arguments);
 		$process = $this->runProcessAsync($path, $arguments, $timeout);
 		$this->attachPid($process->getPid());
+		return $process;
+	}
+
+	protected function startReadingExperiment() {
+		$path = $this->getScriptPath("readexperiment");
+		$arguments = [
+			$this->device->port,
+			$this->device->uuid,
+			$this->simulationTime,
+			200
+		];
+
+		$process = $this->runProcessAsync($path, $arguments);
+
 		return $process;
 	}
 
@@ -92,26 +141,35 @@ class Matlab extends AbstractTOS1A implements DeviceDriverContract
 
 	public function stop() {
 		// Stops matlab and cleans up all processes
-		if(!is_null($this->device->attached_pid)) {
-			$this->stopExperimentRunner($this->device->attached_pid);
+		if(!is_null($this->device->attached_pids)) {
+			$this->stopExperimentRunner();
 		}
 		// Stop the experiment on the physical device
 		$this->stopDevice();
 		// Detaches the main process pid from db
-		$this->detachPid();
+		$this->detachPids();
 	}
 
 	protected function attachPid($pid) {
-		$this->device->attached_pid = $pid;
+		$this->device->fresh();
+		$pids = json_decode($this->device->attached_pids);
+		$pids []= $pid;
+		$this->device->attached_pids = json_encode($pids);
 		$this->device->save();
 	}
 
-	protected function detachPid() {
-		$this->attachPid(null);
+	protected function detachPids() {
+		$this->device->attached_pids = null;
+		$this->device->save();
 	}
 
-	protected function stopExperimentRunner($pid) {
-		$pids = $this->getAllChildProcesses($pid);
+	protected function stopExperimentRunner() {
+		$this->device->fresh();
+		$attached_pids = json_decode($this->device->attached_pids);
+		$pids = [];
+		foreach ($attached_pids as $pid) {
+			$pids = array_merge($this->getAllChildProcesses($pid), $pids);
+		}
 
 		// Kill all processes created for experiment running
 		foreach ($pids as $pid) {
@@ -119,7 +177,7 @@ class Matlab extends AbstractTOS1A implements DeviceDriverContract
 				"-TERM",
 				$pid
 			];
-			$process = $this->runProcess("kill",$arguments);
+			$process = $this->runProcessWithoutLog("kill",$arguments);
 		}
 	}
 
