@@ -13,6 +13,7 @@ use App\Devices\Exceptions\DeviceAlreadyRunningExperimentException;
 use App\Devices\Exceptions\DeviceNotReadyException;
 use App\Devices\Exceptions\DriverDoesNotExistException;
 use App\Devices\Exceptions\ParametersInvalidException;
+use App\Devices\Exceptions\ExperimentTimedOutException;
 
 class Handler extends ExceptionHandler
 {
@@ -32,7 +33,8 @@ class Handler extends ExceptionHandler
         DeviceAlreadyRunningExperimentException::class,
         DeviceNotConnectedException::class,
         DeviceNotReadyException::class,
-        ParametersInvalidException::class
+        ParametersInvalidException::class,
+        ExperimentTimedOutException::class
     ];
 
     /**

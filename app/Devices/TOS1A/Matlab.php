@@ -4,11 +4,10 @@ use App\Devices\Contracts\DeviceDriverContract;
 use Symfony\Component\Process\Process;
 use Symfony\Component\Process\Exception\ProcessTimedOutException;
 use Symfony\Component\Process\Exception\ProcessFailedException;
-use Illuminate\Support\Facades\Validator;
 use App\Devices\Exceptions\ParametersInvalidException;
 use App\Events\ProcessWasRan;
 use Illuminate\Support\Facades\Cache;
-
+use App\Devices\Exceptions\ExperimentTimedOutException;
 
 class Matlab extends AbstractTOS1A implements DeviceDriverContract
 {
@@ -46,6 +45,7 @@ class Matlab extends AbstractTOS1A implements DeviceDriverContract
 		$writingProcess = null;
 		$started = time();
 		$startedRunningExperiment = 0.00;
+		$experimentTimedOut = false;
 		// We start the reading script only after the experiment
 		// starts running - that is after matlab initializes
 		// itself
@@ -62,11 +62,14 @@ class Matlab extends AbstractTOS1A implements DeviceDriverContract
 				if($this->isExperimenting()) {
 					$experimentStarted = true;
 					$startedRunningExperiment = time();
-					$writingProcess = $this->startReadingExperiment();
+					$writingProcess = $this->startReadingExperiment($this->simulationTime);
 					$this->attachPid($writingProcess->getPid());
 				}
 			} else {
-				if($now - $startedRunningExperiment > $this->simulationTime + 5) break;
+				if($now - $startedRunningExperiment > $this->simulationTime + 10) {
+					$experimentTimedOut = true;
+					break;
+				}
 			}
 
 			usleep(1000000);
@@ -83,6 +86,10 @@ class Matlab extends AbstractTOS1A implements DeviceDriverContract
 		event(new ProcessWasRan($writingProcess,$this->device));
 
 		$this->stop();
+
+		if($experimentTimedOut) {
+			throw new ExperimentTimedOutException;
+		}
 		
 		return $this->read();
 	}
@@ -99,20 +106,6 @@ class Matlab extends AbstractTOS1A implements DeviceDriverContract
 		return $process;
 	}
 
-	protected function startReadingExperiment() {
-		$path = $this->getScriptPath("readexperiment");
-		$arguments = [
-			$this->device->port,
-			$this->device->uuid,
-			$this->simulationTime,
-			200
-		];
-
-		$process = $this->runProcessAsync($path, $arguments);
-
-		return $process;
-	}
-
 	protected function prepareArguments($arguments) {
 		$input = "";
 
@@ -125,78 +118,5 @@ class Matlab extends AbstractTOS1A implements DeviceDriverContract
 			"--port=" . $this->device->port,
 			"--input=" . $input
 		];
-	}
-
-	protected function validateInput($input) {
-		if(!is_array($input)) {
-			throw new ParametersInvalidException("Experiment Arguments");
-		}
-
-		$validator = Validator::make($input, $this->rules);
-
-		if($validator->fails()) {
-			throw new ParametersInvalidException($validator->messages());
-		}
-	}
-
-	public function stop() {
-		// Stops matlab and cleans up all processes
-		if(!is_null($this->device->attached_pids)) {
-			$this->stopExperimentRunner();
-		}
-		// Stop the experiment on the physical device
-		$this->stopDevice();
-		// Detaches the main process pid from db
-		$this->detachPids();
-	}
-
-	protected function attachPid($pid) {
-		$this->device->fresh();
-		$pids = json_decode($this->device->attached_pids);
-		$pids []= $pid;
-		$this->device->attached_pids = json_encode($pids);
-		$this->device->save();
-	}
-
-	protected function detachPids() {
-		$this->device->attached_pids = null;
-		$this->device->save();
-	}
-
-	protected function stopExperimentRunner() {
-		$this->device->fresh();
-		$attached_pids = json_decode($this->device->attached_pids);
-		$pids = [];
-		foreach ($attached_pids as $pid) {
-			$pids = array_merge($this->getAllChildProcesses($pid), $pids);
-		}
-
-		// Kill all processes created for experiment running
-		foreach ($pids as $pid) {
-			$arguments = [
-				"-TERM",
-				$pid
-			];
-			$process = $this->runProcessWithoutLog("kill",$arguments);
-		}
-	}
-
-	/**
-	 * Method uses pstree to get a tree of all
-	 * subprocesses created by a process
-	 * defined with PID
-	 *
-	 * It returns array with all processes created
-	 * for python+experiment runner and also
-	 * contains the pid of parent process
-	 * @return array
-	 */
-	protected function getAllChildProcesses($pid) {
-		$process = new Process("pstree -p ". $pid ." | grep -o '([0-9]\+)' | grep -o '[0-9]\+'");
-		 
-		$process->run();
-		$allProcesses = array_filter(explode("\n",$process->getOutput()));
-
-		return $allProcesses;
 	}
 }

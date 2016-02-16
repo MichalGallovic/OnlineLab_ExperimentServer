@@ -9,14 +9,16 @@ use App\Devices\Exceptions\DeviceNotConnectedException;
 use App\Devices\Exceptions\DeviceNotReadyException;
 use App\Devices\Exceptions\DeviceAlreadyRunningExperimentException;
 use App\Devices\Exceptions\ParametersInvalidException;
+use App\Devices\AbstractDevice;
+use Illuminate\Support\Facades\Validator;
 
-
-abstract class AbstractTOS1A
+abstract class AbstractTOS1A extends AbstractDevice
 {
 	// These @vars could be inside config file
 	// and initialized in constructor
 
 	protected $scriptsPath;
+
 	protected $scriptNames = [
 		"readonce" 		=> "readonce.py",
 		"stop"     		=> "stop.py",
@@ -42,19 +44,15 @@ abstract class AbstractTOS1A
 	];
 
 	protected $rules;
-
-	protected $device;
+	
 	protected $status;
 	protected $output;
 	protected $outputRetrieved;
 	protected $assignedOutput;
 
-	protected $validator;
-
-	private $process;
 
 	public function __construct($device) {
-		$this->device = $device;
+		parent::__construct($device);
 		$this->scriptsPath = base_path() . "/server_scripts/TOS1A";
 		$this->output = null;
 		$this->assignedOutput = null;
@@ -77,12 +75,16 @@ abstract class AbstractTOS1A
 		$this->validateInput($input);
 	}
 
+	
 	public function stop() {
-		// run stop process + additional implementation
-		// inside of each of concrete implementations
-		// stop process that is running per matlab how ?
-
+		// Stops matlab and cleans up all processes
+		if(!is_null($this->device->attached_pids)) {
+			$this->stopExperimentRunner();
+		}
+		// Stop the experiment on the physical device
 		$this->stopDevice();
+		// Detaches the main process pid from db
+		$this->detachPids();
 	}
 
 	public function read() {
@@ -91,15 +93,22 @@ abstract class AbstractTOS1A
 		return $this->makeResponse();
 	}
 
+	public function status() {
+		// vola read a parsuje to do array odpovede
+		$this->getDeviceOutput();
+		$this->checkDeviceStatus();
+		return $this->status;
+	}
+
 	protected function readOnce() {
 
 		$path = $this->getScriptPath("readonce");
 		$arguments = [$this->device->port];
 
-		$this->process = $this->runProcess($path, $arguments);
+		$process = $this->runProcess($path, $arguments);
 		$this->outputRetrieved = microtime(true)*1000;
 
-		$this->output = $this->parseOutput($this->process->getOutput());
+		$this->output = $this->parseOutput($process->getOutput());
 	}
 
 	public function getDeviceOutput() {
@@ -137,29 +146,10 @@ abstract class AbstractTOS1A
 		return is_array($this->assignedOutput);
 	}
 
-	protected function assignOutputToArguments() {
-		try {
-			$this->assignedOutput = array_combine($this->outputArguments, $this->output);
-		} catch(\Exception $e) {
-			$this->assignedOutput = null;
-		}
-	}
-
 	protected function isReady() {
 		// device TOS1A responds with zero filtered internal temperature
 		// if is connected and not running experiment
 		return $this->isConnected() && floatval($this->assignedOutput["f_temp_int"]) == 0.0;
-	}
-
-	protected function isRunningExperiment() {
-		// device TOS1A responds with non zero filtered internal temperature
-		// when running experiment
-		return $this->isExperimenting() || $this->isStartingExperiment();
-	}
-
-	protected function isExperimenting() {
-		return ( $this->isConnected() && 
-			floatval($this->assignedOutput["f_temp_int"]) != 0.0 );
 	}
 
 	protected function isStartingExperiment() {
@@ -169,76 +159,30 @@ abstract class AbstractTOS1A
 		return $this->isReady() && !is_null($this->device->attached_pids);
 	}
 
+	protected function isExperimenting() {
+		return ( $this->isConnected() && 
+			floatval($this->assignedOutput["f_temp_int"]) != 0.0 );
+	}
+
+	protected function isRunningExperiment() {
+		// device TOS1A responds with non zero filtered internal temperature
+		// when running experiment
+		return $this->isExperimenting() || $this->isStartingExperiment();
+	}
+
+	protected function assignOutputToArguments() {
+		try {
+			$this->assignedOutput = array_combine($this->outputArguments, $this->output);
+		} catch(\Exception $e) {
+			$this->assignedOutput = null;
+		}
+	}
+
 	protected function stopDevice() {
 		$path = $this->getScriptPath("stop");
 		$arguments = [$this->device->port];
 
 		$process = $this->runProcess($path, $arguments);
-	}
-
-	protected function getScriptPath($name) {
-		return $this->scriptsPath . "/" . $this->scriptNames[$name];
-	}
-
-	protected function runProcess($path, $arguments = []) {
-		$builder = new ProcessBuilder();
-		$builder->setPrefix($path);
-		$builder->setArguments($arguments);
-		
-		$process = $builder->getProcess();
-		$process->run();
-
-		event(new ProcessWasRan($process,$this->device));
-
-		return $process;
-	}
-
-
-	// This method is temporary and only called where
-	// some error occur in calling processes
-	// i.e. killing children processes
-	// when forcing experiment to 
-	// stop
-	// Such occasion producesses lots of errors
-	// but works :) - have to fix it
-	protected function runProcessWithoutLog($path, $arguments = []) {
-		$builder = new ProcessBuilder();
-		$builder->setPrefix($path);
-		$builder->setArguments($arguments);
-		
-		$process = $builder->getProcess();
-		$process->run();
-
-		return $process;
-	}
-
-	protected function runProcessAsync($path, $arguments = [], $timeout = 20) {
-		$builder = new ProcessBuilder();
-		$builder->setPrefix($path);
-		$builder->setArguments($arguments);
-		
-		$process = $builder->getProcess();
-		$process->setTimeout($timeout);
-		$process->start();
-
-		return $process;
-	}
-
-	protected function runProcessForceAsync($path, $arguments = []) {
-		// $builder = new ProcessBuilder();
-		// $builder->setPrefix($path);
-
-		// // $arguments []= "> /dev/null";
-		// // $arguments []= "2> /dev/null";
-		// // $arguments []= "&";
-
-		// $builder->setArguments($arguments);
-		
-		// $process = $builder->getProcess();
-		$process = new Process($path . " > /dev/null 2> /dev/null &");
-		$process->run();
-
-		return $process;
 	}
 
 	protected function parseOutput($output) {
@@ -279,19 +223,29 @@ abstract class AbstractTOS1A
 		];
 	}
 
-	protected function changeStatus($status) {
-		$this->device->status = $status;
-		$this->device->save();
+	protected function startReadingExperiment($time) {
+		$path = $this->getScriptPath("readexperiment");
+		$arguments = [
+			$this->device->port,
+			$this->device->uuid,
+			$time,
+			200
+		];
+
+		$process = $this->runProcessAsync($path, $arguments);
+
+		return $process;
 	}
 
-	public function readExperiment() {
-		// read contents of a file
-	}
+	protected function validateInput($input) {
+		if(!is_array($input)) {
+			throw new ParametersInvalidException("Experiment Arguments");
+		}
 
-	public function status() {
-		// vola read a parsuje to do array odpovede
-		$this->getDeviceOutput();
-		$this->checkDeviceStatus();
-		return $this->status;
+		$validator = Validator::make($input, $this->rules);
+
+		if($validator->fails()) {
+			throw new ParametersInvalidException($validator->messages());
+		}
 	}
 }
