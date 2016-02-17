@@ -41,7 +41,11 @@ class Device extends Model
     	return $deviceManager->$method();
     }
 
-    public function experiment() {
-        return $this->belongsTo(ExperimentType::class,'experiment_type_id');
+    public function experimentTypes() {
+        return $this->belongsToMany(ExperimentType::class,"experiments");
+    }
+
+    public function type() {
+        return $this->belongsTo(DeviceType::class,'device_type');
     }
 }

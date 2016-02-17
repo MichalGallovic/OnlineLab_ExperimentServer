@@ -5,13 +5,17 @@ use Illuminate\Database\Seeder;
 class DatabaseSeeder extends Seeder{
 
 	protected $tables = [
+		'device_types',
 		'devices',
 		'experiment_types',
+		'experiments'
 	];
 
 	protected $seeders = [
 		'ExperimentTypesTableSeeder',
-		'DevicesTableSeeder'
+		'DeviceTypesTableSeeder',
+		'DevicesTableSeeder',
+		'ExperimentsTableSeeder'
 	];
 
 	public function run()

@@ -58,10 +58,18 @@ class DeviceController extends Controller
     	$deviceDriver = $device->driver();
 
     	return $deviceDriver->read();
-    	// checks if status has correct format
-    	// json etc...
+    }
 
-    	// return $status;
+    public function readExperiment(DeviceRequest $request, $uuid) {
+        try {
+            $device = Device::where('uuid',$uuid)->firstOrFail();
+        } catch(ModelNotFoundException $e) {
+            return $this->errorNotFound();
+        }
+
+        $deviceDriver = $device->driver();
+
+        // return $deviceDriver->
     }
 
     public function run(DeviceRequest $request, $uuid) {
