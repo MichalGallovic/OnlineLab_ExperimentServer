@@ -105,6 +105,7 @@ Route::group(['prefix' => 'api'], function() {
 	*/
 	Route::get('devices/{uuid}',['uses' => 'DeviceController@statusOne']);
 	Route::get('devices/{uuid}/read',['uses' => 'DeviceController@readOne']);
+	// Route::get('devices/{uuid}/readexperiment',['uses' => 'DeviceController@readExperiment'])
 	/*
 	* RUN experiment on concrete device
 	* with params, with or without environment

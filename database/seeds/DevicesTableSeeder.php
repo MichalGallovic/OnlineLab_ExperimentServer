@@ -2,7 +2,7 @@
 
 use Illuminate\Database\Seeder;
 use App\ExperimentType;
-
+use App\DeviceType;
 class DevicesTableSeeder extends Seeder
 {
     /**
@@ -12,23 +12,13 @@ class DevicesTableSeeder extends Seeder
      */
     public function run()
     {
-    	$uuid = 12345;
+
+    	$tos1a = DeviceType::where("name","tos1a")->first();
 
     	App\Device::create([
-    		"uuid" => $uuid++,
+    		"uuid" => 12345,
 			"port" => "/dev/ttyACM0",
-			"device_type" => "tos1a"
+			"device_type_id" => $tos1a->id
 		]);
-
-    	$experiments = ExperimentType::all();
-   
-    	foreach ($experiments as $experiment) {
-    		App\Device::create([
-    			"uuid" => $uuid++,
-    			"port" => "/dev/ttyACM0",
-    			"device_type" => "tos1a",
-    			"experiment_type_id" => $experiment->id
-    		]);	
-    	}
     }
 }
