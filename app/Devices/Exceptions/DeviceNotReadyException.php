@@ -1,10 +1,13 @@
-<?php namespace App\Devices\Exceptions;
+<?php 
+
+namespace App\Devices\Exceptions;
+
+use App\Classes\Traits\ApiRespondable;
 
 class DeviceNotReadyException extends \Exception {
 
+	use ApiRespondable;
+
 	public function getResponse() {
-		return response()->json([
-				"error" => "Device not ready"
-			],400);
-	}
+		return $this->errorForbidden("Device not ready");
 }

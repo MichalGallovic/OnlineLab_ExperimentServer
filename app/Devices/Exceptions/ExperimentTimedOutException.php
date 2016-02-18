@@ -1,10 +1,14 @@
-<?php namespace App\Devices\Exceptions;
+<?php 
+
+namespace App\Devices\Exceptions;
+
+use App\Classes\Traits\ApiRespondable;
 
 class ExperimentTimedOutException extends \Exception {
 
+	use ApiRespondable;
+
 	public function getResponse() {
-		return response()->json([
-				"error" => "Experiment timed out (took longer than expected)"
-			],400);
+		return $this->errorForbidden("Experiment timed out (took longer than expected)");
 	}
 }

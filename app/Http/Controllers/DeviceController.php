@@ -15,9 +15,12 @@ use App\Devices\Exceptions\DeviceNotReadyException;
 use App\Devices\Exceptions\DeviceAlreadyRunningExperimentException;
 use App\Devices\Exceptions\ParametersInvalidException;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
+use App\Classes\Traits\ApiRespondable;
 
 class DeviceController extends Controller
 {
+
+    use ApiRespondable;
 
     public function statusAll(DeviceRequest $request) {
         $devices = Device::all();
@@ -30,7 +33,7 @@ class DeviceController extends Controller
             ];
         }
 
-        return response()->json($statuses);
+        return $this->respondWithArray($statuses);
     }
 
     public function statusOne(DeviceRequest $request, $uuid) {
@@ -43,7 +46,7 @@ class DeviceController extends Controller
         $deviceDriver = $device->driver();
         $status = $deviceDriver->status();
         
-        return response()->json([
+        return $this->respondWithArray([
                 "status" => $status
             ]);
     }
@@ -52,7 +55,7 @@ class DeviceController extends Controller
     	try {
     		$device = Device::where('uuid',$uuid)->firstOrFail();
     	} catch(ModelNotFoundException $e) {
-            return $this->errorNotFound();
+            return $this->errorNotFound("Device not found");
     	}
 
     	$deviceDriver = $device->driver();
@@ -76,35 +79,31 @@ class DeviceController extends Controller
         try {
             $device = Device::where('uuid', $uuid)->firstOrFail();
         } catch(ModelNotFoundException $e) {
-            return $this->errorNotFound();
+            return $this->errorNotFound("Device not found");
         }
 
         // Experiment Type & Input validation
         if(!$request->has('experiment_type')) {
             // Add some kind of error response
-            return response()->json([
-                    "error" => "Experiment type not defined"
-                ], 400);
+            return $this->errorWrongArgs("Experiment type not defined");
         }
 
         try {
             $type = strtolower($request->input('experiment_type'));
-            $experiment_type = ExperimentType::where('name', $type)->first();
+            $experimentType = ExperimentType::where('name', $type)->firstOrFail();
         } catch(ModelNotFoundException $e) {
-            // Return sth
+            return $this->errorForbidden("Experiment type: '" . $type . "'" . " does not exist");
         }
 
         if(!$request->has('experiment_input')) {
             // Add some kind of error response
-            return response()->json([
-                    "error" => "Experiment arguments not specified"
-                ],400);
+            return $this->errorWrongArgs("Experiment arguments not specified");
         }
 
 
 
         // This could be moved inside Devices class
-        $device->experiment_type_id = $experiment_type->id;
+        $device->currentExperimentType()->associate($experimentType);
         $device->save();
 
         // When everything looks fine it is
@@ -139,11 +138,5 @@ class DeviceController extends Controller
         $deviceDriver->stop();
         
         return $deviceDriver->read();
-    }
-
-    protected function errorNotFound() {
-        return response()->json([
-                "error" => "Device not found"
-            ],400);
     }
 }

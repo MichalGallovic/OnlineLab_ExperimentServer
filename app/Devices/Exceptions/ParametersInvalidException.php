@@ -1,7 +1,13 @@
-<?php namespace App\Devices\Exceptions;
+<?php 
+
+namespace App\Devices\Exceptions;
+
+use App\Classes\Traits\ApiRespondable;
 
 class ParametersInvalidException extends \Exception
 {
+	use ApiRespondable;
+
 	protected $messages;
 
 	public function __construct($messages) {
@@ -9,8 +15,6 @@ class ParametersInvalidException extends \Exception
 	}
 
 	public function getResponse() {
-		return response()->json([
-				"error" => $this->messages
-			],400);
+		return $this->errorWrongArgs($this->messages);
 	}
 }
