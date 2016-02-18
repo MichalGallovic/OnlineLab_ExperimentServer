@@ -34,7 +34,8 @@ class Handler extends ExceptionHandler
         DeviceNotConnectedException::class,
         DeviceNotReadyException::class,
         ParametersInvalidException::class,
-        ExperimentTimedOutException::class
+        ExperimentTimedOutException::class,
+        DriverDoesNotExistException::class
     ];
 
     /**

@@ -18,7 +18,7 @@ class Device extends Model
 
         // when experiment type is null, there is no experiment
         //  running on the device
-        if(is_null($this->experiment)) {
+        if(is_null($this->currentExperimentType)) {
             // when $experimentType is null, we are just checking
             // the state of the device
             $experimentType = is_null($experimentType) ? "loop" : $experimentType;
@@ -26,13 +26,13 @@ class Device extends Model
             // otherwise, we use the experiment is running,
             // so we will instantiate the concrete type
             // of device driver implementation
-            $experimentType = $this->experiment->name;
+            $experimentType = $this->currentExperimentType->name;
         }
 
         // we create the method name, so we can instantiate the 
         // correct DeviceDriverContract implementation
         // i.e. createTOS1AMatlab
-    	$method = 'create' . Str::upper($this->device_type) . Str::ucfirst($experimentType) . 'Driver';
+    	$method = 'create' . Str::upper($this->type->name) . Str::ucfirst($experimentType) . 'Driver';
 
     	if(!method_exists($deviceManager, $method)) {
             throw new DriverDoesNotExistException;
@@ -45,7 +45,11 @@ class Device extends Model
         return $this->belongsToMany(ExperimentType::class,"experiments");
     }
 
+    public function currentExperimentType() {
+        return $this->belongsTo(ExperimentType::class, "current_experiment_type_id");
+    }
+
     public function type() {
-        return $this->belongsTo(DeviceType::class,'device_type');
+        return $this->belongsTo(DeviceType::class,'device_type_id');
     }
 }
