@@ -16,6 +16,12 @@ class EventServiceProvider extends ServiceProvider
         'App\Events\ProcessWasRan' => [
             'App\Listeners\CheckSuccessfullRun'
         ],
+        'App\Events\ExperimentStarted' => [
+            'App\Listeners\LogStartedExperiment'
+        ],
+        'App\Events\ExperimentFinished' => [
+            'App\Listeners\LogFinishedExperiment'
+        ]
     ];
 
     /**

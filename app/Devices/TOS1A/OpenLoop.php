@@ -19,10 +19,12 @@ class OpenLoop extends AbstractTOS1A implements DeviceDriverContract
 		];
 	}
 
-	public function run($input) {
-		parent::run($input);
+	public function run($input, $requestedBy) {
+		parent::run($input, $requestedBy);
 		
 		$process =  $this->runExperiment($input);
+
+		$this->experimentStartedRunning = time();
 		
 		$writingProcess = $this->startReadingExperiment($this->simulationTime);
 		
