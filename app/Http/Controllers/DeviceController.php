@@ -1,4 +1,4 @@
-<?php
+<?php 
 
 namespace App\Http\Controllers;
 
@@ -16,19 +16,26 @@ use App\Devices\Exceptions\DeviceAlreadyRunningExperimentException;
 use App\Devices\Exceptions\ParametersInvalidException;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
 use App\Classes\Traits\ApiRespondable;
+use App\Classes\Repositories\DeviceDbRepository;
+use App\Http\Requests\DeviceRunRequest;
 
 class DeviceController extends Controller
 {
-
     use ApiRespondable;
 
+    protected $deviceRepository;
+
+    public function __construct(DeviceDbRepository $deviceRepo) {
+        $this->deviceRepository = $deviceRepo;
+    }
+
     public function statusAll(DeviceRequest $request) {
-        $devices = Device::all();
+        $devices = $this->deviceRepository->getAll();
         $statuses = [];
 
         foreach ($devices as $device) {
             $statuses []= [
-                "uuid"  =>  $device->uuid,
+                "id"  =>  $device->id,
                 "status"=>  $device->status
             ];
         }
@@ -36,11 +43,11 @@ class DeviceController extends Controller
         return $this->respondWithArray($statuses);
     }
 
-    public function statusOne(DeviceRequest $request, $uuid) {
+    public function statusOne(DeviceRequest $request, $id) {
         try {
-            $device = Device::where('uuid',$uuid)->firstOrFail();
+            $device = $this->deviceRepository->getById($id);
         } catch(ModelNotFoundException $e) {
-            return $this->errorNotFound();
+            return $this->errorNotFound("Device not found");
         }
 
         $deviceDriver = $device->driver();
@@ -51,9 +58,9 @@ class DeviceController extends Controller
             ]);
     }
 
-    public function readOne(DeviceRequest $request, $uuid) {
+    public function readOne(DeviceRequest $request, $id) {
     	try {
-    		$device = Device::where('uuid',$uuid)->firstOrFail();
+    		$device = $this->deviceRepository->getById($id);
     	} catch(ModelNotFoundException $e) {
             return $this->errorNotFound("Device not found");
     	}
@@ -75,17 +82,12 @@ class DeviceController extends Controller
         // return $deviceDriver->
     }
 
-    public function run(DeviceRequest $request, $uuid) {
+    public function run(DeviceRunRequest $request, $id) 
+    {
         try {
-            $device = Device::where('uuid', $uuid)->firstOrFail();
+            $device = $this->deviceRepository->getById($id);
         } catch(ModelNotFoundException $e) {
             return $this->errorNotFound("Device not found");
-        }
-
-        // Experiment Type & Input validation
-        if(!$request->has('experiment_type')) {
-            // Add some kind of error response
-            return $this->errorWrongArgs("Experiment type not defined");
         }
 
         try {
@@ -95,35 +97,27 @@ class DeviceController extends Controller
             return $this->errorForbidden("Experiment type: '" . $type . "'" . " does not exist");
         }
 
-        if(!$request->has('experiment_input')) {
-            // Add some kind of error response
-            return $this->errorWrongArgs("Experiment arguments not specified");
-        }
 
+        // create experiment log
+        // associate experiment with this log
+        // send id to server API
 
-
-        // This could be moved inside Devices class
-        $device->currentExperimentType()->associate($experimentType);
-        $device->save();
 
         // When everything looks fine it is
         // time to boot up classes for
-        // 
-        try {
-            $deviceDriver = $device->driver();
-        } catch(DeviceNotConnectedException $e) {
-            return $e->getResponse();
-        }
+        // specific device
+        $deviceDriver = $device->driver($experimentType->name);
 
-        try {
-            $deviceDriver->run($request->input('experiment_input'));
-        } catch(DeviceAlreadyRunningExperimentException $e) {
-            return $e->getResponse();
-        } catch(ParametersInvalidException $e) {
-            return $e->getResponse();
-        }
+        // opravit aby ked nieco bezi iny clovek nemohol prepisat v tabulke co bezi
+        $device->currentExperimentType()->associate($experimentType)->save();
 
-        return $deviceDriver->read();
+        // $this->experimentRepository->create($experimentType, $device, $request->input("experiment_input"));
+
+        $deviceDriver->run($request->input("experiment_input"));
+
+        $device->detachCurrentExperiment();
+
+        return $this->respondWithSuccess("Experiment ran successfully");
     }
 
     public function stop(DeviceRequest $request, $uuid) {
@@ -136,7 +130,12 @@ class DeviceController extends Controller
         $deviceDriver = $device->driver();
 
         $deviceDriver->stop();
-        
+
+        $device->detachCurrentExperiment();
+    
+        // get current running experiment
+        // make output with the use of it
+
         return $deviceDriver->read();
     }
 }

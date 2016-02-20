@@ -14,13 +14,13 @@ class CreateDevicesTable extends Migration
     {
         Schema::create('devices', function (Blueprint $table) {
             $table->increments('id');
-            $table->string('uuid');
             $table->string('status')->default("offline");
             $table->integer('device_type_id')->unsigned();
             $table->foreign('device_type_id')->references('id')->on('device_types');
             $table->integer('current_experiment_type_id')->unsigned()->nullable();
             $table->foreign('current_experiment_type_id')->references('id')->on('experiment_types');
             $table->string('port')->nullable();
+            $table->text("attached_pids")->nullable();
             $table->timestamps();
         });
     }
