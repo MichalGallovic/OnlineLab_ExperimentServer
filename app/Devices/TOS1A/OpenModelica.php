@@ -2,7 +2,7 @@
 
 use App\Devices\Contracts\DeviceDriverContract;
 
-class Openmodelica extends AbstractTOS1A implements DeviceDriverContract
+class OpenModelica extends AbstractTOS1A implements DeviceDriverContract
 {
 	public function run($input) {
 

@@ -3,10 +3,10 @@
 use App\Devices\Contracts\DeviceDriverContract;
 use App\Events\ProcessWasRan;
 
-class Loop extends AbstractTOS1A implements DeviceDriverContract
+class OpenLoop extends AbstractTOS1A implements DeviceDriverContract
 {
-	public function __construct($device) {
-		parent::__construct($device);
+	public function __construct($device,$experimentType) {
+		parent::__construct($device,$experimentType);
 		$this->scriptNames["loop"] = "run.py";
 		
 		// Definijng input arguments and rules

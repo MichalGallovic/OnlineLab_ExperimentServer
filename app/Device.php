@@ -13,26 +13,28 @@ class Device extends Model
      * @param  $experimentType = matlab|scilab|openmodelica|loop|null
      * @return DeviceDriverContract - concrete implementation
      */
-    public function driver($experimentType = null) {
-    	$deviceManager = new DeviceManager($this);
-
+    public function driver($experimentType = null) 
+    {
         // when experiment type is null, there is no experiment
         //  running on the device
-        if(is_null($this->currentExperimentType)) {
+        $type = $this->currentExperimentType;
+        if(is_null($type)) {
             // when $experimentType is null, we are just checking
             // the state of the device
-            $experimentType = is_null($experimentType) ? "loop" : $experimentType;
+            $experimentType = is_null($experimentType) ? "openloop" : $experimentType;
         } else {
             // otherwise, we use the experiment is running,
             // so we will instantiate the concrete type
             // of device driver implementation
-            $experimentType = $this->currentExperimentType->name;
+            $experimentType = $type->name;
         }
 
         // we create the method name, so we can instantiate the 
         // correct DeviceDriverContract implementation
         // i.e. createTOS1AMatlab
     	$method = 'create' . Str::upper($this->type->name) . Str::ucfirst($experimentType) . 'Driver';
+
+        $deviceManager = new DeviceManager($this, $type);
 
     	if(!method_exists($deviceManager, $method)) {
             throw new DriverDoesNotExistException;
@@ -47,6 +49,25 @@ class Device extends Model
 
     public function currentExperimentType() {
         return $this->belongsTo(ExperimentType::class, "current_experiment_type_id");
+    }
+
+    /**
+     * Get current experiment type name
+     * @return mixed [string|null]
+     */
+    public function currentExperimentName() {
+        $type = $this->currentExperimentType;
+
+        if(is_null($type)) {
+            return null;
+        }
+
+        return $type->name;
+    }
+
+    public function detachCurrentExperiment() {
+        $this->current_experiment_type_id = null;
+        $this->save();
     }
 
     public function type() {

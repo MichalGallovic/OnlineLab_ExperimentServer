@@ -11,72 +11,6 @@
 |
 */
 
-use Symfony\Component\Process\Process;
-use Symfony\Component\Process\Exception\ProcessFailedException;
-// use App\Device;
-// Route::get('/', function () {
-//     return view('welcome');
-// });
-
-
-// Route::get('/api/devices/{uuid}/run', function($uuid) {
-// 	try {
-// 		$device = Device::where('uuid',$uuid)->firstOrFail();
-
-// 	} catch(Exception $e) {
-// 		return "Sorry no such device here :(";
-// 	}
-// 	$process = new Process('/var/www/run.py > /dev/null 2>/dev/null &');
-// 	$process->run();
-
-// 	$process = new Process('/home/vagrant/Desktop/run.py > /dev/null 2>/dev/null &');
-// 	$process->run();
-
-// 	$process = new Process('/home/vagrant/api/server_scripts/createfile_works.py '  . "/dev/ttyACM0" . " " . $uuid . " 15" .' > /dev/null 2>/dev/null &');
-// 	$process->run();
-
-// 	if(!$process->isSuccessful()) {
-// 		throw new ProcessFailedException($process);
-// 	}
-// });
-// Route::get('/api/devices/{uuid}/stop', function($uuid) {
-// 	// try {
-// 	// 	$device = Device::where('uuid',$uuid)->firstOrFail();
-
-// 	// } catch(Exception $e) {
-// 	// 	return "Sorry no such device here :(";
-// 	// }
-// 	$process = new Process('/home/vagrant/Desktop/stop.py');
-// 	$process->run();
-
-// 	return $process->getOutput();
-// });
-
-// Route::get('/api/devices/{uuid}/read', function($uuid) {
-// 	// try {
-// 	// 	$device = Device::where('uuid',$uuid)->firstOrFail();
-
-// 	// } catch(Exception $e) {
-// 	// 	return "Sorry no such device here :(";
-// 	// }
-// 	// $process = new Process('cat /home/vagrant/api/files/' . $uuid);
-// 	// $process->run();
-
-
-// 	return $process->getOutput();
-// });
-
-
-/*
-|--------------------------------------------------------------------------
-| Application Routes
-|--------------------------------------------------------------------------
-|
-| This route group applies the "web" middleware group to every route
-| it contains. The "web" middleware group is defined in your HTTP
-| kernel and includes session state, CSRF protection, and more.
-|
-*/
 
 Route::get('testik', function() {
 	$process = new Process("pstree -p 1 | grep -o '([0-9]\+)' | grep -o '[0-9]\+'");
@@ -90,7 +24,7 @@ Route::group(['prefix' => 'api'], function() {
 	* GET JSON OF ALL EXPERIMENTS
 	* [
 	*	{
-	*		uuid : 123441,
+	*		id : 123441,
 	*		status: offline | online | experiment
 	*	},
 	*	...
@@ -103,9 +37,9 @@ Route::group(['prefix' => 'api'], function() {
 	*	status: offline | online | experiment
 	* }
 	*/
-	Route::get('devices/{uuid}',['uses' => 'DeviceController@statusOne']);
-	Route::get('devices/{uuid}/read',['uses' => 'DeviceController@readOne']);
-	// Route::get('devices/{uuid}/readexperiment',['uses' => 'DeviceController@readExperiment'])
+	Route::get('devices/{id}',['uses' => 'DeviceController@statusOne']);
+	Route::get('devices/{id}/read',['uses' => 'DeviceController@readOne']);
+	// Route::get('devices/{id}/readexperiment',['uses' => 'DeviceController@readExperiment'])
 	/*
 	* RUN experiment on concrete device
 	* with params, with or without environment
@@ -120,7 +54,7 @@ Route::group(['prefix' => 'api'], function() {
 	*	} 
 	* }
  	*/
-	Route::post('devices/{uuid}/run',['uses' => 'DeviceController@run']);
+	Route::post('devices/{id}/run',['uses' => 'DeviceController@run']);
 	/*
 	* STOP experiment
 	* with type, so we can also do some clean up, like stopping
@@ -130,7 +64,7 @@ Route::group(['prefix' => 'api'], function() {
 	*	type: matlab|modelica|scilab|loop 
 	* }
  	*/
-	Route::get('devices/{uuid}/stop',['uses' => 'DeviceController@stop']);
+	Route::get('devices/{id}/stop',['uses' => 'DeviceController@stop']);
 
 
 });

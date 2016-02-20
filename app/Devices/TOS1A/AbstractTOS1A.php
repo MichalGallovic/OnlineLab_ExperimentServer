@@ -11,6 +11,7 @@ use App\Devices\Exceptions\DeviceAlreadyRunningExperimentException;
 use App\Devices\Exceptions\ParametersInvalidException;
 use App\Devices\AbstractDevice;
 use Illuminate\Support\Facades\Validator;
+use App\ExperimentType;
 
 abstract class AbstractTOS1A extends AbstractDevice
 {
@@ -51,8 +52,8 @@ abstract class AbstractTOS1A extends AbstractDevice
 	protected $assignedOutput;
 
 
-	public function __construct($device) {
-		parent::__construct($device);
+	public function __construct($device, $experimentType) {
+		parent::__construct($device, $experimentType);
 		$this->scriptsPath = base_path() . "/server_scripts/TOS1A";
 		$this->output = null;
 		$this->assignedOutput = null;
@@ -62,29 +63,6 @@ abstract class AbstractTOS1A extends AbstractDevice
 		if(!$this->isConnected()) {
 			throw new DeviceNotConnectedException;
 		}
-	}
-
-	public function run($input) {
-		// We don't want to run multiple experiments
-		// at the same time, on once device
-		if($this->isRunningExperiment()) {
-			throw new DeviceAlreadyRunningExperimentException;
-		}
-
-		// Validate the input
-		$this->validateInput($input);
-	}
-
-	
-	public function stop() {
-		// Stops matlab and cleans up all processes
-		if(!is_null($this->device->attached_pids)) {
-			$this->stopExperimentRunner();
-		}
-		// Stop the experiment on the physical device
-		$this->stopDevice();
-		// Detaches the main process pid from db
-		$this->detachPids();
 	}
 
 	public function read() {
@@ -164,7 +142,7 @@ abstract class AbstractTOS1A extends AbstractDevice
 			floatval($this->assignedOutput["f_temp_int"]) != 0.0 );
 	}
 
-	protected function isRunningExperiment() {
+	public function isRunningExperiment() {
 		// device TOS1A responds with non zero filtered internal temperature
 		// when running experiment
 		return $this->isExperimenting() || $this->isStartingExperiment();
@@ -176,13 +154,6 @@ abstract class AbstractTOS1A extends AbstractDevice
 		} catch(\Exception $e) {
 			$this->assignedOutput = null;
 		}
-	}
-
-	protected function stopDevice() {
-		$path = $this->getScriptPath("stop");
-		$arguments = [$this->device->port];
-
-		$process = $this->runProcess($path, $arguments);
 	}
 
 	protected function parseOutput($output) {
@@ -200,24 +171,24 @@ abstract class AbstractTOS1A extends AbstractDevice
 
 	public function checkDeviceStatus() {
 		if($this->isRunningExperiment()) {
-			$this->status = "experimenting";
+			$this->status = self::EXPERIMENTING;
 		} else if($this->isReady()) {
-			$this->status = "ready";
+			$this->status = self::READY;
 			// When device is ready, we don't necesarilly
 			// need to sent the output, but it could
 			// be set on again just, by commenting
 			// this out
 			$this->assignedOutput = null;
 		} else {
-			$this->status = "offline";
+			$this->status = self::OFFLINE;
 		}
 	}
 
 	protected function makeResponse() {
+
 		return [
-			"device_uuid" => $this->device->uuid,
-			"device_type" => $this->device->device_type,
-			"experiment_type"   => $this->device->experiment->name,
+			"device_type" => $this->device->type->name,
+			"experiment_type"   => $this->device->currentExperimentName(),
 			"status" => $this->status,
 			"output" => $this->assignedOutput
 		];
@@ -225,6 +196,7 @@ abstract class AbstractTOS1A extends AbstractDevice
 
 	protected function startReadingExperiment($time) {
 		$path = $this->getScriptPath("readexperiment");
+		
 		$arguments = [
 			$this->device->port,
 			$this->device->uuid,
@@ -235,17 +207,5 @@ abstract class AbstractTOS1A extends AbstractDevice
 		$process = $this->runProcessAsync($path, $arguments);
 
 		return $process;
-	}
-
-	protected function validateInput($input) {
-		if(!is_array($input)) {
-			throw new ParametersInvalidException("Experiment Arguments");
-		}
-
-		$validator = Validator::make($input, $this->rules);
-
-		if($validator->fails()) {
-			throw new ParametersInvalidException($validator->messages());
-		}
 	}
 }

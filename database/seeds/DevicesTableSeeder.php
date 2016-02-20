@@ -16,7 +16,6 @@ class DevicesTableSeeder extends Seeder
     	$tos1a = DeviceType::where("name","tos1a")->first();
 
     	App\Device::create([
-    		"uuid" => 12345,
 			"port" => "/dev/ttyACM0",
 			"device_type_id" => $tos1a->id
 		]);

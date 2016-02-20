@@ -8,14 +8,15 @@ use App\Devices\Exceptions\ParametersInvalidException;
 use App\Events\ProcessWasRan;
 use Illuminate\Support\Facades\Cache;
 use App\Devices\Exceptions\ExperimentTimedOutException;
+use App\ExperimentType;
 
 class Matlab extends AbstractTOS1A implements DeviceDriverContract
 {
 
 	protected $simulationTime;
 
-	public function __construct($device) {
-		parent::__construct($device);
+	public function __construct($device,$experimentType) {
+		parent::__construct($device,$experimentType);
 		$this->scriptNames["matlab"] = "matlab/run.py";
 		
 		// Definijng input arguments and rules

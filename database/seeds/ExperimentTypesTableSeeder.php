@@ -13,7 +13,7 @@ class ExperimentTypesTableSeeder extends Seeder
     public function run()
     {
         ExperimentType::create([
-        	"name" => "loop"
+        	"name" => "openloop"
         ]);
         ExperimentType::create([
         	"name" => "matlab"

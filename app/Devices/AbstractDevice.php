@@ -3,15 +3,67 @@
 use Symfony\Component\Process\ProcessBuilder;
 use Symfony\Component\Process\Process;
 use App\Events\ProcessWasRan;
+use Illuminate\Support\Facades\Validator;
 
 abstract class AbstractDevice {
 
 	protected $device;
+	protected $experimentType;
 
-	public function __construct($device) {
+	const OFFLINE = "offline";
+	const READY = "ready";
+	const EXPERIMENTING = "experimenting";
+
+	public function __construct($device, $experimentType) {
 		$this->device = $device;
+		$this->experimentType = $experimentType;
 	}
 
+	public function run($input) {
+		// We don't want to run multiple experiments
+		// at the same time, on once device
+		if($this->isRunningExperiment()) {
+			throw new DeviceAlreadyRunningExperimentException;
+		}
+
+		// Validate the input
+		$this->validateInput($input);
+
+
+		event(new ExperimentStarted($this->device, $this->experimentType, $input));
+	}
+
+	public function stop() {
+		// Stops matlab and cleans up all processes
+		if(!is_null($this->device->attached_pids)) {
+			$this->stopExperimentRunner();
+		}
+		// Stop the experiment on the physical device
+		$this->stopDevice();
+		// Detaches the main process pid from db
+		$this->detachPids();
+	}
+
+	public function stopDevice() {
+		$path = $this->getScriptPath("stop");
+		$arguments = [$this->device->port];
+
+		$process = $this->runProcess($path, $arguments);
+	}
+
+	protected function validateInput($input) {
+		if(!is_array($input)) {
+			$arguments = array_keys($this->rules);
+			$arguments = implode(" ,", $arguments);
+			throw new ParametersInvalidException("Wrong input arguments, expected: [" . $arguments . "]");
+		}
+
+		$validator = Validator::make($input, $this->rules);
+
+		if($validator->fails()) {
+			throw new ParametersInvalidException($validator->messages());
+		}
+	}
 
 
 	protected function attachPid($pid) {
