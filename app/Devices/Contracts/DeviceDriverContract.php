@@ -4,7 +4,7 @@ interface DeviceDriverContract
 {
 	public function read();
 
-	public function run($input);
+	public function run($input, $requestedBy);
 	public function isRunningExperiment();
 	
 	public function stop();

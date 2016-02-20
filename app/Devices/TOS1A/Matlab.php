@@ -37,15 +37,14 @@ class Matlab extends AbstractTOS1A implements DeviceDriverContract
 		];
 	}
 
-	public function run($input) {
-		parent::run($input);
+	public function run($input, $requestedBy) {
+		parent::run($input,$requestedBy);
 		
 		$process =  $this->runExperiment($input);
 		
 		$experimentStarted = false;
 		$writingProcess = null;
 		$started = time();
-		$startedRunningExperiment = 0.00;
 		$experimentTimedOut = false;
 		// We start the reading script only after the experiment
 		// starts running - that is after matlab initializes
@@ -62,12 +61,12 @@ class Matlab extends AbstractTOS1A implements DeviceDriverContract
 			if(!$experimentStarted) {
 				if($this->isExperimenting()) {
 					$experimentStarted = true;
-					$startedRunningExperiment = time();
+					$this->experimentStartedRunning = time();
 					// $writingProcess = $this->startReadingExperiment($this->simulationTime);
 					// $this->attachPid($writingProcess->getPid());
 				}
 			} else {
-				if($now - $startedRunningExperiment > $this->simulationTime + 10) {
+				if($now - $this->experimentStartedRunning > $this->simulationTime + 10) {
 					$experimentTimedOut = true;
 					break;
 				}

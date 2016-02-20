@@ -8,7 +8,8 @@ class DatabaseSeeder extends Seeder{
 		'device_types',
 		'devices',
 		'experiment_types',
-		'experiments'
+		'experiments',
+		'experiment_logs'
 	];
 
 	protected $seeders = [

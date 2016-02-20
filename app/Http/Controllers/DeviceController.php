@@ -18,6 +18,7 @@ use Illuminate\Database\Eloquent\ModelNotFoundException;
 use App\Classes\Traits\ApiRespondable;
 use App\Classes\Repositories\DeviceDbRepository;
 use App\Http\Requests\DeviceRunRequest;
+use App\Http\Requests\DevDeviceRunRequest;
 
 class DeviceController extends Controller
 {
@@ -82,7 +83,7 @@ class DeviceController extends Controller
         // return $deviceDriver->
     }
 
-    public function run(DeviceRunRequest $request, $id) 
+    public function run(DevDeviceRunRequest $request, $id) 
     {
         try {
             $device = $this->deviceRepository->getById($id);
@@ -98,38 +99,30 @@ class DeviceController extends Controller
         }
 
 
-        // create experiment log
-        // associate experiment with this log
-        // send id to server API
-
-
         // When everything looks fine it is
         // time to boot up classes for
         // specific device
         $deviceDriver = $device->driver($experimentType->name);
 
-        // opravit aby ked nieco bezi iny clovek nemohol prepisat v tabulke co bezi
-        $device->currentExperimentType()->associate($experimentType)->save();
+        // $deviceDriver->run($request->input("experiment_input"), $request->input("requested_by"));
+        
+        // @TODO after dev fix it
+        $deviceDriver->run($request->input("experiment_input"), 1);
 
-        // $this->experimentRepository->create($experimentType, $device, $request->input("experiment_input"));
-
-        $deviceDriver->run($request->input("experiment_input"));
-
-        $device->detachCurrentExperiment();
 
         return $this->respondWithSuccess("Experiment ran successfully");
     }
 
-    public function stop(DeviceRequest $request, $uuid) {
+    public function stop(DeviceRequest $request, $id) {
         try {
-            $device = Device::where('uuid', $uuid)->firstOrFail();
+            $device = $this->deviceRepository->getById($id);
         } catch(ModelNotFoundException $e) {
-
+            return $this->errorNotFound("Device not found");
         }
 
         $deviceDriver = $device->driver();
 
-        $deviceDriver->stop();
+        $deviceDriver->forceStop();
 
         $device->detachCurrentExperiment();
     

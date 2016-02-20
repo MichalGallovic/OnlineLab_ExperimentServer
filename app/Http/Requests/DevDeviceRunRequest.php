@@ -5,7 +5,7 @@ namespace App\Http\Requests;
 use App\Http\Requests\Request;
 use App\Classes\Traits\ApiRespondable;
 
-class DeviceRunRequest extends Request
+class DevDeviceRunRequest extends Request
 {
 
     use ApiRespondable;
@@ -29,8 +29,7 @@ class DeviceRunRequest extends Request
     {
         return [
             "experiment_type"   =>  "required|string|min:1",
-            "experiment_input"  =>  "required|array",
-            "requested_by"      =>  "required"
+            "experiment_input"  =>  "required|array"
         ];
     }
 

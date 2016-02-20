@@ -4,11 +4,15 @@ use Symfony\Component\Process\ProcessBuilder;
 use Symfony\Component\Process\Process;
 use App\Events\ProcessWasRan;
 use Illuminate\Support\Facades\Validator;
+use App\Events\ExperimentStarted;
+use App\Events\ExperimentFinished;
 
 abstract class AbstractDevice {
 
 	protected $device;
 	protected $experimentType;
+	protected $experimentLogger;
+	protected $experimentStartedRunning;
 
 	const OFFLINE = "offline";
 	const READY = "ready";
@@ -19,7 +23,7 @@ abstract class AbstractDevice {
 		$this->experimentType = $experimentType;
 	}
 
-	public function run($input) {
+	public function run($input, $requestedBy) {
 		// We don't want to run multiple experiments
 		// at the same time, on once device
 		if($this->isRunningExperiment()) {
@@ -29,12 +33,14 @@ abstract class AbstractDevice {
 		// Validate the input
 		$this->validateInput($input);
 
-
-		event(new ExperimentStarted($this->device, $this->experimentType, $input));
+		// Returning from event listener
+		// the first registered is
+		// returning logger
+		$this->experimentLogger = event(new ExperimentStarted($this->device, $this->experimentType, $input, $requestedBy))[0];
 	}
 
-	public function stop() {
-		// Stops matlab and cleans up all processes
+	public function stop($force = false) {
+		// Stops experiment and cleans up all processes
 		if(!is_null($this->device->attached_pids)) {
 			$this->stopExperimentRunner();
 		}
@@ -42,6 +48,20 @@ abstract class AbstractDevice {
 		$this->stopDevice();
 		// Detaches the main process pid from db
 		$this->detachPids();
+
+		if($this->isLoggingExperiment()) {
+			$duration = $this->getExperimentDuration();
+			event(new ExperimentFinished($this->experimentLogger, $duration));
+		}
+	}
+
+	public function forceStop() {
+		$this->stop();
+		dd($this->experimentLogger);
+		if($this->isLoggingExperiment()) {
+			$this->experimentLogger->stopped = true;
+			$this->experimentLogger->save();
+		}
 	}
 
 	public function stopDevice() {
@@ -49,6 +69,10 @@ abstract class AbstractDevice {
 		$arguments = [$this->device->port];
 
 		$process = $this->runProcess($path, $arguments);
+	}
+
+	public function getExperimentDuration() {
+		return is_null($this->experimentStartedRunning) ? 0 : $this->experimentStartedRunning;
 	}
 
 	protected function validateInput($input) {
@@ -77,6 +101,10 @@ abstract class AbstractDevice {
 	protected function detachPids() {
 		$this->device->attached_pids = null;
 		$this->device->save();
+	}
+
+	protected function isLoggingExperiment() {
+		return !is_null($this->experimentLogger);
 	}
 
 	protected function stopExperimentRunner() {
