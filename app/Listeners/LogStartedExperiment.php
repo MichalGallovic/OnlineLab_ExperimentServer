@@ -37,6 +37,7 @@ class LogStartedExperiment
         $logger->requested_by = $event->requestedBy;
         $logger->save();
 
-        return $logger;
+        $device = $event->device;
+        $device->currentExperimentLogger()->associate($logger)->save();
     }
 }

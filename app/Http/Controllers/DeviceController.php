@@ -19,6 +19,7 @@ use App\Classes\Traits\ApiRespondable;
 use App\Classes\Repositories\DeviceDbRepository;
 use App\Http\Requests\DeviceRunRequest;
 use App\Http\Requests\DevDeviceRunRequest;
+use Illuminate\Support\Facades\App;
 
 class DeviceController extends Controller
 {
@@ -104,11 +105,16 @@ class DeviceController extends Controller
         // specific device
         $deviceDriver = $device->driver($experimentType->name);
 
-        // $deviceDriver->run($request->input("experiment_input"), $request->input("requested_by"));
-        
-        // @TODO after dev fix it
-        $deviceDriver->run($request->input("experiment_input"), 1);
+        // This is for development
+        if (App::environment() == 'local') {
+            $deviceDriver->run($request->input("experiment_input"), 1);
+        } else {
+            $deviceDriver->run($request->input("experiment_input"), $request->input("requested_by"));
+        }
 
+        if(!$deviceDriver->experimentWasSuccessful()) {
+            return $this->respondWithSuccess("Experiment was force stopped");
+        }
 
         return $this->respondWithSuccess("Experiment ran successfully");
     }
@@ -124,11 +130,10 @@ class DeviceController extends Controller
 
         $deviceDriver->forceStop();
 
-        $device->detachCurrentExperiment();
-    
-        // get current running experiment
-        // make output with the use of it
+        if(!$deviceDriver->wasForceStopped()) {
+            return $this->errorInternalError("Experiment did not stop");
+        }
 
-        return $deviceDriver->read();
+        return $this->respondWithSuccess("Experiment stopped successfully");
     }
 }

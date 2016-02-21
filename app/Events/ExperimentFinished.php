@@ -12,17 +12,15 @@ class ExperimentFinished extends Event
     use SerializesModels;
 
     public $experimentLogger;
-    public $experimentDuration;
 
     /**
      * Create a new event instance.
      *
      * @return void
      */
-    public function __construct(ExperimentLog $experimentLogger, $experimentDuration)
+    public function __construct(ExperimentLog $experimentLogger)
     {
         $this->experimentLogger = $experimentLogger;
-        $this->experimentDuration = $experimentDuration;
     }
 
     /**

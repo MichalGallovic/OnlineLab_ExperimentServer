@@ -6,13 +6,17 @@ use App\Events\ProcessWasRan;
 use Illuminate\Support\Facades\Validator;
 use App\Events\ExperimentStarted;
 use App\Events\ExperimentFinished;
+use Carbon\Carbon;
+use App\Devices\Exceptions\DeviceNotRunningExperimentException;
 
 abstract class AbstractDevice {
 
 	protected $device;
 	protected $experimentType;
-	protected $experimentLogger;
 	protected $experimentStartedRunning;
+	protected $experimentSuccessful;
+
+	protected $path;
 
 	const OFFLINE = "offline";
 	const READY = "ready";
@@ -21,6 +25,7 @@ abstract class AbstractDevice {
 	public function __construct($device, $experimentType) {
 		$this->device = $device;
 		$this->experimentType = $experimentType;
+		$this->experimentSuccessful = false;
 	}
 
 	public function run($input, $requestedBy) {
@@ -36,7 +41,7 @@ abstract class AbstractDevice {
 		// Returning from event listener
 		// the first registered is
 		// returning logger
-		$this->experimentLogger = event(new ExperimentStarted($this->device, $this->experimentType, $input, $requestedBy))[0];
+		event(new ExperimentStarted($this->device, $this->experimentType, $input, $requestedBy));
 	}
 
 	public function stop($force = false) {
@@ -49,19 +54,41 @@ abstract class AbstractDevice {
 		// Detaches the main process pid from db
 		$this->detachPids();
 
-		if($this->isLoggingExperiment()) {
-			$duration = $this->getExperimentDuration();
-			event(new ExperimentFinished($this->experimentLogger, $duration));
+		if($this->isLoggingExperiment() && !$this->wasForceStopped()) {
+			event(new ExperimentFinished($this->device->currentExperimentLogger));
+			$this->experimentSuccessful = true;
 		}
+
+		$this->device->detachCurrentExperiment();
 	}
 
 	public function forceStop() {
-		$this->stop();
-		dd($this->experimentLogger);
-		if($this->isLoggingExperiment()) {
-			$this->experimentLogger->stopped = true;
-			$this->experimentLogger->save();
+		if(is_null($this->device->currentExperimentLogger)) {
+			throw new DeviceNotRunningExperimentException;
 		}
+
+		if($this->isLoggingExperiment()) {
+			$logger = $this->device->currentExperimentLogger;
+			$logger->stopped_at = Carbon::now();
+			$logger->save();
+		}
+		
+		// Stops experiment and cleans up all processes
+		if(!is_null($this->device->attached_pids)) {
+			$this->stopExperimentRunner();
+		}
+		// Stop the experiment on the physical device
+		$this->stopDevice();
+		// Detaches the main process pid from db
+		$this->detachPids();
+	}
+
+	public function experimentWasSuccessful() {
+		return $this->experimentSuccessful;
+	}
+
+	public function wasForceStopped() {
+		return !is_null($this->device->currentExperimentLogger->stopped_at);
 	}
 
 	public function stopDevice() {
@@ -72,7 +99,7 @@ abstract class AbstractDevice {
 	}
 
 	public function getExperimentDuration() {
-		return is_null($this->experimentStartedRunning) ? 0 : $this->experimentStartedRunning;
+		return is_null($this->experimentStartedRunning) ? 0 : time() - $this->experimentStartedRunning;
 	}
 
 	protected function validateInput($input) {
@@ -104,14 +131,15 @@ abstract class AbstractDevice {
 	}
 
 	protected function isLoggingExperiment() {
-		return !is_null($this->experimentLogger);
+		$this->device = $this->device->fresh();
+		return !is_null($this->device->currentExperimentLogger);
 	}
 
 	protected function stopExperimentRunner() {
-		$this->device->fresh();
+		$this->device = $this->device->fresh();
 		$attached_pids = json_decode($this->device->attached_pids);
 		$pids = [];
-		foreach ($attached_pids as $pid) {
+		foreach ((array)$attached_pids as $pid) {
 			$pids = array_merge($this->getAllChildProcesses($pid), $pids);
 		}
 
@@ -190,6 +218,43 @@ abstract class AbstractDevice {
 		$process->start();
 
 		return $process;
+	}
+
+	protected function runExperiment($arguments) {
+		$timeout = $this->prepareExperiment($arguments);
+		$arguments = $this->prepareArguments($arguments);
+		$process = $this->runProcess($this->path, $arguments, $timeout);
+		return $process;
+	}
+
+	protected function runExperimentAsync($arguments) {
+		$timeout = $this->prepareExperiment($arguments);
+		$arguments = $this->prepareArguments($arguments);
+		$process = $this->runProcessAsync($this->path, $arguments, $timeout);
+		$this->attachPid($process->getPid());
+		return $process;
+	}
+
+	protected function prepareExperiment($arguments) {
+		$this->path = $this->getScriptPath($this->experimentType->name);
+
+		// matlab starts 15s this should be automated
+		$this->simulationTime = $arguments["t_sim"];
+		$timeout = $this->simulationTime + 20;
+	}
+
+	protected function prepareArguments($arguments) {
+		$input = "";
+
+		foreach ($arguments as $key => $value) {
+			$input .= $key . ":" . $value . ",";
+		}
+		$input = substr($input, 0, strlen($input) - 1);
+
+		return [
+			"--port=" . $this->device->port,
+			"--input=" . $input
+		];
 	}
 
 	// protected function runProcessForceAsync($path, $arguments = []) {
