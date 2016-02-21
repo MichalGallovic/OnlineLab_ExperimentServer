@@ -199,7 +199,7 @@ abstract class AbstractTOS1A extends AbstractDevice
 		
 		$arguments = [
 			$this->device->port,
-			$this->device->uuid,
+			$this->device->id,
 			$time,
 			200
 		];

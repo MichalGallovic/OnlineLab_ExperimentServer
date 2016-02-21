@@ -9,7 +9,9 @@ class DatabaseSeeder extends Seeder{
 		'devices',
 		'experiment_types',
 		'experiments',
-		'experiment_logs'
+		'experiment_logs',
+		'process_logs',
+		'failed_process_logs'
 	];
 
 	protected $seeders = [

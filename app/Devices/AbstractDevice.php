@@ -1,4 +1,6 @@
-<?php namespace App\Devices;
+<?php 
+
+namespace App\Devices;
 
 use Symfony\Component\Process\ProcessBuilder;
 use Symfony\Component\Process\Process;
@@ -8,6 +10,7 @@ use App\Events\ExperimentStarted;
 use App\Events\ExperimentFinished;
 use Carbon\Carbon;
 use App\Devices\Exceptions\DeviceNotRunningExperimentException;
+use App\Devices\Exceptions\DeviceAlreadyRunningExperimentException;
 
 abstract class AbstractDevice {
 
@@ -44,7 +47,7 @@ abstract class AbstractDevice {
 		event(new ExperimentStarted($this->device, $this->experimentType, $input, $requestedBy));
 	}
 
-	public function stop($force = false) {
+	public function stop() {
 		// Stops experiment and cleans up all processes
 		if(!is_null($this->device->attached_pids)) {
 			$this->stopExperimentRunner();
@@ -81,6 +84,8 @@ abstract class AbstractDevice {
 		$this->stopDevice();
 		// Detaches the main process pid from db
 		$this->detachPids();
+
+		$this->device->detachCurrentExperiment();
 	}
 
 	public function experimentWasSuccessful() {
@@ -88,6 +93,10 @@ abstract class AbstractDevice {
 	}
 
 	public function wasForceStopped() {
+		if(is_null($this->device->currentExperimentLogger)) {
+			return true;
+		}
+		
 		return !is_null($this->device->currentExperimentLogger->stopped_at);
 	}
 

@@ -6,6 +6,7 @@ use Illuminate\Database\Eloquent\Model;
 use App\Devices\DeviceManager;
 use Illuminate\Support\Str;
 use App\Devices\Exceptions\DriverDoesNotExistException;
+use App\Devices\Exceptions\ExperimentNotSupportedException;
 
 class Device extends Model
 {
@@ -27,6 +28,12 @@ class Device extends Model
             // so we will instantiate the concrete type
             // of device driver implementation
             $experimentType = $type->name;
+        }
+
+        $availableExperiments = $this->experimentTypes->lists("name")->toArray();
+
+        if(!in_array(strtolower($experimentType), $availableExperiments)) {
+            throw new ExperimentNotSupportedException($experimentType);
         }
 
         // we create the method name, so we can instantiate the 
