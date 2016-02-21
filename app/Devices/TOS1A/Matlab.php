@@ -62,8 +62,8 @@ class Matlab extends AbstractTOS1A implements DeviceDriverContract
 				if($this->isExperimenting()) {
 					$experimentStarted = true;
 					$this->experimentStartedRunning = time();
-					$writingProcess = $this->startReadingExperiment($this->simulationTime);
-					$this->attachPid($writingProcess->getPid());
+					// $writingProcess = $this->startReadingExperiment($this->simulationTime);
+					// $this->attachPid($writingProcess->getPid());
 				}
 			} else {
 				if($now - $this->experimentStartedRunning > $this->simulationTime + 10) {
@@ -78,12 +78,12 @@ class Matlab extends AbstractTOS1A implements DeviceDriverContract
 
 		// We will wait until the process stops (if it started)
 		// because it is ran asynchronously
-		if(!is_null($writingProcess)) {
-			while($writingProcess->isRunning()) {}
-		}
+		// if(!is_null($writingProcess)) {
+		// 	while($writingProcess->isRunning()) {}
+		// }
 
 		event(new ProcessWasRan($process,$this->device));
-		event(new ProcessWasRan($writingProcess,$this->device));
+		// event(new ProcessWasRan($writingProcess,$this->device));
 
 		$this->stop();
 
