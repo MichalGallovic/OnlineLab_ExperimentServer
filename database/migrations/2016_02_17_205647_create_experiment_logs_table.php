@@ -18,10 +18,10 @@ class CreateExperimentLogsTable extends Migration
             $table->foreign('experiment_id')->references('id')->on('experiments');
             $table->text('input_arguments');
             $table->string('output_path');
-            $table->integer('duration')->nullable();
             $table->integer("requested_by");
-            $table->boolean("stopped")->default(false);
-            $table->timestamps();
+            $table->dateTime("finished_at")->nullable()->default(null);
+            $table->dateTime("stopped_at")->nullable()->default(null);
+            $table->nullableTimestamps();
         });
     }
 

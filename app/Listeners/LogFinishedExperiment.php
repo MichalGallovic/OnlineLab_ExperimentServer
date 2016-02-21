@@ -5,7 +5,7 @@ namespace App\Listeners;
 use App\Events\ExperimentFinished;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Contracts\Queue\ShouldQueue;
-
+use Carbon\Carbon;
 class LogFinishedExperiment
 {
     /**
@@ -29,10 +29,7 @@ class LogFinishedExperiment
 
         $logger = $event->experimentLogger;
 
-        $logger->duration = $event->experimentDuration;
+        $logger->finished_at = Carbon::now();
         $logger->save();
-
-        $logger->experiment->device->detachCurrentExperiment();
-
     }
 }

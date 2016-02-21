@@ -40,7 +40,7 @@ class Matlab extends AbstractTOS1A implements DeviceDriverContract
 	public function run($input, $requestedBy) {
 		parent::run($input,$requestedBy);
 		
-		$process =  $this->runExperiment($input);
+		$process =  $this->runExperimentAsync($input);
 		
 		$experimentStarted = false;
 		$writingProcess = null;
@@ -90,33 +90,5 @@ class Matlab extends AbstractTOS1A implements DeviceDriverContract
 		if($experimentTimedOut) {
 			throw new ExperimentTimedOutException;
 		}
-		
-		return $this->read();
-	}
-
-	protected function runExperiment($arguments) {
-		$path = $this->getScriptPath("matlab");
-
-		// matlab starts 15s this should be automated
-		$this->simulationTime = $arguments["t_sim"];
-		$timeout = $this->simulationTime + 20;
-		$arguments = $this->prepareArguments($arguments);
-		$process = $this->runProcessAsync($path, $arguments, $timeout);
-		$this->attachPid($process->getPid());
-		return $process;
-	}
-
-	protected function prepareArguments($arguments) {
-		$input = "";
-
-		foreach ($arguments as $key => $value) {
-			$input .= $key . ":" . $value . ",";
-		}
-		$input = substr($input, 0, strlen($input) - 1);
-
-		return [
-			"--port=" . $this->device->port,
-			"--input=" . $input
-		];
 	}
 }

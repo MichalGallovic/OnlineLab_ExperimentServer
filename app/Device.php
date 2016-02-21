@@ -51,6 +51,10 @@ class Device extends Model
         return $this->belongsTo(ExperimentType::class, "current_experiment_type_id");
     }
 
+    public function currentExperimentLogger() {
+        return $this->belongsTo(ExperimentLog::class,"current_experiment_log_id");
+    }
+
     /**
      * Get current experiment type name
      * @return mixed [string|null]
@@ -67,6 +71,7 @@ class Device extends Model
 
     public function detachCurrentExperiment() {
         $this->current_experiment_type_id = null;
+        $this->current_experiment_log_id = null;
         $this->save();
     }
 
