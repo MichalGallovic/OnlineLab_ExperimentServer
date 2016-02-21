@@ -289,6 +289,8 @@ function Outputs(block)
     cmd = sprintf('$%s*%s\n', msg, crchex);
     try
         fprintf(s, '%s', cmd, 'sync');
+        fid = fopen('/home/vagrant/api/files/matlab.txt','w+');
+        fclose(fid);
     catch err,
         error(['Error: Unable to send data']);
         error(['err: ' err]);
@@ -301,6 +303,9 @@ function Outputs(block)
     values = '';
     try
         values = strcat(values, fscanf(s,'%s'));
+        fid = fopen('/home/vagrant/api/files/matlab.txt','a+');
+        fprintf(fid,'%s',values);
+        fclose(fid);
     catch err
         error(['Error: Unable to read data']);
         error(['err: ' err]);
