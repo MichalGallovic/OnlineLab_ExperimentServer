@@ -15,6 +15,7 @@ use App\Devices\Exceptions\DriverDoesNotExistException;
 use App\Devices\Exceptions\ParametersInvalidException;
 use App\Devices\Exceptions\ExperimentTimedOutException;
 use App\Devices\Exceptions\DeviceNotRunningExperimentException;
+use App\Devices\Exceptions\ExperimentNotSupportedException;
 
 class Handler extends ExceptionHandler
 {
@@ -37,7 +38,8 @@ class Handler extends ExceptionHandler
         ParametersInvalidException::class,
         ExperimentTimedOutException::class,
         DriverDoesNotExistException::class,
-        DeviceNotRunningExperimentException::class
+        DeviceNotRunningExperimentException::class,
+        ExperimentNotSupportedException::class
     ];
 
     /**

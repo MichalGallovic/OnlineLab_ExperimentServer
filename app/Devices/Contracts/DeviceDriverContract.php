@@ -1,4 +1,6 @@
-<?php namespace App\Devices\Contracts;
+<?php 
+
+namespace App\Devices\Contracts;
 
 interface DeviceDriverContract
 {
