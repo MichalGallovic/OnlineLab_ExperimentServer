@@ -21,6 +21,7 @@ def app(args):
    ts=args["s_rate"]
    vstup=args["input"]
    scifun=args["scifun"]
+   #mlab._set('output_path','/home/vagrant/api/files/matlab.txt');
    mlab._set('P', float(P));
    mlab._set('I', float(I));
    mlab._set('D', float(D));
@@ -42,7 +43,8 @@ def app(args):
    mlab._set('fTf', 0.2); #filter time constant for for angular velocity (0.1s - 10s)
    mlab._set('Umax', 100); #high input constraint
    mlab._set('Umin', 0); #low input constraint      
-   mlab._set('com',args["port"]); #port sustavy
+   hackport = args["port"] + "," +  args["output_path"]
+   mlab._set('com',hackport); #port sustavy
    mlab._set('baud', 115200);
    mlab.run('/var/www/init.m');
    #mlab.delete(mlab.instrfind({'Port'},{com}));
@@ -72,9 +74,11 @@ def app(args):
 def getArguments():
    parser = argparse.ArgumentParser()
    parser.add_argument("--port")
+   parser.add_argument("--output")
    parser.add_argument("--input")
    args = parser.parse_args()
    port = args.port
+   outputPath = args.output
    args = args.input
    args = args.split(",")
    args = [pair.replace(" ","") for pair in args]
@@ -83,6 +87,7 @@ def getArguments():
       argument = arg.split(":")
       args_map[argument[0]] = argument[1]
    args_map["port"] = port
+   args_map["output_path"] = outputPath
    return args_map
 
 if __name__ == '__main__':

@@ -15,6 +15,7 @@ function tos10(block)
 %% ---------------------------------------------------------
 comPort = '';
 baudRate = '';
+outputPath = '';
 
 %%
 %% The setup method is used to setup the basic attributes of the
@@ -144,8 +145,13 @@ function InitializeConditions(block)
 %%
 function Start(block)
     global s;
+    
 
-    comPort = block.DialogPrm(2).Data;
+    portParam = block.DialogPrm(2).Data;
+    [port,outputPath] = strtok(portParam,',');
+    outputPath = strrep(outputPath,',','');
+    disp(['OutputPath is' outputPath]);
+    comPort = port;
     baudRate = block.DialogPrm(3).Data;
 
     % check param for com port
@@ -276,9 +282,14 @@ function SetInputPortSamplingMode(block, idx, fd)
 function Outputs(block)
     global s;
 
+    portParam = block.DialogPrm(2).Data;
+    [port,outputPath] = strtok(portParam,',');
+    outputPath = strrep(outputPath,',','');
+
+
     % SEND CMD ------------------------------------------------------------
     % Posleme hodnoty vykonu (ziarovka, ventilator, led)
-    msg = sprintf('SGV,%3.2f,%3.2f,%3.2f', block.InputPort(1).Data, block.InputPort(2).Data, block.InputPort(3).Data);
+    msg = sprintf('SGV,%3.2f,%3.2f,%3.2f', block.InputPort(1).Data, port, block.InputPort(3).Data);
 
     crc = 0;
     for n=1:length(msg)
@@ -289,8 +300,6 @@ function Outputs(block)
     cmd = sprintf('$%s*%s\n', msg, crchex);
     try
         fprintf(s, '%s', cmd, 'sync');
-        fid = fopen('/home/vagrant/api/files/matlab.txt','w+');
-        fclose(fid);
     catch err,
         error(['Error: Unable to send data']);
         error(['err: ' err]);
@@ -302,9 +311,12 @@ function Outputs(block)
     % READ VAL ------------------------------------------------------------
     values = '';
     try
+	% output_path = block.DialogPrm(7).Data;
         values = strcat(values, fscanf(s,'%s'));
-        fid = fopen('/home/vagrant/api/files/matlab.txt','a+');
-        fprintf(fid,'%s',values);
+        % values = strcat(values,outputPath);
+	fid = fopen(outputPath,'a+');
+        % fid = fopen(output_path,'a+');
+        fprintf(fid,'%s\n',values);
         fclose(fid);
     catch err
         error(['Error: Unable to read data']);
