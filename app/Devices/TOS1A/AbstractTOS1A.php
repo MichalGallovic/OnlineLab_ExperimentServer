@@ -52,6 +52,7 @@ abstract class AbstractTOS1A extends AbstractDevice
 	protected $assignedOutput;
 
 
+
 	public function __construct($device, $experimentType) {
 		parent::__construct($device, $experimentType);
 		$this->scriptsPath = base_path() . "/server_scripts/TOS1A";

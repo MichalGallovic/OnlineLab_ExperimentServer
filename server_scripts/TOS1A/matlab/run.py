@@ -3,10 +3,16 @@ import time
 import sys
 import argparse
 import string
+import os
 from mlabwrap import mlab
 
 def app(args):
-   mlab.load_system("/var/www/thermo");
+   currentDir = os.path.dirname(os.path.abspath(__file__))
+   # Adding current working directory to matlab path
+   # so it knows where to find other script
+   # dependencies
+   mlab.addpath(currentDir);
+   mlab.load_system(currentDir + "/thermo");
    mlab.clear();
    P=args["P"]
    I=args["I"]
@@ -48,7 +54,6 @@ def app(args):
    mlab._set('baud', 115200);
    mlab.run('/var/www/init.m');
    #mlab.delete(mlab.instrfind({'Port'},{com}));
-   mlab.setenv('LD_LIBRARY_PATH', '/var/www');
    mlab._set('tempdps', 0); #zalozenie vystupnych premennych
    mlab._set('ftemp', 0);
    mlab._set('dtemp', 0);

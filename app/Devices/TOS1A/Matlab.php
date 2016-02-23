@@ -9,11 +9,15 @@ use App\Events\ProcessWasRan;
 use Illuminate\Support\Facades\Cache;
 use App\Devices\Exceptions\ExperimentTimedOutException;
 use App\ExperimentType;
+use App\Devices\Traits\Outputable;
 
 class Matlab extends AbstractTOS1A implements DeviceDriverContract
 {
 
+	use Outputable;
+
 	protected $simulationTime;
+
 
 	public function __construct($device,$experimentType) {
 		parent::__construct($device,$experimentType);
@@ -40,6 +44,8 @@ class Matlab extends AbstractTOS1A implements DeviceDriverContract
 	public function run($input, $requestedBy) {
 		parent::run($input,$requestedBy);
 		
+		$this->generateOutputFileNameWithId($requestedBy);
+
 		$process =  $this->runExperimentAsync($input);
 		
 		$experimentStarted = false;
@@ -54,23 +60,23 @@ class Matlab extends AbstractTOS1A implements DeviceDriverContract
 		// 0.00 from device
 		while($process->isRunning()) {
 			// check some stuff with timeout
-			$now = time();
+			// $now = time();
 			
 			// if($now - $started > 5) break;
 
-			if(!$experimentStarted) {
-				if($this->isExperimenting()) {
-					$experimentStarted = true;
-					$this->experimentStartedRunning = time();
-					// $writingProcess = $this->startReadingExperiment($this->simulationTime);
-					// $this->attachPid($writingProcess->getPid());
-				}
-			} else {
-				if($now - $this->experimentStartedRunning > $this->simulationTime + 10) {
-					$experimentTimedOut = true;
-					break;
-				}
-			}
+			// if(!$experimentStarted) {
+			// 	if($this->isExperimenting()) {
+			// 		$experimentStarted = true;
+			// 		$this->experimentStartedRunning = time();
+			// 		// $writingProcess = $this->startReadingExperiment($this->simulationTime);
+			// 		// $this->attachPid($writingProcess->getPid());
+			// 	}
+			// } else {
+			// 	if($now - $this->experimentStartedRunning > $this->simulationTime + 10) {
+			// 		$experimentTimedOut = true;
+			// 		break;
+			// 	}
+			// }
 
 			usleep(1000000);
 
