@@ -17,13 +17,7 @@ class OpenLoop extends AbstractTOS1A implements DeviceDriverContract
 		
 		// Definijng input arguments and rules
 		// for validation
-		$this->inputArguments = [
-			"c_fan" => "required",
-			"c_lamp" => "required",
-			"c_led" => "required",
-			"t_sim" => "required",
-			"s_rate" => "required"
-		];
+		$this->inputArguments = config("devices.tos1a.experiments.openloop.input");
 	}
 
 	protected function getSimulationTime() {

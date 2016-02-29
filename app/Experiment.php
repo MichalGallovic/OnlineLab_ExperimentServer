@@ -13,4 +13,8 @@ class Experiment extends Model
     public function type() {
     	return $this->belongsTo(ExperimentType::class,"experiment_type_id");
     }
+
+    public function getInputArguments() {
+    	
+    }
 }
