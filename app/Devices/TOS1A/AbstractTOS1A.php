@@ -43,8 +43,6 @@ abstract class AbstractTOS1A extends AbstractDevice
 		"f_rpm",
 		"d_rmp"
 	];
-
-	protected $rules;
 	
 	protected $status;
 	protected $output;
@@ -206,6 +204,8 @@ abstract class AbstractTOS1A extends AbstractDevice
 		];
 
 		$process = $this->runProcessAsync($path, $arguments);
+
+		$this->attachPid($process->getPid());
 
 		return $process;
 	}

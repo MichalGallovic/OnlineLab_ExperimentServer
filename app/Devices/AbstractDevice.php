@@ -11,19 +11,28 @@ use App\Events\ExperimentFinished;
 use Carbon\Carbon;
 use App\Devices\Exceptions\DeviceNotRunningExperimentException;
 use App\Devices\Exceptions\DeviceAlreadyRunningExperimentException;
+use App\Devices\Exceptions\ParametersInvalidException;
+use App\Devices\Traits\Outputable;
 
 abstract class AbstractDevice {
 
+	protected $path;
 	protected $device;
+
+	protected $inputArguments;
+	protected $maxRunningTime;
+
 	protected $experimentType;
-	protected $experimentStartedRunning;
+	protected $experimentInput;
+	protected $experimentLogger;
 	protected $experimentSuccessful;
 
-	protected $path;
 
 	const OFFLINE = "offline";
 	const READY = "ready";
 	const EXPERIMENTING = "experimenting";
+
+	const MAX_INITIALIZATION_TIME = 20;
 
 	public function __construct($device, $experimentType) {
 		$this->device = $device;
@@ -45,6 +54,17 @@ abstract class AbstractDevice {
 		// the first registered is
 		// returning logger
 		event(new ExperimentStarted($this->device, $this->experimentType, $input, $requestedBy));
+
+
+		$this->experimentLogger = $this->device->currentExperimentLogger;
+		$this->experimentInput = $input;
+
+		// If experiment concrete implementation uses Outputable
+		// trait, it will be able
+		if(in_array(Outputable::class, class_uses(get_called_class()))) {
+			$this->generateOutputFileNameWithId($requestedBy);
+		}
+
 	}
 
 	public function stop() {
@@ -57,12 +77,16 @@ abstract class AbstractDevice {
 		// Detaches the main process pid from db
 		$this->detachPids();
 
-		if($this->isLoggingExperiment() && !$this->wasForceStopped()) {
+		if($this->isLoggingExperiment() && 
+			!$this->wasForceStopped() &&
+			!$this->wasTimedOut()) {
 			event(new ExperimentFinished($this->device->currentExperimentLogger));
 			$this->experimentSuccessful = true;
 		}
 
 		$this->device->detachCurrentExperiment();
+
+		return $this->experimentLogger->fresh();
 	}
 
 	public function forceStop() {
@@ -85,8 +109,9 @@ abstract class AbstractDevice {
 		// Detaches the main process pid from db
 		$this->detachPids();
 
-		$this->device->detachCurrentExperiment();
+		// $this->device->detachCurrentExperiment();
 	}
+
 
 	public function experimentWasSuccessful() {
 		return $this->experimentSuccessful;
@@ -100,6 +125,10 @@ abstract class AbstractDevice {
 		return !is_null($this->device->currentExperimentLogger->stopped_at);
 	}
 
+	public function wasTimedOut() {
+		return !is_null($this->experimentLogger->fresh()->timedout_at);
+	}
+
 	public function stopDevice() {
 		$path = $this->getScriptPath("stop");
 		$arguments = [$this->device->port];
@@ -107,18 +136,14 @@ abstract class AbstractDevice {
 		$process = $this->runProcess($path, $arguments);
 	}
 
-	public function getExperimentDuration() {
-		return is_null($this->experimentStartedRunning) ? 0 : time() - $this->experimentStartedRunning;
-	}
-
 	protected function validateInput($input) {
 		if(!is_array($input)) {
-			$arguments = array_keys($this->rules);
+			$arguments = array_keys($this->inputArguments);
 			$arguments = implode(" ,", $arguments);
 			throw new ParametersInvalidException("Wrong input arguments, expected: [" . $arguments . "]");
 		}
 
-		$validator = Validator::make($input, $this->rules);
+		$validator = Validator::make($input, $this->inputArguments);
 
 		if($validator->fails()) {
 			throw new ParametersInvalidException($validator->messages());
@@ -229,17 +254,50 @@ abstract class AbstractDevice {
 		return $process;
 	}
 
+	protected function waitOrTimeoutAsync($process, $time) {
+		$started = time();
+		$experimentTimedOut = false;
+
+		while($process->isRunning()) {
+			// check some stuff with timeout
+			$now = time();
+
+			if($now - $started > $time) {
+				$experimentTimedOut = true;
+				break;
+			}
+			
+			usleep(1000000);
+
+		}
+
+		event(new ProcessWasRan($process,$this->device));
+
+		if($experimentTimedOut) {
+			$this->experimentLogger->timedout_at = Carbon::now();
+			$this->experimentLogger->save();
+		}
+	}
+
+	protected function wait() {
+		$seconds = 0;
+		while($seconds < $this->simulationTime) {
+			usleep(1000000);
+			$seconds++;
+		}
+	}
+
 	protected function runExperiment($arguments) {
-		$timeout = $this->prepareExperiment($arguments);
+		$this->maxRunningTime = $this->prepareExperiment($arguments);
 		$arguments = $this->prepareArguments($arguments);
-		$process = $this->runProcess($this->path, $arguments, $timeout);
+		$process = $this->runProcess($this->path, $arguments, $this->maxRunningTime);
 		return $process;
 	}
 
 	protected function runExperimentAsync($arguments) {
-		$timeout = $this->prepareExperiment($arguments);
+		$this->maxRunningTime = $this->prepareExperiment($arguments);
 		$arguments = $this->prepareArguments($arguments);
-		$process = $this->runProcessAsync($this->path, $arguments, $timeout);
+		$process = $this->runProcessAsync($this->path, $arguments, $this->maxRunningTime);
 		$this->attachPid($process->getPid());
 		return $process;
 	}
@@ -247,10 +305,26 @@ abstract class AbstractDevice {
 	protected function prepareExperiment($arguments) {
 		$this->path = $this->getScriptPath($this->experimentType->name);
 
-		// matlab starts 15s this should be automated
-		$this->simulationTime = $arguments["t_sim"];
-		$timeout = $this->simulationTime + 20;
+		$this->simulationTime = $this->getSimulationTime();
+
+		// Max simulation time is just a rough estimate
+		// it is in place to check whether the
+		// experiment is not running longer
+		// than expected
+
+		return $this->simulationTime + self::MAX_INITIALIZATION_TIME;
 	}
+
+	/**
+	 * Get simulation time has to be implemented
+	 * per experiment basis, because simulation
+	 * time is deduced from the input
+	 * 
+	 * @return int
+	 */
+	abstract protected function getSimulationTime();
+
+
 
 	protected function prepareArguments($arguments) {
 		$input = "";
@@ -266,20 +340,24 @@ abstract class AbstractDevice {
 		];
 	}
 
-	// protected function runProcessForceAsync($path, $arguments = []) {
-	// 	// $builder = new ProcessBuilder();
-	// 	// $builder->setPrefix($path);
+	protected function runProcessForceAsync($path, $arguments = []) {
+		// $builder = new ProcessBuilder();
+		// $builder->setPrefix($path);
 
-	// 	// // $arguments []= "> /dev/null";
-	// 	// // $arguments []= "2> /dev/null";
-	// 	// // $arguments []= "&";
+		// // $arguments []= "> /dev/null";
+		// // $arguments []= "2> /dev/null";
+		// // $arguments []= "&";
 
-	// 	// $builder->setArguments($arguments);
+		// $builder->setArguments($arguments);
 		
-	// 	// $process = $builder->getProcess();
-	// 	$process = new Process($path . " > /dev/null 2> /dev/null &");
-	// 	$process->run();
+		// $process = $builder->getProcess();
+		$process = new Process($path . " > /dev/null 2> /dev/null &");
+		$process->run();
 
-	// 	return $process;
-	// }
+		return $process;
+	}
+
+	public function getInputArguments() {
+		return $this->inputArguments;
+	}
 }

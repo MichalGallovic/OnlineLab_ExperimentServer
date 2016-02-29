@@ -21,6 +21,7 @@ class CreateExperimentLogsTable extends Migration
             $table->integer("requested_by");
             $table->dateTime("finished_at")->nullable()->default(null);
             $table->dateTime("stopped_at")->nullable()->default(null);
+            $table->dateTime("timedout_at")->nullable()->default(null);
             $table->nullableTimestamps();
         });
     }
