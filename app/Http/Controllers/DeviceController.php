@@ -107,16 +107,12 @@ class DeviceController extends Controller
 
         // This is for development
         if (App::environment() == 'local') {
-            $deviceDriver->run($request->input("experiment_input"), 1);
+            $experimentLog = $deviceDriver->run($request->input("experiment_input"), 1);
         } else {
-            $deviceDriver->run($request->input("experiment_input"), $request->input("requested_by"));
+            $experimentLog = $deviceDriver->run($request->input("experiment_input"), $request->input("requested_by"));
         }
 
-        if(!$deviceDriver->experimentWasSuccessful()) {
-            return $this->respondWithSuccess("Experiment was force stopped");
-        }
-
-        return $this->respondWithSuccess("Experiment ran successfully");
+        return $this->respondWithSuccess($experimentLog->getResult());
     }
 
     public function stop(DeviceRequest $request, $id) {
