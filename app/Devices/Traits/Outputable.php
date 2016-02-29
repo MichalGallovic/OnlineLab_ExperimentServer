@@ -33,9 +33,13 @@ trait Outputable {
 
 		return [
 			"--port=" . $this->device->port,
-			"--output=" . $this->outputDir . "/" . $this->outputFile,
+			"--output=" . $this->getOutputFilePath(),
 			"--input=" . $input
 		];
+	}
+
+	protected function getOutputFilePath() {
+		return $this->outputDir . "/" . $this->outputFile;
 	}
 
 }

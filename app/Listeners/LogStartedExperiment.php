@@ -32,8 +32,7 @@ class LogStartedExperiment
         $experiment = Experiment::where("device_id", $event->device->id)->where("experiment_type_id", $event->experimentType->id)->first();
         $logger->experiment()->associate($experiment);
         $logger->input_arguments = json_encode($event->input);
-        $output_path = storage_path("logs/experiments/" . strtolower($event->device->type->name) . "/" . strtolower($event->experimentType->name));
-        $logger->output_path = $output_path;
+        
         $logger->requested_by = $event->requestedBy;
         $logger->save();
 

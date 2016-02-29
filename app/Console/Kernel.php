@@ -5,6 +5,8 @@ namespace App\Console;
 use Illuminate\Console\Scheduling\Schedule;
 use Illuminate\Foundation\Console\Kernel as ConsoleKernel;
 use App\Device;
+use App\Console\Commands\ClearExperimentLogs;
+use App\Console\Commands\ResetAppServer;
 
 class Kernel extends ConsoleKernel
 {
@@ -13,8 +15,11 @@ class Kernel extends ConsoleKernel
      *
      * @var array
      */
+    //@Todo remove ClearExperimentLogs - very dangerous :D
+    //@Todo remove ResetAppServer - even more dangerous :D
     protected $commands = [
-        // Commands\Inspire::class,
+        ClearExperimentLogs::class,
+        ResetAppServer::class
     ];
 
     /**

@@ -20,6 +20,9 @@ use App\Classes\Repositories\DeviceDbRepository;
 use App\Http\Requests\DeviceRunRequest;
 use App\Http\Requests\DevDeviceRunRequest;
 use Illuminate\Support\Facades\App;
+use Illuminate\Support\Facades\File;
+use Illuminate\Contracts\Filesystem\FileNotFoundException;
+use App\ExperimentLog;
 
 class DeviceController extends Controller
 {
@@ -72,16 +75,41 @@ class DeviceController extends Controller
     	return $deviceDriver->read();
     }
 
-    public function readExperiment(DeviceRequest $request, $uuid) {
+    /**
+     * Read experiment directly from file
+     * and respond with http response
+     * not websocket
+     *
+     * This method was created for development purposes
+     * so developer can easily debug on the appserver
+     * 
+     * @param  DeviceRequest $request [description]
+     * @param  mixed $id (int)
+     * @return mixed json
+     */
+    public function readExperiment(DeviceRequest $request, $id) {
         try {
-            $device = Device::where('uuid',$uuid)->firstOrFail();
+            $device = $this->deviceRepository->getById($id);
         } catch(ModelNotFoundException $e) {
             return $this->errorNotFound();
         }
 
-        $deviceDriver = $device->driver();
+        $logger = ExperimentLog::first();
 
-        // return $deviceDriver->
+        // if(is_null($logger)) {
+        //     return $this->errorForbidden("Experiment is not running. Not data to read");
+        // }
+
+        try {
+            $output = $logger->readExperiment();
+        } catch(FileNotFoundException $e) {
+            return $this->errorInternalError("File not found or associated with experiment");
+        }
+
+        return $this->respondWithArray([
+                "data" => $output
+            ]);
+        
     }
 
     public function run(DevDeviceRunRequest $request, $id) 

@@ -63,6 +63,8 @@ abstract class AbstractDevice {
 		// trait, it will be able
 		if(in_array(Outputable::class, class_uses(get_called_class()))) {
 			$this->generateOutputFileNameWithId($requestedBy);
+			$this->experimentLogger->output_path = $this->getOutputFilePath();
+			$this->experimentLogger->save();
 		}
 
 	}

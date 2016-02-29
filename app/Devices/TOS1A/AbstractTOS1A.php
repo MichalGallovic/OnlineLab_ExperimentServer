@@ -13,6 +13,7 @@ use App\Devices\AbstractDevice;
 use Illuminate\Support\Facades\Validator;
 use App\ExperimentType;
 
+
 abstract class AbstractTOS1A extends AbstractDevice
 {
 	// These @vars could be inside config file
@@ -26,23 +27,7 @@ abstract class AbstractTOS1A extends AbstractDevice
 		"readexperiment"=> "readexperiment.py"
 	];
 
-	protected $outputArguments = [
-		"temp_chip",
-		"f_temp_int",
-		"d_temp_ext",
-		"f_temp_ext",
-		"d_temp_ext",
-		"f_light_int_lin",
-		"d_light_int_lin",
-		"f_light_int_log",
-		"d_light_int_log",
-		"I_bulb",
-		"V_bulb",
-		"I_fan",
-		"V_fan",
-		"f_rpm",
-		"d_rmp"
-	];
+	protected $outputArguments;
 	
 	protected $status;
 	protected $output;
@@ -55,6 +40,7 @@ abstract class AbstractTOS1A extends AbstractDevice
 		parent::__construct($device, $experimentType);
 		$this->scriptsPath = base_path() . "/server_scripts/TOS1A";
 		$this->output = null;
+		$this->outputArguments = config("devices.tos1a.output");
 		$this->assignedOutput = null;
 		// The whole meaning of this class it to operate
 		// on the physical device - so it is essential
