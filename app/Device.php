@@ -62,6 +62,10 @@ class Device extends Model
         return $this->belongsTo(ExperimentLog::class,"current_experiment_log_id");
     }
 
+    public function experimentLogs() {
+        return $this->hasManyThrough(ExperimentLog::class,Experiment::class);
+    }
+
     /**
      * Get current experiment type name
      * @return mixed [string|null]
