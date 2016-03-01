@@ -19,6 +19,7 @@ class CreateExperimentLogsTable extends Migration
             $table->text('input_arguments');
             $table->string('output_path')->nullable();
             $table->integer("requested_by");
+            $table->integer("duration")->nullable();
             $table->dateTime("finished_at")->nullable()->default(null);
             $table->dateTime("stopped_at")->nullable()->default(null);
             $table->dateTime("timedout_at")->nullable()->default(null);

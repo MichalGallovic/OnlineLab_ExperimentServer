@@ -29,6 +29,40 @@ class ExperimentLog extends Model
 		return $output;
 	}
 
+	
+	/**
+	 * Reduce experiment output to values
+	 * measured every x milliseconds
+	 * @param  integer $everyMs
+	 * @return array - reduced output
+	 */
+	public function reduceOutput($everyMs = 200) {
+		$output = $this->readExperiment();
+		$duration = $this->duration;
+
+		if(!isset($duration)) {
+			return $output;
+		}
+
+		$outputMeasurements = count($output);
+
+		$wantMeasurements = $duration / ($everyMs/1000);
+
+		if( $wantMeasurements > $outputMeasurements ) {
+			return $output;
+		}
+
+		$every = floor($outputMeasurements / $wantMeasurements);
+
+		$reducedOutput = [];
+
+		for ($i = 0; $i < $outputMeasurements; $i+=$every) { 
+			$reducedOutput[]=$output[$i];
+		}
+
+		return $reducedOutput;
+	}
+
 	protected function getInputArguments() {
 		$deviceName = strtolower($this->experiment->device->type->name);
 		$experimentType = strtolower($this->experiment->type->name);

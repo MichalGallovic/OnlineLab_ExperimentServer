@@ -308,6 +308,8 @@ abstract class AbstractDevice {
 		$this->path = $this->getScriptPath($this->experimentType->name);
 
 		$this->simulationTime = $this->getSimulationTime();
+		$this->experimentLogger->duration = $this->simulationTime;
+		$this->experimentLogger->save();
 
 		// Max simulation time is just a rough estimate
 		// it is in place to check whether the
