@@ -36,11 +36,11 @@ class ExperimentLog extends Model
 	 * @param  integer $everyMs
 	 * @return array - reduced output
 	 */
-	public function reduceOutput($everyMs = 200) {
+	public function reduceOutput($everyMs = null) {
 		$output = $this->readExperiment();
 		$duration = $this->duration;
 
-		if(!isset($duration)) {
+		if(!isset($duration) || !isset($everyMs)) {
 			return $output;
 		}
 
@@ -48,7 +48,12 @@ class ExperimentLog extends Model
 
 		$wantMeasurements = $duration / ($everyMs/1000);
 
+
 		if( $wantMeasurements > $outputMeasurements ) {
+			return $output;
+		}
+
+		if( $wantMeasurements < 1) {
 			return $output;
 		}
 
