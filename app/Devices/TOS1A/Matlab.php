@@ -9,7 +9,6 @@ use App\Devices\Contracts\DeviceDriverContract;
 
 class Matlab extends AbstractTOS1A implements DeviceDriverContract
 {
-
 	use Outputable, AsyncRunnable;
 
 	public function __construct($device,$experimentType) {
@@ -25,4 +24,7 @@ class Matlab extends AbstractTOS1A implements DeviceDriverContract
 		return $this->experimentInput["t_sim"];
 	}
 
+	protected function getMeasuringRate() {
+		return $this->experimentInput["s_rate"];
+	}
 }

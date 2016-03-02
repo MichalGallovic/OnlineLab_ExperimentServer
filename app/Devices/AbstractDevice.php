@@ -64,6 +64,7 @@ abstract class AbstractDevice {
 		if(in_array(Outputable::class, class_uses(get_called_class()))) {
 			$this->generateOutputFileNameWithId($requestedBy);
 			$this->experimentLogger->output_path = $this->getOutputFilePath();
+			$this->experimentLogger->measuring_rate = $this->getMeasuringRate();
 			$this->experimentLogger->save();
 		}
 
@@ -328,7 +329,13 @@ abstract class AbstractDevice {
 	 */
 	abstract protected function getSimulationTime();
 
-
+	/**
+	 * Get measuring rate (usually equals to the sampling)
+	 * time - number which tells how often results are
+	 * measured
+	 * @return int
+	 */
+	abstract protected function getMeasuringRate();
 
 	protected function prepareArguments($arguments) {
 		$input = "";

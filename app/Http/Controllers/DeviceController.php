@@ -25,6 +25,8 @@ use Illuminate\Contracts\Filesystem\FileNotFoundException;
 use App\ExperimentLog;
 use App\Classes\Transformers\ExperimentLogTransformer;
 use League\Fractal\Manager;
+use App\Http\Requests\DeviceExperimentsRequest;
+
 
 class DeviceController extends ApiController
 {
@@ -113,16 +115,42 @@ class DeviceController extends ApiController
         
     }
 
-    public function previousExperiments(Request $request, $id) {
+    public function previousExperiments(DeviceExperimentsRequest $request, $id) {
         try {
             $device = $this->deviceRepository->getById($id);
         } catch(ModelNotFoundException $e) {
             return $this->deviceNotFound();
         }
 
+        $measurementsEvery = 200;
+
+        if($request->has("every")) {
+            $measurementsEvery = $request->input("every");
+        }
+
         $logs = $device->experimentLogs;
 
-        return $this->respondWithCollection($logs, new ExperimentLogTransformer);
+
+        return $this->respondWithCollection($logs, new ExperimentLogTransformer($measurementsEvery));
+    }
+
+    public function latestExperimentOnDevice(DeviceExperimentsRequest $request, $id) {
+        try {
+            $device = $this->deviceRepository->getById($id);
+        } catch(ModelNotFoundException $e) {
+            return $this->deviceNotFound();
+        }
+
+        $measurementsEvery = 200;
+
+        if($request->has("every")) {
+            $measurementsEvery = $request->input("every");
+        }
+
+        $log = $device->experimentLogs->sortByDesc('created_at')->first();
+
+
+        return $this->respondWithItem($log, new ExperimentLogTransformer($measurementsEvery));
     }
 
     public function run(DevDeviceRunRequest $request, $id) 

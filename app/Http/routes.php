@@ -41,6 +41,7 @@ Route::group(['prefix' => 'api'], function() {
 	Route::get('devices/{id}/read',['uses' => 'DeviceController@readOne']);
 	Route::get('devices/{id}/readexperiment',['uses' => 'DeviceController@readExperiment']);
 	Route::get('devices/{id}/experiments',['uses' => 'DeviceController@previousExperiments']);
+	Route::get('devices/{id}/experiments/latest',['uses' => 'DeviceController@latestExperimentOnDevice']);
 	// Route::get('devices/{id}/readexperiment',['uses' => 'DeviceController@readExperiment'])
 	/*
 	* RUN experiment on concrete device

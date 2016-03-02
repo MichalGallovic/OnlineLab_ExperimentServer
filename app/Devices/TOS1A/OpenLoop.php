@@ -23,4 +23,8 @@ class OpenLoop extends AbstractTOS1A implements DeviceDriverContract
 	protected function getSimulationTime() {
 		return $this->experimentInput["t_sim"];
 	}
+
+	protected function getMeasuringRate() {
+		return $this->experimentInput["s_rate"];
+	}
 }
