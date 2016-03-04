@@ -18,11 +18,11 @@ class ExperimentTypesTableSeeder extends Seeder
         ExperimentType::create([
         	"name" => "matlab"
         ]);
-        ExperimentType::create([
-        	"name" => "scilab"
-        ]);
-        ExperimentType::create([
-        	"name" => "openmodelica"
-        ]);
+        // ExperimentType::create([
+        // 	"name" => "scilab"
+        // ]);
+        // ExperimentType::create([
+        // 	"name" => "openmodelica"
+        // ]);
     }
 }

@@ -7,6 +7,7 @@ use Illuminate\Foundation\Console\Kernel as ConsoleKernel;
 use App\Device;
 use App\Console\Commands\ClearExperimentLogs;
 use App\Console\Commands\ResetAppServer;
+use App\Console\Commands\PingDevices;
 
 class Kernel extends ConsoleKernel
 {
@@ -19,7 +20,8 @@ class Kernel extends ConsoleKernel
     //@Todo remove ResetAppServer - even more dangerous :D
     protected $commands = [
         ClearExperimentLogs::class,
-        ResetAppServer::class
+        ResetAppServer::class,
+        PingDevices::class
     ];
 
     /**
@@ -30,16 +32,6 @@ class Kernel extends ConsoleKernel
      */
     protected function schedule(Schedule $schedule)
     {
-        $schedule->call(function() {
-            $devices = Device::all();
-
-            foreach ($devices as $device) {
-                $deviceDriver = $device->driver();
-                $status = $deviceDriver->status();
-
-                $device->status = $status;
-                $device->save();
-            }
-        })->everyMinute();
+        $schedule->command('server:devices:ping')->everyMinute();
     }
 }
