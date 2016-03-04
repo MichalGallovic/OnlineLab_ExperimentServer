@@ -44,7 +44,7 @@ class ExperimentLog extends Model
 			return $output;
 		}
 
-		$outputMeasurements = count($output);
+		$outputMeasurements = count($output[0]);
 
 		$wantMeasurements = $duration / ($everyMs/1000);
 
@@ -61,8 +61,10 @@ class ExperimentLog extends Model
 
 		$reducedOutput = [];
 
-		for ($i = 0; $i < $outputMeasurements; $i+=$every) { 
-			$reducedOutput[]=$output[$i];
+		foreach ($output as $index => $measurementsOfOneType) {
+			for ($i = 0; $i < $outputMeasurements; $i+=$every) { 
+				$reducedOutput[$index] [] = $measurementsOfOneType[$i];
+			}
 		}
 
 		return $reducedOutput;
@@ -87,7 +89,15 @@ class ExperimentLog extends Model
 			return $arr;
 		}, $output);
 
-		return $output;
+		$formattedOutput = [];
+
+		foreach ($output as $measurement) {
+			foreach ($measurement as $index => $value) {
+				$formattedOutput[$index] []= (float) $value;
+			}
+		}
+
+		return $formattedOutput;
 	}
 
 }

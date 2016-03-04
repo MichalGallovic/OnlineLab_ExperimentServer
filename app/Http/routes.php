@@ -11,14 +11,6 @@
 |
 */
 
-
-Route::get('testik', function() {
-	$process = new Process("pstree -p 1 | grep -o '([0-9]\+)' | grep -o '[0-9]\+'");
-	$process->run();
-
-	return array_filter(explode("\n",$process->getOutput()));
-});
-
 Route::group(['prefix' => 'api'], function() {
 	/*
 	* GET JSON OF ALL EXPERIMENTS
@@ -74,11 +66,11 @@ Route::group(['prefix' => 'api'], function() {
 	Route::get('experiments/{id}',['uses' => 'ExperimentController@show']);
 
 	Route::get('server/experiments',['uses' => 'ServerController@experiments']);
-	Route::get('server/experiments/{id}',['uses' => 'ServerController@show']);
-
+	Route::get('server/experiments/{id}',['uses' => 'ServerController@showExperiment']);
+	Route::get('server/devices',['uses' => 'ServerController@devices']);
 
 });
 
 Route::group(['middleware' => ['web']], function () {
-    //
+	Route::get('/',['uses' => 'DevelopmentController@index']);
 });
