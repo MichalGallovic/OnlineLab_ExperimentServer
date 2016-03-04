@@ -4,7 +4,7 @@ use Illuminate\Database\Seeder;
 use App\Experiment;
 use App\DeviceType;
 use App\ExperimentType;
-
+use App\Device;
 
 class ExperimentsTableSeeder extends Seeder
 {
@@ -16,13 +16,15 @@ class ExperimentsTableSeeder extends Seeder
     public function run()
     {
         $experimentTypes = ExperimentType::all();
-        $tos1a = DeviceType::where("name","tos1a")->first()->devices->first();
+        $devices = Device::all();
 
-        foreach ($experimentTypes as $type) {
-        	Experiment::create([
-        		"device_id" => $tos1a->id,
-        		"experiment_type_id" => $type->id
-        	]);
+        foreach ($devices as $device) {
+            foreach ($experimentTypes as $experimentType) {
+                Experiment::create([
+                    "device_id" => $device->id,
+                    "experiment_type_id" => $experimentType->id
+                ]);
+            }
         }
     }
 }
