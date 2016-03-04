@@ -27,12 +27,7 @@ abstract class AbstractDevice {
 	protected $experimentLogger;
 	protected $experimentSuccessful;
 
-
-	const OFFLINE = "offline";
-	const READY = "ready";
-	const EXPERIMENTING = "experimenting";
-
-	const MAX_INITIALIZATION_TIME = 20;
+	const MAX_INITIALIZATION_TIME = 25;
 
 	public function __construct($device, $experimentType) {
 		$this->device = $device;

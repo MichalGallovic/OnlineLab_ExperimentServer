@@ -70,6 +70,13 @@ Route::group(['prefix' => 'api'], function() {
 	Route::get('devices/{id}/stop',['uses' => 'DeviceController@stop']);
 
 
+	Route::get('experiments/latest',['uses' => 'ExperimentController@latest']);
+	Route::get('experiments/{id}',['uses' => 'ExperimentController@show']);
+
+	Route::get('server/experiments',['uses' => 'ServerController@experiments']);
+	Route::get('server/experiments/{id}',['uses' => 'ServerController@show']);
+
+
 });
 
 Route::group(['middleware' => ['web']], function () {

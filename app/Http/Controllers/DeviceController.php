@@ -26,7 +26,7 @@ use App\ExperimentLog;
 use App\Classes\Transformers\ExperimentLogTransformer;
 use League\Fractal\Manager;
 use App\Http\Requests\DeviceExperimentsRequest;
-
+use Illuminate\Support\Facades\Artisan;
 
 class DeviceController extends ApiController
 {
@@ -40,6 +40,12 @@ class DeviceController extends ApiController
     public function statusAll(DeviceRequest $request) {
         $devices = $this->deviceRepository->getAll();
         $statuses = [];
+
+        // @Todo comamnd should will not be called on every
+        // api request it will be scheduled with a cron job
+        // but we could call it when requested with a 
+        // specific api_token ? user permissions ? Guard?
+        Artisan::call('server:devices:ping');
 
         foreach ($devices as $device) {
             $statuses []= [
@@ -128,7 +134,7 @@ class DeviceController extends ApiController
             $measurementsEvery = $request->input("every");
         }
 
-        $logs = $device->experimentLogs;
+        $logs = $device->experimentLogs->sortBy("created_at");
 
 
         return $this->respondWithCollection($logs, new ExperimentLogTransformer($measurementsEvery));

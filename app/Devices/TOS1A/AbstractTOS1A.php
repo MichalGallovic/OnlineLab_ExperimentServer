@@ -13,7 +13,6 @@ use App\Devices\AbstractDevice;
 use Illuminate\Support\Facades\Validator;
 use App\ExperimentType;
 
-
 abstract class AbstractTOS1A extends AbstractDevice
 {
 	// These @vars could be inside config file
@@ -156,16 +155,16 @@ abstract class AbstractTOS1A extends AbstractDevice
 
 	public function checkDeviceStatus() {
 		if($this->isRunningExperiment()) {
-			$this->status = self::EXPERIMENTING;
+			$this->status = DeviceDriverContract::STATUS_EXPERIMENTING;
 		} else if($this->isReady()) {
-			$this->status = self::READY;
+			$this->status = DeviceDriverContract::STATUS_READY;
 			// When device is ready, we don't necesarilly
 			// need to sent the output, but it could
 			// be set on again just, by commenting
 			// this out
 			$this->assignedOutput = null;
 		} else {
-			$this->status = self::OFFLINE;
+			$this->status = DeviceDriverContract::STATUS_OFFLINE;
 		}
 	}
 
