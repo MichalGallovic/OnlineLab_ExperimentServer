@@ -6,28 +6,79 @@ return [
 		"experiments"	=>	[
 			"openloop" => [
 				"input"	=>	[
-					"c_fan" => "required",
-					"c_lamp" => "required",
-					"c_led" => "required",
-					"t_sim" => "required",
-					"s_rate" => "required"
+					"c_fan" => [
+						"rules"	=>	"required",
+						"name"	=>	"Napätie ventilátora"
+					],
+					"c_lamp" => [
+						"rules"	=>	"required",
+						"name"	=>	"Napätie lampy"
+					],
+					"c_led" => [
+						"rules"	=>	"required",
+						"name"	=>	"Napätie ledky"
+					],
+					"t_sim" => [
+						"rules"	=>	"required",
+						"name"	=>	"Čas simulácie"
+					],
+					"s_rate" => [
+						"rules"	=>	"required",
+						"name"	=>	"Vzorkovací "
+					]
 				]
 			],
 
 			"matlab" => [
 				"input"	=>	[
-					"P" => "required",
-					"I" => "required",
-					"D" => "required",
-					"c_fan" => "required",
-					"c_lamp" => "required",
-					"c_led" => "required",
-					"in_sw" => "required",
-					"out_sw" => "required",
-					"t_sim" => "required",
-					"s_rate" => "required",
-					"input" => "required",
-					"scifun" => "required"
+					"P" => [
+						"rules"	=>	"required",
+						"name"	=>	"P"
+					],
+					"I" => [
+						"rules"	=>	"required",
+						"name"	=>	"I"
+					],
+					"D" => [
+						"rules"	=>	"required",
+						"name"	=>	"D"
+					],
+					"c_fan" => [
+						"rules"	=>	"required",
+						"name"	=>	"Napätie ventilátora"
+					],
+					"c_lamp" => [
+						"rules"	=>	"required",
+						"name"	=>	"Napätie lampy"
+					],
+					"c_led" => [
+						"rules"	=>	"required",
+						"name"	=>	"Napätie ledky"
+					],
+					"in_sw" => [
+						"rules"	=>	"required",
+						"name"	=>	"INSW - asi zbytocne ?"
+					],
+					"out_sw" => [
+						"rules"	=>	"required",
+						"name"	=>	"Regulovaná veličina"
+					],
+					"t_sim" => [
+						"rules"	=>	"required",
+						"name"	=>	"Čas simulácie"
+					],
+					"s_rate" => [
+						"rules"	=>	"required",
+						"name"	=>	"Vzorkovacia frekvencia"
+					],
+					"input" => [
+						"rules"	=>	"required",
+						"name"	=>	"Žiadaná hodnota"
+					],
+					"scifun" => [
+						"rules"	=>	"required",
+						"name"	=>	"Scifun ????"
+					]
 				]
 			],
 		],

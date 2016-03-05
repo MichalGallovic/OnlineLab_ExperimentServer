@@ -25,7 +25,22 @@ class Experiment extends Model
     {
     	$deviceName = $this->device->type->name;
 
-    	return $this->getOutputFromConfig($deviceName);	
+    	return $this->getOutputFromConfig($deviceName);
+    }
+
+    public function getInputRules()
+    {
+    	$inputArguments = $this->getInputArguments();
+
+    	$inputRules = [];
+
+    	foreach ($inputArguments as $argument => $properties) 
+    	{
+    		$inputRules[$argument] = $properties['rules'];
+    	}
+
+    	return $inputRules;
+
     }
 
     protected function getInputFromConfig($deviceName, $experimentName)

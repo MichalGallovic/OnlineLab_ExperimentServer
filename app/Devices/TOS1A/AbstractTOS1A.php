@@ -39,7 +39,10 @@ abstract class AbstractTOS1A extends AbstractDevice
 		parent::__construct($device, $experimentType);
 		$this->scriptsPath = base_path() . "/server_scripts/TOS1A";
 		$this->output = null;
-		$this->outputArguments = config("devices.tos1a.output");
+		$this->outputArguments = $device->getOutputArguments();
+		// Definijng input arguments and rules
+		// for validation
+		$this->inputArguments = $device->getInputRules();
 		$this->assignedOutput = null;
 		// The whole meaning of this class it to operate
 		// on the physical device - so it is essential
