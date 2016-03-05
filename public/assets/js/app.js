@@ -7,16 +7,23 @@ new Vue({
 		this.getDevices();
 	},
 	data : {
-		experiments : [],
-		devices: []
+		experiments : null,
+		devices: null,
+		activeDevice: null,
+		activeExperimentType: null,
+		experimentTypes: null
 	},
 	methods : {
+		pickDevice: function(device) {
+			this.activeDevice = device;
+			device.active = true;
+		},
 		getExperimentTypes : function() {
 			var me = this;
 
 			$.getJSON('api/server/experiments')
 			 .done(function(response) {
-			 	console.log(response.data);
+
 			 	me.experiments = response.data;
 			 });
 		},
@@ -34,7 +41,14 @@ new Vue({
 
 			$.getJSON('api/server/devices')
 			 .done(function(response) {
-			 	me.devices = response.data;
+			 	var devices = response.data;
+			 	
+			 	$.map(devices, function(device) {
+			 		device.active = false;
+			 		console.log(device);
+			 		return device;
+			 	});
+			 	me.devices = devices;
 			 });
 		},
 		initGraph: function(data) {

@@ -11,13 +11,10 @@ class Matlab extends AbstractTOS1A implements DeviceDriverContract
 {
 	use Outputable, AsyncRunnable;
 
-	public function __construct($device,$experimentType) {
+	public function __construct($device,$experimentType) 
+	{
 		parent::__construct($device,$experimentType);
 		$this->scriptNames["matlab"] = "matlab/run.py";
-		
-		// Definijng input arguments and rules
-		// for validation
-		$this->inputArguments = config("devices.tos1a.experiments.matlab.input");
 	}
 
 	protected function getSimulationTime() {

@@ -7,6 +7,7 @@ use App\Devices\DeviceManager;
 use Illuminate\Support\Str;
 use App\Devices\Exceptions\DriverDoesNotExistException;
 use App\Devices\Exceptions\ExperimentNotSupportedException;
+use App\Experiment;
 
 class Device extends Model
 {
@@ -64,6 +65,10 @@ class Device extends Model
 
     public function experimentLogs() {
         return $this->hasManyThrough(ExperimentLog::class,Experiment::class);
+    }
+
+    public function experiments() {
+        return $this->hasMany(Experiment::class);
     }
 
     /**
