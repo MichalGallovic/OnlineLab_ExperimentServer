@@ -22,6 +22,7 @@ abstract class AbstractDevice {
 	protected $inputArguments;
 	protected $maxRunningTime;
 
+	protected $experiment;
 	protected $experimentType;
 	protected $experimentInput;
 	protected $experimentLogger;
@@ -29,9 +30,10 @@ abstract class AbstractDevice {
 
 	const MAX_INITIALIZATION_TIME = 25;
 
-	public function __construct($device, $experimentType) {
+	public function __construct($device, $experiment) {
 		$this->device = $device;
-		$this->experimentType = $experimentType;
+		$this->experiment = $experiment;
+		$this->experimentType = $experiment->type;
 		$this->experimentSuccessful = false;
 	}
 

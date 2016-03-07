@@ -11,9 +11,9 @@ class Matlab extends AbstractTOS1A implements DeviceDriverContract
 {
 	use Outputable, AsyncRunnable;
 
-	public function __construct($device,$experimentType) 
+	public function __construct($device,$experiment) 
 	{
-		parent::__construct($device,$experimentType);
+		parent::__construct($device,$experiment);
 		$this->scriptNames["matlab"] = "matlab/run.py";
 	}
 

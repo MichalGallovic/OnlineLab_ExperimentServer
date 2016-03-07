@@ -34,9 +34,9 @@ class Experiment extends Model
 
     	$inputRules = [];
 
-    	foreach ($inputArguments as $argument => $properties) 
+    	foreach ($inputArguments as $argument) 
     	{
-    		$inputRules[$argument] = $properties['rules'];
+    		$inputRules[$argument['name']] = $argument['rules'];
     	}
 
     	return $inputRules;

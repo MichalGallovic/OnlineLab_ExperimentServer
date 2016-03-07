@@ -42,7 +42,11 @@ class Device extends Model
         // i.e. createTOS1AMatlab
     	$method = 'create' . Str::upper($this->type->name) . Str::ucfirst($experimentType) . 'Driver';
 
-        $deviceManager = new DeviceManager($this, ExperimentType::where("name", $experimentType)->first());
+        $experimentType = ExperimentType::where("name", $experimentType)->first();
+
+        $experiment = Experiment::where('device_id',$this->id)->where('experiment_type_id',$experimentType->id)->first();
+
+        $deviceManager = new DeviceManager($this, $experiment);
 
     	if(!method_exists($deviceManager, $method)) {
             throw new DriverDoesNotExistException;
