@@ -8,6 +8,7 @@ $(function () {
 var vm = new Vue({
 	el : "#app",
 	experimentIntervalId: null,
+	experimentMeasuringRate: null,
 	ready : function() {
 		// this.getExperiments();
 		// this.getLatestExperiment();
@@ -22,8 +23,7 @@ var vm = new Vue({
 		activeExperiment: null,
 		experimentTypes: null,
 		selectedExperiment: null,
-		experimentData: null,
-		point: 0
+		experimentData: null
 	},
 	methods : {
 		runExperiment: function(event) {
@@ -51,9 +51,11 @@ var vm = new Vue({
 			 	// console.log(experimentData);
 			 	if(!me.experimentData && experimentData && experimentData.length > 0) {
 			 		me.initGraph(experimentData);
-			 		// var chart = $('.olm-graph').highcharts();
-			 		// chart.addSeries(response.data);
 			 		me.experimentData = experimentData;
+			 		me.experimentMeasuringRate = response.measuring_rate;
+			 		if(!me.experimentIntervalId) {
+			 			me.experimentIntervalId = setInterval(me.readExperimentData, 500);
+			 		}
 			 	}
 
 			 	if(me.experimentData) me.experimentData = experimentData;
@@ -87,10 +89,16 @@ var vm = new Vue({
 			var me = this;
 			var series = [];
 			$.each(data, function(index, measurement) {
+				var measurementWithTime = [];
+				$.each(measurement, function(index, value) {
+					measurementWithTime.push([index*me.experimentMeasuringRate, value]);
+				});
+
 				series.push({
 					type: "line",
 					name: me.activeExperiment.output[index],
-					data: measurement
+					data: measurementWithTime,
+					visible: false
 				});
 			});
 
@@ -110,9 +118,16 @@ var vm = new Vue({
 		},
 		pickDevice: function(device) {
 			this.activeMenu = "device";
-			this.activeDevice = device;
-			device.active = true;
-			this.selectedExperiment = 1;
+			if(!this.activeDevice) {
+				this.activeDevice = device;
+				device.active = true;
+			}
+			if(!this.selectedExperiment) {
+				this.selectedExperiment = 1;
+			} else {
+				console.log(this.experimentData);
+				this.initGraph(this.experimentData);
+			}
 
 		},
 		selectExperiment: function(id) {
@@ -123,9 +138,11 @@ var vm = new Vue({
 				$.each(experiments, function(index, experiment){
 					if(experiment.id == id) {
 						me.activeExperiment = experiment;
+						me.readExperimentData();
 					}
 				});
 			}
+
 		},
 		getExperimentTypes : function() {
 			var me = this;
@@ -162,10 +179,11 @@ var vm = new Vue({
 			 	// me.pickDevice(devices[0]);
 			 });
 		},
+
 		initGraph: function(series) {
 			var me = this;
 
-			$(".olm-graph").highcharts({
+			var chart = $(".olm-graph").highcharts({
 				
 				title: {
 				    text: me.experimentDescription
@@ -173,6 +191,15 @@ var vm = new Vue({
 				xAxis: {
 					title: {
 						text: "Simulation time"
+					},
+					labels: {
+						formatter: function() {
+							if(this.value <= 1000) {
+								return this.value;
+							}
+
+							return this.value / 1000.00;
+						}
 					}
 				},
 				yAxis: {
@@ -180,9 +207,18 @@ var vm = new Vue({
 				        text: 'Measurement value'
 				    }
 				},
-				animation: false,
+				legend: {
+					align: 'right',
+		            verticalAlign: 'top',
+		            layout: 'vertical',
+		            x: 0,
+		            y: 0,
+		            itemMarginTop: 10
+				},
 				series: series
 			});
+
+			console.log(chart);
 		}
 	},
 	computed : {
@@ -199,15 +235,11 @@ vm.$watch('selectedExperiment', function(id) {
 vm.$watch('experimentData', function(newData, oldData) {
 	var numMeasuremnetTypes = newData.length;
 	var chart = $('.olm-graph').highcharts();
-
-	for(var i = 0; i < numMeasuremnetTypes; i++) {
-		chart.series[i].setData(newData[i].data);
+	// console.log(chart);
+	if(chart) {
+		// console.log(numMeasuremnetTypes);
+		for(var i = 0; i < numMeasuremnetTypes; i++) {
+			chart.series[i].setData(newData[i].data);
+		}
 	}
 });
-
-// var chart = $('.olm-graph').highcharts();
-// // chart.remove();
-// $.each(me.formatChartInput(response.data)[1].data, function(index, point) {
-// 	chart.series[0].addPoint(point);
-// });
-// console.log(chart.series);

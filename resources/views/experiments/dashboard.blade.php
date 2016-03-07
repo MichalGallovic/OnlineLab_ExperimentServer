@@ -20,8 +20,10 @@
 		</div>
 
 		<div class="row" v-if="activeMenu == 'device'">
-			<div class="col-lg-9 olm-graph" v-if="activeDevice">
-
+			<div class="col-lg-9" v-if="activeDevice">
+				<div class="olm-graph">
+					blabla car
+				</div>
 			</div>
 			<div class="col-lg-3">
 				<div class="row">
