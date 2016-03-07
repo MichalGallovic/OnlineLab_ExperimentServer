@@ -116,6 +116,7 @@ class DeviceController extends ApiController
         }
 
         return $this->respondWithArray([
+                "measuring_rate" =>  $logger->measuring_rate,
                 "data" => $output
             ]);
         
