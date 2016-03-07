@@ -5,7 +5,7 @@ use App\Devices\TOS1A\OpenModelica;
 use App\Devices\TOS1A\Scilab;
 use App\Devices\TOS1A\Matlab;
 use App\Device;
-use App\ExperimentType;
+use App\Experiment;
 
 /**
  * Manages the instatiation strategy
@@ -14,24 +14,24 @@ use App\ExperimentType;
 class DeviceManager
 {
 	protected $device;
-	protected $experimentType;
+	protected $experiment;
 
 	/**
 	 * @param App\Device
 	 */
-	public function __construct(Device $device, ExperimentType $experimentType) {
+	public function __construct(Device $device, Experiment $experiment) {
 		$this->device = $device;
-		$this->experimentType = $experimentType;
+		$this->experiment = $experiment;
 	}
 
 
 	/**
-	 * Running experiments on TOS1A in loop
+	 * Running experiments on TOS1A in openloop
 	 * 
 	 * @return App\Devices\TOS1A\Loop
 	 */
 	public function createTOS1AOpenloopDriver() {
-		return new OpenLoop($this->device, $this->experimentType);
+		return new OpenLoop($this->device, $this->experiment);
 	}
 
 	
@@ -41,7 +41,7 @@ class DeviceManager
 	 * @return App\Devices\TOS1A\Matlab
 	 */
 	public function createTOS1AMatlabDriver() {
-		return new Matlab($this->device, $this->experimentType);
+		return new Matlab($this->device, $this->experiment);
 	}
 
 	/**
@@ -50,7 +50,7 @@ class DeviceManager
 	 * @return App\Devices\TOS1A\Openmodelica
 	 */
 	public function createTOS1AOpenmodelicaDriver() {
-		return new OpenModelica($this->device, $this->experimentType);
+		return new OpenModelica($this->device, $this->experiment);
 	}
 
 	
@@ -60,6 +60,6 @@ class DeviceManager
 	 * @return App\Devices\TOS1A\Scilab
 	 */
 	public function createTOS1AScilabDriver() {
-		return new Scilab($this->device, $this->experimentType);
+		return new Scilab($this->device, $this->experiment);
 	}
 }

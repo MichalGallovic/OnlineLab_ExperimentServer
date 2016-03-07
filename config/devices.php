@@ -6,78 +6,105 @@ return [
 		"experiments"	=>	[
 			"openloop" => [
 				"input"	=>	[
-					"c_fan" => [
+					[
+						"name"	=>	"c_fan",
 						"rules"	=>	"required",
-						"name"	=>	"Napätie ventilátora"
+						"title"	=>	"Napätie ventilátora",
+						"placeholder"	=>	20
 					],
-					"c_lamp" => [
+					[
+						"name"	=>	"c_lamp",
 						"rules"	=>	"required",
-						"name"	=>	"Napätie lampy"
+						"title"	=>	"Napätie lampy",
+						"placeholder"	=>	60
 					],
-					"c_led" => [
+					[
+						"name"	=>	"c_led",
 						"rules"	=>	"required",
-						"name"	=>	"Napätie ledky"
+						"title"	=>	"Napätie ledky",
+						"placeholder"	=>	0
 					],
-					"t_sim" => [
+					[
+						"name"	=>	"t_sim",
 						"rules"	=>	"required",
-						"name"	=>	"Čas simulácie"
+						"title"	=>	"Čas simulácie",
+						"placeholder"	=>	10
 					],
-					"s_rate" => [
+					[
+						"name"	=>	"s_rate",
 						"rules"	=>	"required",
-						"name"	=>	"Vzorkovací "
+						"title"	=>	"Vzorkovací čas",
+						"placeholder"	=>	200
 					]
 				]
 			],
 
 			"matlab" => [
 				"input"	=>	[
-					"P" => [
+					[
+						"name"	=>	"P",
 						"rules"	=>	"required",
-						"name"	=>	"P"
+						"title"	=>	"P"
 					],
-					"I" => [
+					[
+						"name"	=>	"I",
 						"rules"	=>	"required",
-						"name"	=>	"I"
+						"title"	=>	"I"
 					],
-					"D" => [
+					[
+						"name"	=>	"D",
 						"rules"	=>	"required",
-						"name"	=>	"D"
+						"title"	=>	"D"
 					],
-					"c_fan" => [
+					[
+						"name"	=>	"c_fan",
 						"rules"	=>	"required",
-						"name"	=>	"Napätie ventilátora"
+						"title"	=>	"Napätie ventilátora"
 					],
-					"c_lamp" => [
+					[
+						"name"	=>	"c_lamp",
 						"rules"	=>	"required",
-						"name"	=>	"Napätie lampy"
+						"title"	=>	"Napätie lampy"
 					],
-					"c_led" => [
+					[
+						"name"	=>	"c_led",
 						"rules"	=>	"required",
-						"name"	=>	"Napätie ledky"
+						"title"	=>	"Napätie ledky"
 					],
-					"in_sw" => [
+					[
+						"name"	=>	"ctrltyp",
 						"rules"	=>	"required",
-						"name"	=>	"INSW - asi zbytocne ?"
+						"title"	=>	"Typ simulacie"
 					],
-					"out_sw" => [
+					[
+						"name"	=>	"in_sw",
 						"rules"	=>	"required",
-						"name"	=>	"Regulovaná veličina"
+						"title"	=>	"INSW - asi zbytocne ?"
 					],
-					"t_sim" => [
+					[
+						"name"	=>	"out_sw",
 						"rules"	=>	"required",
-						"name"	=>	"Čas simulácie"
+						"title"	=>	"Regulovaná veličina"
 					],
-					"s_rate" => [
+					[
+						"name"	=>	"t_sim",
 						"rules"	=>	"required",
-						"name"	=>	"Vzorkovacia frekvencia"
+						"title"	=>	"Čas simulácie"
 					],
-					"input" => [
+					[
+						"name"	=>	"s_rate",
 						"rules"	=>	"required",
-						"name"	=>	"Žiadaná hodnota"
+						"title"	=>	"Vzorkovacia frekvencia"
 					],
-					"scifun" => [
+					[
+						"name"	=>	"input",
 						"rules"	=>	"required",
-						"name"	=>	"Scifun ????"
+						"title"	=>	"Žiadaná hodnota"
+					],
+					[
+						"name"	=>	"scifun",
+						"rules"	=>	"required",
+						"title"	=>	"Scifun ????"
 					]
 				]
 			],
