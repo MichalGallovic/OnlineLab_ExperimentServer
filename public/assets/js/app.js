@@ -5,6 +5,88 @@ $(function () {
     });
 });
 
+Vue.component('olm-graph', {
+	template: "#graph-template",
+	props: {
+		series: {
+			default: function() {
+				return [{data:[]}];
+			}
+		},
+		description: {
+			type: String,
+			default: "Empty graph"
+		}
+	},
+	ready: function() {
+		this.initGraph(this.series);
+	},
+	methods: {
+		initGraph: function(series) {
+			var me = this;
+			
+			this.getjQueryGraph().highcharts({
+				title: {
+				    text: me.description
+				},
+				xAxis: {
+					title: {
+						text: "Simulation time"
+					},
+					labels: {
+						formatter: function() {
+							if(this.value <= 1000) {
+								return this.value;
+							}
+
+							return this.value / 1000.00;
+						}
+					}
+				},
+				yAxis: {
+				    title: {
+				        text: 'Measurement value'
+				    }
+				},
+				legend: {
+					align: 'right',
+		            verticalAlign: 'top',
+		            layout: 'vertical',
+		            x: 0,
+		            y: 0,
+		            itemMarginTop: 10
+				},
+				series: series
+			});
+		},
+		getjQueryGraph: function() {
+			return $(this.$els.graph);
+		}
+	},
+	watch: {
+		series: function(newSeries, oldSeries) {
+			var chart = this.getjQueryGraph().highcharts();
+			
+			if(newSeries.length == oldSeries.length) {
+				for(var i = 0; i < newSeries.length; i++) {
+					chart.series[i].setData(newSeries[i].data)
+				}
+			} else {
+				chart.destroy();
+				this.initGraph(newSeries);
+			}
+
+		},
+		description: function(newDescription, oldDescription) {
+			var chart = this.getjQueryGraph().highcharts();
+
+			chart.setTitle({
+				text: newDescription
+			})
+		}
+	}
+});
+
 var vm = new Vue({
 	el : "#app",
 	experimentIntervalId: null,
@@ -23,7 +105,11 @@ var vm = new Vue({
 		selectedExperiment: null,
 		experimentData: null,
 		experimentsHistory : [],
-		selectedHistoryExperiment: null,
+		pastExperiment: {
+			series: [{data:[]}],
+			id: null,
+			description: null
+		},
 		outputArguments: null
 	},
 	methods : {
@@ -104,18 +190,17 @@ var vm = new Vue({
 
 			return series;
 		},
-		formatChartInput2: function(data) {
+		formatGraphInput: function(data, rate, output_arguments) {
 			var me = this;
 			var series = [];
-
 			$.each(data, function(index, measurement) {
 				var measurementWithTime = [];
 				$.each(measurement, function(index, value) {
-					measurementWithTime.push([index*me.experimentMeasuringRate, value]);
+					measurementWithTime.push([index*rate, value]);
 				});
 				series.push({
 					type: "line",
-					name: me.outputArguments[index],
+					name: output_arguments[index],
 					data: measurementWithTime,
 					visible: false
 				});
@@ -188,13 +273,21 @@ var vm = new Vue({
 		},
 		showPreviousExperiment: function(experiment) {
 			var me = this;
-			this.selectedHistoryExperiment = experiment;
+
+			this.pastExperiment.id = experiment.id;
+			this.pastExperiment.description = "Device: " + experiment.device_type + " SW Environment: " + experiment.experiment_type;
 			this.getExperimentDataById(experiment.id)
 				.done(function(response){
-					me.outputArguments = response.data.output_arguments.data;
-					me.experimentMeasuringRate = response.data.measurements.data.measurements_rate;
-					var experimentData = me.formatChartInput2(response.data.measurements.data.measurements);
-					me.initGraph(experimentData);
+					me.pastExperiment.series = me.formatGraphInput(
+						response.data.measurements.data.measurements,
+						response.data.measurements.data.measurements_rate,
+						response.data.output_arguments.data
+					);
+
+					// me.outputArguments = response.data.output_arguments.data;
+					// me.experimentMeasuringRate = response.data.measurements.data.measurements_rate;
+					// var experimentData = me.formatChartInput2(response.data.measurements.data.measurements);
+					// me.initGraph(experimentData);
 				});
 		},
 		getExperimentDataById: function(id) {
