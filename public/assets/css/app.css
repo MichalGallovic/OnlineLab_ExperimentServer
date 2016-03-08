@@ -1,3 +1,14 @@
-.olm-graph {
+.olm-graph-placeholder {
 	height:500px;
+	line-height: 500px;
+	vertical-align: middle;
+	text-align: center;
+	background: rgb(200,200,200);
+	margin-top:20px;
+}
+
+.olm-graph-placeholder:before {
+	content:"Graph";
+	font-size: 40px;
+	color: rgb(80,80,80);
 }

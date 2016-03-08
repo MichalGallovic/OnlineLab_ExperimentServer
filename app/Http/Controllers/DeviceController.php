@@ -135,7 +135,7 @@ class DeviceController extends ApiController
             $measurementsEvery = $request->input("every");
         }
 
-        $logs = $device->experimentLogs->sortBy("created_at");
+        $logs = $device->experimentLogs->sortByDesc("created_at");
 
 
         return $this->respondWithCollection($logs, new ExperimentLogTransformer($measurementsEvery));

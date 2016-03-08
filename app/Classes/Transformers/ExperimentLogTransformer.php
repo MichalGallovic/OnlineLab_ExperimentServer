@@ -17,7 +17,9 @@ class ExperimentLogTransformer extends TransformerAbstract
 	}
 
 	protected $availableIncludes = [
-		"measurements"
+		"measurements",
+		"input_arguments",
+		'output_arguments'
 	];
 
 
@@ -30,7 +32,8 @@ class ExperimentLogTransformer extends TransformerAbstract
 			"id" => (int) $log->id,
 			"device_type" => $experiment->device->type->name,
 			"experiment_type" => $experiment->type->name,
-			"duration" => $this->duration
+			"duration" => $this->duration,
+			"started_at"	=>	$log->created_at->diffForHumans()
 		];
 	}
 
@@ -62,5 +65,15 @@ class ExperimentLogTransformer extends TransformerAbstract
 	private function isRequestedRateValid(ExperimentLog $log) {
 		return $this->measuremenetsEveryMs > $log->measuring_rate && 
 		$this->measuremenetsEveryMs/1000 < $this->duration;
+	}
+
+	public function includeInputArguments(ExperimentLog $log)
+	{
+		return $this->item($log->experiment->getInputArguments(), new GeneralArrayTransformer);
+	}
+
+	public function includeOutputArguments(ExperimentLog $log)
+	{
+		return $this->item($log->experiment->getOutputArguments(), new GeneralArrayTransformer);
 	}
 }

@@ -4,6 +4,7 @@
 	<meta charset="UTF-8">
 	<title>Development Dashboard</title>
 	<link href="{{ asset('assets/css/bootstrap.min.css') }}" rel="stylesheet">
+	<link rel="stylesheet" href="{{ asset('assets/css/app.css') }}">
 </head>
 <body id="app">
 	{{ csrf_field() }}
@@ -22,7 +23,7 @@
 		<div class="row" v-if="activeMenu == 'device'">
 			<div class="col-lg-9" v-if="activeDevice">
 				<div class="olm-graph">
-					blabla car
+					<div class="olm-graph-placeholder"></div>
 				</div>
 			</div>
 			<div class="col-lg-3">
@@ -53,7 +54,25 @@
 			<h2>Nejake info</h2>
 		</div>
 		<div class="row" v-if="activeMenu == 'experiments'">
-			<h2>Last Experiment</h2>
+			<div class="col-lg-9">
+				<div class="olm-graph">
+					<div class="olm-graph-placeholder"></div>
+				</div>
+			</div>
+			<div class="col-lg-3">
+				<h4>Previous experiments</h4>
+				<ul class="list-group" style="max-height: 500px; overflow: auto;">
+				  <li 
+				  v-bind:class="{'active' : selectedHistoryExperiment.id == experiment.id}" 
+				  class="list-group-item" 
+				  v-for="experiment in experimentsHistory" 
+				  v-on:click="showPreviousExperiment(experiment)"
+				  style="cursor: pointer;"
+				  >
+				  @{{ experiment.device_type }} - @{{ experiment.experiment_type }} | @{{ experiment.started_at }}
+				  </li>
+				</ul>
+			</div>
 		</div>
 	</div>
 	<script src="{{ asset('assets/js/jquery-1.12.1.js') }}"></script>
