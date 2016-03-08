@@ -10,8 +10,6 @@ var vm = new Vue({
 	experimentIntervalId: null,
 	experimentMeasuringRate: null,
 	ready : function() {
-		// this.getExperiments();
-		// this.getLatestExperiment();
 		this.getDevices();
 		this.showExperiments();
 	},
@@ -23,7 +21,10 @@ var vm = new Vue({
 		activeExperiment: null,
 		experimentTypes: null,
 		selectedExperiment: null,
-		experimentData: null
+		experimentData: null,
+		experimentsHistory : [],
+		selectedHistoryExperiment: null,
+		outputArguments: null
 	},
 	methods : {
 		runExperiment: function(event) {
@@ -93,7 +94,6 @@ var vm = new Vue({
 				$.each(measurement, function(index, value) {
 					measurementWithTime.push([index*me.experimentMeasuringRate, value]);
 				});
-
 				series.push({
 					type: "line",
 					name: me.activeExperiment.output[index],
@@ -104,13 +104,37 @@ var vm = new Vue({
 
 			return series;
 		},
+		formatChartInput2: function(data) {
+			var me = this;
+			var series = [];
+
+			$.each(data, function(index, measurement) {
+				var measurementWithTime = [];
+				$.each(measurement, function(index, value) {
+					measurementWithTime.push([index*me.experimentMeasuringRate, value]);
+				});
+				series.push({
+					type: "line",
+					name: me.outputArguments[index],
+					data: measurementWithTime,
+					visible: false
+				});
+			});
+
+			return series;
+		},
 		showInfo: function() {
-			// this.deactivateDevice();
 			this.activeMenu = "info";
 		},
 		showExperiments: function() {
-			// this.deactivateDevice();
+			var me = this;
 			this.activeMenu = "experiments";
+			this.getDevicesPromise()
+				.done(function(response) {
+					$.each(response.data, function(index, device) {
+						me.getExperimentsHistoryForDevice(device.id);
+					});
+				});
 		},
 		deactivateDevice: function() {
 			this.activeDevice.active = false;
@@ -125,8 +149,9 @@ var vm = new Vue({
 			if(!this.selectedExperiment) {
 				this.selectedExperiment = 1;
 			} else {
-				console.log(this.experimentData);
+				// console.log(this.experimentData);
 				this.initGraph(this.experimentData);
+				// this.selectExperiment(this.selectedExperiment);
 			}
 
 		},
@@ -144,15 +169,6 @@ var vm = new Vue({
 			}
 
 		},
-		getExperimentTypes : function() {
-			var me = this;
-
-			$.getJSON('api/server/experiments')
-			 .done(function(response) {
-
-			 	me.experiments = response.data;
-			 });
-		},
 		getLatestExperiment: function() {
 			var me = this;
 
@@ -161,6 +177,28 @@ var vm = new Vue({
 			 	console.log(response.data.measurements.data.measurements);
 		 		me.initGraph(response.data.measurements.data.measurements);
 			 });
+		},
+		getExperimentsHistoryForDevice: function(id) {
+			var me = this;
+
+			$.getJSON('api/devices/' + id + "/experiments")
+			 .done(function(response) {
+			 	me.experimentsHistory = response.data;
+			 });
+		},
+		showPreviousExperiment: function(experiment) {
+			var me = this;
+			this.selectedHistoryExperiment = experiment;
+			this.getExperimentDataById(experiment.id)
+				.done(function(response){
+					me.outputArguments = response.data.output_arguments.data;
+					me.experimentMeasuringRate = response.data.measurements.data.measurements_rate;
+					var experimentData = me.formatChartInput2(response.data.measurements.data.measurements);
+					me.initGraph(experimentData);
+				});
+		},
+		getExperimentDataById: function(id) {
+			return $.getJSON('api/experiments/' + id + "?include=measurements,output_arguments");
 		},
 		getDevices: function() {
 			var me = this;
@@ -179,7 +217,10 @@ var vm = new Vue({
 			 	// me.pickDevice(devices[0]);
 			 });
 		},
-
+		//@Todo wrap every request to promises
+		getDevicesPromise: function() {
+			return $.getJSON('api/server/devices');
+		},
 		initGraph: function(series) {
 			var me = this;
 
@@ -218,7 +259,7 @@ var vm = new Vue({
 				series: series
 			});
 
-			console.log(chart);
+			console.log($(".olm-graph").highcharts());
 		}
 	},
 	computed : {
@@ -235,6 +276,7 @@ vm.$watch('selectedExperiment', function(id) {
 vm.$watch('experimentData', function(newData, oldData) {
 	var numMeasuremnetTypes = newData.length;
 	var chart = $('.olm-graph').highcharts();
+
 	// console.log(chart);
 	if(chart) {
 		// console.log(numMeasuremnetTypes);
