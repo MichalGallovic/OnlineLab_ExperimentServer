@@ -55,15 +55,16 @@
 		</div>
 		<div class="row" v-if="activeMenu == 'experiments'">
 			<div class="col-lg-9">
-				<div class="olm-graph">
-					<div class="olm-graph-placeholder"></div>
-				</div>
+				<olm-graph 
+					:description="pastExperiment.description"
+					:series="pastExperiment.series"
+				></olm-graph>
 			</div>
 			<div class="col-lg-3">
 				<h4>Previous experiments</h4>
 				<ul class="list-group" style="max-height: 500px; overflow: auto;">
 				  <li 
-				  v-bind:class="{'active' : selectedHistoryExperiment.id == experiment.id}" 
+				  v-bind:class="{'active' : pastExperiment.id == experiment.id}" 
 				  class="list-group-item" 
 				  v-for="experiment in experimentsHistory" 
 				  v-on:click="showPreviousExperiment(experiment)"
@@ -75,6 +76,15 @@
 			</div>
 		</div>
 	</div>
+
+	<template id="graph-template">
+		<div v-el:graph class="olm-graph" v-show="series.length > 1">
+			
+		</div>
+		<div class="olm-graph-placeholder">
+		</div>
+	</template>
+
 	<script src="{{ asset('assets/js/jquery-1.12.1.js') }}"></script>
 	<script src="{{ asset('assets/js/bootstrap.min.js') }}"></script>
 	<script src="{{ asset('assets/js/vue.js') }}"></script>
