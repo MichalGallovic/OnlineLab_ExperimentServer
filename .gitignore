@@ -3,3 +3,6 @@
 Homestead.yaml
 Homestead.json
 .env
+
+# MacOS X specific
+.DS_Store
