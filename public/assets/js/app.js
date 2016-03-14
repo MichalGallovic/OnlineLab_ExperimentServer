@@ -97,15 +97,15 @@ var vm = new Vue({
 		this.showExperiments();		
 	},
 	data : {
-		experiments : null,
+		waitingForData: false,
 		devices: null,
 		activeDevice: null,
 		activeMenu: "info",
-		activeExperiment: null,
-		experimentTypes: null,
+		activeSoftware: null,
 		selectedExperiment: null,
 		experimentData: [{data:[]}],
 		experimentsHistory : [],
+
 		pastExperiment: {
 			series: [{data:[]}],
 			id: null,
@@ -127,7 +127,11 @@ var vm = new Vue({
 				data: formData
 			});
 
+			this.waitingForData = true;
+
 			this.startListening();
+
+			// setTimeout(this.startListening(), 1000);
 					
 		},
 		startListening: function() {
@@ -137,14 +141,15 @@ var vm = new Vue({
 			var me = this;
 			$.getJSON('api/devices/' + this.activeDevice.id + '/readexperiment')
 			 .done(function(response) {
+			 	me.waitingForData = false;
 			 	me.experimentData = me.formatGraphInput(
 			 		response.data, 
 			 		response.measuring_rate,
-			 		me.activeExperiment.output);
+			 		me.activeSoftware.output);
 
 			 })
 			 .fail(function(response) {
-			 	if(me.experimentData) {
+			 	if(!me.waitingForData) {
 			 		clearInterval(me.experimentIntervalId);
 			 	}
 			 });
@@ -182,12 +187,12 @@ var vm = new Vue({
 			var experiment_input = {};
 
 			for(var i = 0; i < inputValues.length; i++) {
-				experiment_input[this.activeExperiment.input[i].name] = inputValues[i];
+				experiment_input[this.activeSoftware.input[i].name] = inputValues[i];
 			}
 
 			return {
-				"experiment_type" : this.activeExperiment.name,
-				"experiment_input": experiment_input
+				"software" : this.activeSoftware.name,
+				"input": experiment_input
 			};
 		},
 		formatGraphInput: function(data, rate, output_arguments) {
@@ -233,12 +238,12 @@ var vm = new Vue({
 		},
 		selectExperiment: function(id) {
 			var me = this;
-			var experiments = this.activeDevice.experiments;
+			var softwares = this.activeDevice.softwares;
 			
-			if(experiments.length > 0) {
-				$.each(experiments, function(index, experiment){
+			if(softwares.length > 0) {
+				$.each(softwares, function(index, experiment){
 					if(experiment.id == id) {
-						me.activeExperiment = experiment;
+						me.activeSoftware = experiment;
 					}
 				});
 			}
@@ -256,7 +261,7 @@ var vm = new Vue({
 			var me = this;
 
 			this.pastExperiment.id = experiment.id;
-			this.pastExperiment.description = "Device: " + experiment.device_type + " SW Environment: " + experiment.experiment_type;
+			this.pastExperiment.description = "Device: " + experiment.device + " SW Environment: " + experiment.software;
 			this.getExperimentDataById(experiment.id)
 				.done(function(response){
 					me.pastExperiment.series = me.formatGraphInput(
@@ -293,7 +298,7 @@ var vm = new Vue({
 	},
 	computed : {
 		experimentDescription: function() {
-			return this.activeDevice.name + " running " + this.activeExperiment.name + " experiment"
+			return this.activeDevice.name + " running " + this.activeSoftware.name + " experiment"
 		}
 	}
 });
@@ -302,7 +307,7 @@ vm.$watch('selectedExperiment', function(id) {
 	this.selectExperiment(id);
 });
 
-vm.$watch('activeExperiment', function() {
+vm.$watch('activeSoftware', function() {
 	
 });
 
