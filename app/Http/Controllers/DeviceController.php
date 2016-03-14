@@ -169,8 +169,8 @@ class DeviceController extends ApiController
         }
 
         try {
-            $type = strtolower($request->input('experiment_type'));
-            $experimentType = ExperimentType::where('name', $type)->firstOrFail();
+            $softwareName = strtolower($request->input('software'));
+            $software = Software::where('name', $softwareName)->firstOrFail();
         } catch(ModelNotFoundException $e) {
             return $this->errorForbidden("Experiment type: '" . $type . "'" . " does not exist");
         }
@@ -179,13 +179,13 @@ class DeviceController extends ApiController
         // When everything looks fine it is
         // time to boot up classes for
         // specific device
-        $deviceDriver = $device->driver($experimentType->name);
+        $deviceDriver = $device->driver($software->name);
 
         // This is for development
         if (App::environment() == 'local') {
-            $experimentLog = $deviceDriver->run($request->input("experiment_input"), 1);
+            $experimentLog = $deviceDriver->run($request->input("input"), 1);
         } else {
-            $experimentLog = $deviceDriver->run($request->input("experiment_input"), $request->input("requested_by"));
+            $experimentLog = $deviceDriver->run($request->input("input"), $request->input("requested_by"));
         }
 
         return $this->respondWithSuccess($experimentLog->getResult());
