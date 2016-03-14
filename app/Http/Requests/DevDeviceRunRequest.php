@@ -28,8 +28,8 @@ class DevDeviceRunRequest extends Request
     public function rules()
     {
         return [
-            "experiment_type"   =>  "required|string|min:1",
-            "experiment_input"  =>  "required|array"
+            "software"   =>  "required|string|min:1",
+            "input"  =>  "required|array"
         ];
     }
 
