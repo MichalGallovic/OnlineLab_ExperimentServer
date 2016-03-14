@@ -28,10 +28,11 @@ class ExperimentLogTransformer extends TransformerAbstract
 	{
 		$experiment = $log->experiment;
 		$this->duration = $log->duration;
+
 		return [
 			"id" => (int) $log->id,
-			"device_type" => $experiment->device->type->name,
-			"experiment_type" => $experiment->type->name,
+			"device" => $experiment->device->type->name,
+			"software" => $experiment->software->name,
 			"duration" => $this->duration,
 			"started_at"	=>	$log->created_at->diffForHumans()
 		];

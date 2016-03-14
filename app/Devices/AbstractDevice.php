@@ -23,7 +23,7 @@ abstract class AbstractDevice {
 	protected $maxRunningTime;
 
 	protected $experiment;
-	protected $experimentType;
+	protected $software;
 	protected $experimentInput;
 	protected $experimentLogger;
 	protected $experimentSuccessful;
@@ -33,7 +33,7 @@ abstract class AbstractDevice {
 	public function __construct($device, $experiment) {
 		$this->device = $device;
 		$this->experiment = $experiment;
-		$this->experimentType = $experiment->type;
+		$this->software = $experiment->software;
 		$this->experimentSuccessful = false;
 	}
 
@@ -50,7 +50,7 @@ abstract class AbstractDevice {
 		// Returning from event listener
 		// the first registered is
 		// returning logger
-		event(new ExperimentStarted($this->device, $this->experimentType, $input, $requestedBy));
+		event(new ExperimentStarted($this->device, $this->experiment, $input, $requestedBy));
 
 
 		$this->experimentLogger = $this->device->currentExperimentLogger;
@@ -303,7 +303,7 @@ abstract class AbstractDevice {
 	}
 
 	protected function prepareExperiment($arguments) {
-		$this->path = $this->getScriptPath($this->experimentType->name);
+		$this->path = $this->getScriptPath($this->software->name);
 
 		$this->simulationTime = $this->getSimulationTime();
 		$this->experimentLogger->duration = $this->simulationTime;

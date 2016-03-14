@@ -10,15 +10,15 @@ class Experiment extends Model
     	return $this->belongsTo(Device::class);
     }
 
-    public function type() {
-    	return $this->belongsTo(ExperimentType::class,"experiment_type_id");
+    public function software() {
+    	return $this->belongsTo(Software::class);
     }
 
     public function getInputArguments() {
     	$deviceName = $this->device->type->name;
-    	$experimentName = $this->type->name;
+    	$softwareName = $this->software->name;
 
-    	return $this->getInputFromConfig($deviceName, $experimentName);
+    	return $this->getInputFromConfig($deviceName, $softwareName);
     }
 
     public function getOutputArguments()
@@ -43,13 +43,13 @@ class Experiment extends Model
 
     }
 
-    protected function getInputFromConfig($deviceName, $experimentName)
+    protected function getInputFromConfig($deviceName, $softwareName)
     {
     	return config(
     		'devices.'  . 
     		$deviceName . 
     		'.experiments.' .
-    		$experimentName .
+    		$softwareName .
     		'.input'
     	);
     }

@@ -3,7 +3,7 @@
 use Illuminate\Database\Seeder;
 use App\Experiment;
 use App\DeviceType;
-use App\ExperimentType;
+use App\Software;
 use App\Device;
 
 class ExperimentsTableSeeder extends Seeder
@@ -15,14 +15,14 @@ class ExperimentsTableSeeder extends Seeder
      */
     public function run()
     {
-        $experimentTypes = ExperimentType::all();
+        $softwares = Software::all();
         $devices = Device::all();
 
         foreach ($devices as $device) {
-            foreach ($experimentTypes as $experimentType) {
+            foreach ($softwares as $software) {
                 Experiment::create([
                     "device_id" => $device->id,
-                    "experiment_type_id" => $experimentType->id
+                    "software_id" => $software->id
                 ]);
             }
         }

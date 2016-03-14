@@ -7,60 +7,84 @@ use App\Devices\DeviceManager;
 use Illuminate\Support\Str;
 use App\Devices\Exceptions\DriverDoesNotExistException;
 use App\Devices\Exceptions\ExperimentNotSupportedException;
-use App\Experiment;
+use Illuminate\Database\Eloquent\ModelNotFoundException;
+use App\Devices\Exceptions\DefaultExperimentNotFoundException;
 
 class Device extends Model
 {
-    /**
-     * @param  $experimentType = matlab|scilab|openmodelica|loop|null
-     * @return DeviceDriverContract - concrete implementation
-     */
-    public function driver($experimentType = null) 
-    {
-        // when experiment type is null, there is no experiment
-        //  running on the device
-        $type = $this->currentExperimentType;
-        if(is_null($type)) {
-            // when $experimentType is null, we are just checking
-            // the state of the device
-            $experimentType = is_null($experimentType) ? "openloop" : $experimentType;
-        } else {
-            // otherwise, we use the experiment is running,
-            // so we will instantiate the concrete type
-            // of device driver implementation
-            $experimentType = $type->name;
-        }
+    
+    public function driver($softwareName = null) {
 
-        $availableExperiments = $this->experimentTypes->lists("name")->toArray();
+        // @Todo rozbit do viacerych ?
+        // Get Current / Default / Requested experiment
+        $experiment = $this->getCurrentOrRequestedExperiment($softwareName);
 
-        if(!in_array(strtolower($experimentType), $availableExperiments)) {
-            throw new ExperimentNotSupportedException($experimentType);
-        }
-
-        // we create the method name, so we can instantiate the 
-        // correct DeviceDriverContract implementation
-        // i.e. createTOS1AMatlab
-    	$method = 'create' . Str::upper($this->type->name) . Str::ucfirst($experimentType) . 'Driver';
-
-        $experimentType = ExperimentType::where("name", $experimentType)->first();
-
-        $experiment = Experiment::where('device_id',$this->id)->where('experiment_type_id',$experimentType->id)->first();
+        $method = 'create' . Str::upper($this->type->name) . Str::ucfirst($experiment->software->name) . 'Driver';
 
         $deviceManager = new DeviceManager($this, $experiment);
 
-    	if(!method_exists($deviceManager, $method)) {
+        if(!method_exists($deviceManager, $method)) {
             throw new DriverDoesNotExistException;
-    	}
+        }
 
-    	return $deviceManager->$method();
+        return $deviceManager->$method();
+
     }
 
-    public function experimentTypes() {
-        return $this->belongsToMany(ExperimentType::class,"experiments");
+    public function getCurrentOrRequestedExperiment($softwareName = null) {
+        $softwareName = $softwareName;
+        // Get current running experiment
+        $experiment = $this->currentExperiment;
+        if(!is_null($experiment)) return $experiment;
+
+        // If no experiment is running and no concrete software
+        // implementation is requested, return default one
+        if(is_null($softwareName)) {
+            $experiment = $this->getDefaultExperiment();
+            return $experiment;
+        }
+
+        // If concrete software implementation is requested
+        // try to find it, otherwise return exception
+        return $this->getExperimentBySoftwareName($softwareName);
     }
 
-    public function currentExperimentType() {
-        return $this->belongsTo(ExperimentType::class, "current_experiment_type_id");
+    public function getDefaultExperiment() {
+        try {
+            $experiment = $this->defaultExperiment()->firstOrFail();
+        } catch(ModelNotFoundException $e) {
+            throw new DefaultExperimentNotFoundException($this);
+        }
+
+        return $experiment;
+    }
+
+    public function getExperimentBySoftwareName($softwareName) {
+        $software = Software::where('name',$softwareName)->firstOrFail();
+
+        try {
+            $experiment = Experiment::where('software_id', $software->id)->where('device_id', $this->id)->firstOrFail();
+        } catch(ModelNotFoundException $e) {
+            throw new ExperimentNotSupportedException($softwareName);
+        }
+
+        return $experiment;
+    }
+
+    public function softwares() {
+        return $this->belongsToMany(Software::class,"experiments");
+    }
+
+    public function experiments() {
+        return $this->hasMany(Experiment::class);
+    }
+
+    public function defaultExperiment() {
+        return $this->belongsTo(Experiment::class, "default_experiment_id");
+    }
+
+    public function currentExperiment() {
+        return $this->belongsTo(Experiment::class, "current_experiment_id");
     }
 
     public function currentExperimentLogger() {
@@ -71,26 +95,18 @@ class Device extends Model
         return $this->hasManyThrough(ExperimentLog::class,Experiment::class);
     }
 
-    public function experiments() {
-        return $this->hasMany(Experiment::class);
-    }
-
     /**
-     * Get current experiment type name
+     * Get current software type name
      * @return mixed [string|null]
      */
-    public function currentExperimentName() {
-        $type = $this->currentExperimentType;
+    public function currentSoftwareName() {
+        $experiment = $this->currentExperiment;
 
-        if(is_null($type)) {
-            return null;
-        }
-
-        return $type->name;
+        return is_null($experiment) ? null : $experiment->software->name;
     }
 
     public function detachCurrentExperiment() {
-        $this->current_experiment_type_id = null;
+        $this->current_experiment_id = null;
         $this->current_experiment_log_id = null;
         $this->save();
     }

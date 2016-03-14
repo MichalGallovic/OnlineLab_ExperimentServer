@@ -174,8 +174,8 @@ abstract class AbstractTOS1A extends AbstractDevice
 	protected function makeResponse() {
 
 		return [
-			"device_type" => $this->device->type->name,
-			"experiment_type"   => $this->device->currentExperimentName(),
+			"device" => $this->device->type->name,
+			"software"   => $this->device->currentSoftwareName(),
 			"status" => $this->status,
 			"output" => $this->assignedOutput
 		];

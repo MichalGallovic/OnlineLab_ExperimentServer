@@ -13,15 +13,15 @@ class ExperimentNotSupportedException extends \Exception {
 	 * Not supported experiment type on device
 	 * @var string
 	 */
-	protected $experimentType;
+	protected $softwareName;
 
-	public function __construct($experimentType)
+	public function __construct($softwareName)
 	{
-		$this->experimentType = $experimentType;
+		$this->softwareName = $softwareName;
 	}
 
 	public function getResponse() {
-		$message = Str::ucfirst($this->experimentType) . " expriment is not supported on this device";
+		$message = Str::ucfirst($this->softwareName) . " implementation is not supported on this device";
 		return $this->errorForbidden($message);
 	}
 }

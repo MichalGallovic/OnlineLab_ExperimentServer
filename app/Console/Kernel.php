@@ -8,6 +8,7 @@ use App\Device;
 use App\Console\Commands\ClearExperimentLogs;
 use App\Console\Commands\ResetAppServer;
 use App\Console\Commands\PingDevices;
+use App\Console\Commands\RefreshCompiledClassmap;
 
 class Kernel extends ConsoleKernel
 {
@@ -21,7 +22,8 @@ class Kernel extends ConsoleKernel
     protected $commands = [
         ClearExperimentLogs::class,
         ResetAppServer::class,
-        PingDevices::class
+        PingDevices::class,
+        RefreshCompiledClassmap::class
     ];
 
     /**
