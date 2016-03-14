@@ -29,7 +29,7 @@ class LogStartedExperiment
     public function handle(ExperimentStarted $event)
     {
         $logger = new ExperimentLog;
-        $experiment = Experiment::where("device_id", $event->device->id)->where("experiment_type_id", $event->experimentType->id)->first();
+        $experiment = $event->experiment;
         $logger->experiment()->associate($experiment);
         $logger->input_arguments = json_encode($event->input);
         

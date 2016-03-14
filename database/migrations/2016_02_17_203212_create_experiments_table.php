@@ -16,8 +16,8 @@ class CreateExperimentsTable extends Migration
             $table->increments('id');
             $table->integer('device_id')->unsigned();
             $table->foreign('device_id')->references('id')->on('devices');
-            $table->integer('experiment_type_id')->unsigned();
-            $table->foreign('experiment_type_id')->references('id')->on('experiment_types');
+            $table->integer('software_id')->unsigned();
+            $table->foreign('software_id')->references('id')->on('softwares');
             $table->timestamps();
         });
     }

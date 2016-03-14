@@ -10,7 +10,7 @@ use App\Device;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\DeviceRequest;
 use App\Devices\Contracts\DeviceDriverContract;
-use App\ExperimentType;
+use App\Software;
 use App\Devices\Exceptions\DeviceNotConnectedException;
 use App\Devices\Exceptions\DeviceNotReadyException;
 use App\Devices\Exceptions\DeviceAlreadyRunningExperimentException;

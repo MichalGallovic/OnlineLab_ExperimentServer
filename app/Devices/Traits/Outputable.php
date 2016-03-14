@@ -17,10 +17,10 @@ trait Outputable {
 		//@Todo add checks if the folder exists ?
 		$namespaceSegments = explode("\\",get_class());
 		
-		$experimentTypeFolder = end($namespaceSegments);
+		$softwareTypeFolder = end($namespaceSegments);
 		$deviceFolder = $namespaceSegments[count($namespaceSegments) - 2];
 
-		$this->outputDir = storage_path() . "/logs/experiments/" . strtolower($deviceFolder) . "/" . strtolower($experimentTypeFolder);
+		$this->outputDir = storage_path() . "/logs/experiments/" . strtolower($deviceFolder) . "/" . strtolower($softwareTypeFolder);
 	}
 
 	protected function prepareArguments($arguments) {

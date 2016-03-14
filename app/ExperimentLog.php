@@ -22,6 +22,7 @@ class ExperimentLog extends Model
 
 	}
 
+	//@Todo check this method for empty result ?
 	public function readExperiment() {
 		$contents = File::get($this->output_path);
 		$output = $this->parseOutput($contents);
@@ -70,15 +71,7 @@ class ExperimentLog extends Model
 		return $reducedOutput;
 	}
 
-	protected function getInputArguments() {
-		$deviceName = strtolower($this->experiment->device->type->name);
-		$experimentType = strtolower($this->experiment->type->name);
-		$configPath = "devices." . $deviceName . ".output";
-		
-
-		return config($configPath);
-	}
-
+	//@Todo check this method for empty result ?
 	protected function parseOutput($contents) {
 		$output = str_replace("\r","",$contents);
 		$output = array_filter(explode("\n", $output));

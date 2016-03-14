@@ -1,9 +1,9 @@
 <?php
 
 use Illuminate\Database\Seeder;
-use App\ExperimentType;
+use App\Software;
 
-class ExperimentTypesTableSeeder extends Seeder
+class SoftwaresTableSeeder extends Seeder
 {
     /**
      * Run the database seeds.
@@ -12,16 +12,16 @@ class ExperimentTypesTableSeeder extends Seeder
      */
     public function run()
     {
-        ExperimentType::create([
+        Software::create([
         	"name" => "openloop"
         ]);
-        ExperimentType::create([
+        Software::create([
         	"name" => "matlab"
         ]);
-        // ExperimentType::create([
+        // SoftwareEnvironment::create([
         // 	"name" => "scilab"
         // ]);
-        // ExperimentType::create([
+        // SoftwareEnvironment::create([
         // 	"name" => "openmodelica"
         // ]);
     }

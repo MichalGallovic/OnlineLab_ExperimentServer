@@ -2,18 +2,18 @@
 
 namespace App\Events;
 
+use App\Device;
+use App\Experiment;
 use App\Events\Event;
 use Illuminate\Queue\SerializesModels;
 use Illuminate\Contracts\Broadcasting\ShouldBroadcast;
-use App\Device;
-use App\ExperimentType;
 
 class ExperimentStarted extends Event
 {
     use SerializesModels;
 
     public $device;
-    public $experimentType;
+    public $experiment;
     public $input;
     public $requestedBy;
 
@@ -22,14 +22,14 @@ class ExperimentStarted extends Event
      *
      * @return void
      */
-    public function __construct(Device $device, ExperimentType $experimentType, array $input, $requestedBy)
+    public function __construct(Device $device, Experiment $experiment, array $input, $requestedBy)
     {
         $this->device = $device;
-        $this->experimentType = $experimentType;
+        $this->experiment = $experiment;
         $this->input = $input;
         $this->requestedBy = $requestedBy;
 
-        $device->currentExperimentType()->associate($experimentType)->save();
+        $device->currentExperiment()->associate($experiment)->save();
     }
 
     /**

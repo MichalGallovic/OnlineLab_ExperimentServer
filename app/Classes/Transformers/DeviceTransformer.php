@@ -17,7 +17,7 @@ class DeviceTransformer extends TransformerAbstract
 		foreach ($experiments as $experiment) {
 			$available_experiments[]= [
 				"id" 	=>	$experiment->id,
-				"name"	=>	$experiment->type->name,
+				"software"	=>	$experiment->software->name,
 				"input"	=>	$experiment->getInputArguments(),
 				"output"=>	$experiment->getOutputArguments()
 			];

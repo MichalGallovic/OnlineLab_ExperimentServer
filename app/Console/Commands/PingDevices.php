@@ -29,7 +29,7 @@ class PingDevices extends Command
      * @return void
      */
     
-    protected $headers = ["Id","Name","Port","Status","Experiment"];
+    protected $headers = ["Id","Name","Port","Status","Software"];
 
     public function __construct()
     {
@@ -60,7 +60,7 @@ class PingDevices extends Command
                 $device->type->name,
                 $device->port,
                 $status,
-                $device->currentExperimentName()
+                $device->currentSoftwareName()
             ];
 
             $device->status = $status;

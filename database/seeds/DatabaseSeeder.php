@@ -7,7 +7,7 @@ class DatabaseSeeder extends Seeder{
 	protected $tables = [
 		'device_types',
 		'devices',
-		'experiment_types',
+		'softwares',
 		'experiments',
 		'experiment_logs',
 		'process_logs',
@@ -15,10 +15,11 @@ class DatabaseSeeder extends Seeder{
 	];
 
 	protected $seeders = [
-		'ExperimentTypesTableSeeder',
+		'SoftwaresTableSeeder',
 		'DeviceTypesTableSeeder',
 		'DevicesTableSeeder',
-		'ExperimentsTableSeeder'
+		'ExperimentsTableSeeder',
+		'DefaultExperimentsSeeder'
 	];
 
 	public function run()
