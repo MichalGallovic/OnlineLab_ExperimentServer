@@ -37,22 +37,33 @@
 			</div>
 
 			<div class="row" v-if="activeMenu == 'device'">
-				<div class="col-lg-9" v-if="activeDevice">
+				<div class="col-lg-9" v-if="activeDevice && !waitingForData">
 					<olm-graph 
 						:description="experimentDescription"
 						:series="experimentData"
 					></olm-graph>
 				</div>
+				<div class="col-lg-9" v-else>
+					<div class="spinner"></div>
+					<span 
+					style="display: inline-block;
+					 	width: 100%;
+					  	text-align:center; 
+					  	font-size:17px;">
+					  	Initializing @{{ activeSoftware.name }} experiment ...
+					</span>
+				</div>
+
 				<div class="col-lg-3">
 					<div class="row">
-						<h4>Select experiment type:</h4>
+						<h4>Select software environment:</h4>
 						<select class="form-control" v-model="selectedExperiment">
-						  <option v-bind:value="experiment.id" v-for="experiment in activeDevice.experiments">@{{ experiment.name }}</option>
+						  <option v-bind:value="software.id" v-for="software in activeDevice.softwares">@{{ software.name }}</option>
 						</select>
 					</div>
 					<div class="row" style="margin-top:20px">
 						<form v-on:submit.prevent="runExperiment">
-							<div class="form-group" v-for="argument in activeExperiment.input">
+							<div class="form-group" v-for="argument in activeSoftware.input">
 								<label class="col-xs-9">@{{ argument.title }}</label>
 								<input class="col-xs-3" type="text" v-bind:name="argument.name" v-bind:value="argument.placeholder">
 							</div>
@@ -88,7 +99,7 @@
 					  v-on:click="showPreviousExperiment(experiment)"
 					  style="cursor: pointer;"
 					  >
-					  @{{ experiment.device_type }} - @{{ experiment.experiment_type }} | @{{ experiment.started_at }}
+					  @{{ experiment.device }} - @{{ experiment.software }} | @{{ experiment.started_at }}
 					  </li>
 					</ul>
 					<div class="spinner" v-else></div>
