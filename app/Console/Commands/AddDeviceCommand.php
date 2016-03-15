@@ -9,6 +9,7 @@ use App\Device;
 use Illuminate\Console\Command;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\File;
+use Illuminate\Support\Str;
 
 class AddDeviceCommand extends Command
 {
@@ -91,13 +92,54 @@ class AddDeviceCommand extends Command
         $device->defaultExperiment()->associate($defaultSoftware)->save();
 
         $experiments_path = storage_path("logs/experiments");
-
+        $new_files = [];
         foreach ($softwares as $software) {
             $software_path = $experiments_path . "/" . $device->type->name . "/" . $software->name;
+            $new_files[]=$software_path;
             File::makeDirectory($software_path, 0775, true, true);
         }
 
+        $server_scripts_path = base_path("server_scripts");
+
+        foreach ($softwares as $software) {
+            $software_path = $server_scripts_path . "/" . $device->type->name . "/" . $software->name;
+            $new_files[]=$software_path;
+            File::makeDirectory($software_path, 0775, true);
+        }
+
+        $device_path = app_path("Devices") . "/" . Str::upper($device->type->name);
+
+        File::makeDirectory($device_path, 0755);
+
+        foreach ($softwares as $software) {
+            $software_path = $device_path . "/" . Str::ucfirst($software->name) . ".php";
+            $new_files[]=$software_path;
+            $contents = "<?php \n\n";
+            $contents .= "namespace App\\Devices\\" . Str::ucfirst($device->type->name) . ";\n\n";
+            $contents .= "use App\\Devices\\Traits\\Outputable;\n";
+            $contents .= "use App\Devices\Traits\AsyncRunnable;\n";
+            $contents .= "use App\Devices\Contracts\DeviceDriverContract;\n\n\n";
+            $contents .= "class " . Str::ucfirst($software->name) ." implements DeviceDriverContract {\n";
+            $contents .="//use Outputable, AsyncRunnable;\n\n }";
+            File::put($software_path,$contents);
+        }
+
+        $this->info("New device added successfully!");
+        
+        $this->comment("Added Files & Folders:");
+        
+        foreach ($new_files as $new_file_path) {
+            $this->comment($new_file_path);
+        }
+
+        $this->info("Do not forget to implement these files");
+        $manager_path = app_path("Devices/DeviceManager.php");
+        $config_path = config_path("devices.php");
+        $this->info("Also add new Driver method to " . $manager_path);
+        $this->info("And add input / output arguments to " . $config_path);
+
     }
+
 
     protected function isUnique($deviceName) {
         $count = DeviceType::where('name',$deviceName)->count();
