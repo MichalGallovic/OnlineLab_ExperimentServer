@@ -15,9 +15,5 @@ class DeviceTypesTableSeeder extends Seeder
         DeviceType::create([
         	"name" => "tos1a"
     	]);
-
-        DeviceType::create([
-            "name" => "cube"
-        ]);
     }
 }

@@ -15,8 +15,6 @@ use App\ExperimentType;
 
 abstract class AbstractTOS1A extends AbstractDevice
 {
-	// These @vars could be inside config file
-	// and initialized in constructor
 
 	protected $scriptsPath;
 
@@ -37,7 +35,7 @@ abstract class AbstractTOS1A extends AbstractDevice
 
 	public function __construct($device, $experiment) {
 		parent::__construct($device, $experiment);
-		$this->scriptsPath = base_path() . "/server_scripts/TOS1A";
+		$this->scriptsPath = base_path() . "/server_scripts/tos1a";
 		$this->output = null;
 		$this->outputArguments = $experiment->getOutputArguments();
 		// Defining input arguments and rules
@@ -52,19 +50,38 @@ abstract class AbstractTOS1A extends AbstractDevice
 		}
 	}
 
+	/**
+	 * Read TOS1A output in 2 steps
+	 * The same reading method can be used for every
+	 * TOS1A Software implementation
+	 * 1. get output from physical device
+	 * 2. query device / check output and deduce device status
+	 * @todo Some SW environments as matlab can crash
+	 * when read during experiment, so we could check befor ?
+	 * @return array
+	 */
 	public function read() {
 		$this->getDeviceOutput();
 		$this->checkDeviceStatus();
-		return $this->makeResponse();
+		return $this->assignedOutput;
 	}
 
+	/**
+	 * Read TOS1A and deduce status
+	 * Very similar to @method read
+	 * @return string
+	 */
 	public function status() {
-		// vola read a parsuje to do array odpovede
 		$this->getDeviceOutput();
 		$this->checkDeviceStatus();
 		return $this->status;
 	}
 
+	/**
+	 * Read physical device output
+	 * outputRetrieved marks last time 
+	 * physical device was queried
+	 */
 	protected function readOnce() {
 
 		$path = $this->getScriptPath("readonce");
@@ -74,22 +91,6 @@ abstract class AbstractTOS1A extends AbstractDevice
 		$this->outputRetrieved = microtime(true)*1000;
 
 		$this->output = $this->parseOutput($process->getOutput());
-	}
-
-	public function getDeviceOutput() {
-		// Lazily instantiante the output
-		// if it was not obtained, get it
-		// upon first request or if the value was
-		// retrieved before more than 200ms
-		$now = microtime(true)*1000;
-		$diffRetrieved = $now - $this->outputRetrieved;
-
-		if(is_null($this->output)  || ($diffRetrieved > 100)) {
-			$this->readOnce();
-			$this->assignOutputToArguments();
-		}
-
-		return $this->output;
 	}
 
 	protected function isOffline() {
@@ -129,10 +130,28 @@ abstract class AbstractTOS1A extends AbstractDevice
 			floatval($this->assignedOutput["f_temp_int"]) != 0.0 );
 	}
 
-	public function isRunningExperiment() {
+	protected function isRunningExperiment() {
 		// device TOS1A responds with non zero filtered internal temperature
 		// when running experiment
 		return $this->isExperimenting() || $this->isStartingExperiment();
+	}
+
+
+
+	public function getDeviceOutput() {
+		// Lazily instantiante the output
+		// if it was not obtained, get it
+		// upon first request or if the value was
+		// retrieved before more than 200ms
+		$now = microtime(true)*1000;
+		$diffRetrieved = $now - $this->outputRetrieved;
+
+		if(is_null($this->output)  || ($diffRetrieved > 100)) {
+			$this->readOnce();
+			$this->assignOutputToArguments();
+		}
+
+		return $this->output;
 	}
 
 	protected function assignOutputToArguments() {
@@ -169,32 +188,5 @@ abstract class AbstractTOS1A extends AbstractDevice
 		} else {
 			$this->status = DeviceDriverContract::STATUS_OFFLINE;
 		}
-	}
-
-	protected function makeResponse() {
-
-		return [
-			"device" => $this->device->type->name,
-			"software"   => $this->device->currentSoftwareName(),
-			"status" => $this->status,
-			"output" => $this->assignedOutput
-		];
-	}
-
-	protected function startReadingExperiment($time) {
-		$path = $this->getScriptPath("readexperiment");
-		
-		$arguments = [
-			$this->device->port,
-			$this->device->id,
-			$time,
-			200
-		];
-
-		$process = $this->runProcessAsync($path, $arguments);
-
-		$this->attachPid($process->getPid());
-
-		return $process;
 	}
 }

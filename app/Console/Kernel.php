@@ -9,6 +9,7 @@ use App\Console\Commands\ClearExperimentLogs;
 use App\Console\Commands\ResetAppServer;
 use App\Console\Commands\PingDevices;
 use App\Console\Commands\RefreshCompiledClassmap;
+use App\Console\Commands\AddDeviceCommand;
 
 class Kernel extends ConsoleKernel
 {
@@ -23,7 +24,8 @@ class Kernel extends ConsoleKernel
         ClearExperimentLogs::class,
         ResetAppServer::class,
         PingDevices::class,
-        RefreshCompiledClassmap::class
+        RefreshCompiledClassmap::class,
+        AddDeviceCommand::class
     ];
 
     /**
