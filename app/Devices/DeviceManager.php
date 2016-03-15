@@ -48,7 +48,7 @@ class DeviceManager
 	 * Running experiments on TOS1A using Openmodelica
 	 * 
 	 * @return App\Devices\TOS1A\Openmodelica
-	 */
+ */
 	public function createTOS1AOpenmodelicaDriver() {
 		return new OpenModelica($this->device, $this->experiment);
 	}
