@@ -27,6 +27,7 @@ use App\Classes\Transformers\ExperimentLogTransformer;
 use League\Fractal\Manager;
 use App\Http\Requests\DeviceExperimentsRequest;
 use Illuminate\Support\Facades\Artisan;
+use App\Classes\Transformers\ReadDeviceTransformer;
 
 class DeviceController extends ApiController
 {
@@ -81,7 +82,9 @@ class DeviceController extends ApiController
 
     	$deviceDriver = $device->driver();
 
-    	return $deviceDriver->read();
+    	$output = $deviceDriver->read();
+
+        return $this->respondWithItem($device, new ReadDeviceTransformer($output));
     }
 
     /**

@@ -37,6 +37,31 @@ abstract class AbstractDevice {
 		$this->experimentSuccessful = false;
 	}
 
+	/**
+	 * Get simulation time has to be implemented
+	 * per experiment basis, because simulation
+	 * time is deduced from the input
+	 * 
+	 * @return int
+	 */
+	abstract protected function getSimulationTime();
+
+	/**
+	 * Get measuring rate (usually equals to the sampling)
+	 * time - number which tells how often results are
+	 * measured
+	 * @return int
+	 */
+	abstract protected function getMeasuringRate();
+
+	abstract protected function isConnected();
+
+	abstract protected function isReady();
+
+	abstract protected function isRunningExperiment();
+
+	
+
 	public function run($input, $requestedBy) {
 		// We don't want to run multiple experiments
 		// at the same time, on once device
@@ -108,8 +133,6 @@ abstract class AbstractDevice {
 		$this->stopDevice();
 		// Detaches the main process pid from db
 		$this->detachPids();
-
-		// $this->device->detachCurrentExperiment();
 	}
 
 
@@ -279,14 +302,6 @@ abstract class AbstractDevice {
 		}
 	}
 
-	protected function wait() {
-		$seconds = 0;
-		while($seconds < $this->simulationTime) {
-			usleep(1000000);
-			$seconds++;
-		}
-	}
-
 	protected function runExperiment($arguments) {
 		$this->maxRunningTime = $this->prepareExperiment($arguments);
 		$arguments = $this->prepareArguments($arguments);
@@ -317,23 +332,6 @@ abstract class AbstractDevice {
 		return $this->simulationTime + self::MAX_INITIALIZATION_TIME;
 	}
 
-	/**
-	 * Get simulation time has to be implemented
-	 * per experiment basis, because simulation
-	 * time is deduced from the input
-	 * 
-	 * @return int
-	 */
-	abstract protected function getSimulationTime();
-
-	/**
-	 * Get measuring rate (usually equals to the sampling)
-	 * time - number which tells how often results are
-	 * measured
-	 * @return int
-	 */
-	abstract protected function getMeasuringRate();
-
 	protected function prepareArguments($arguments) {
 		$input = "";
 
@@ -346,26 +344,5 @@ abstract class AbstractDevice {
 			"--port=" . $this->device->port,
 			"--input=" . $input
 		];
-	}
-
-	protected function runProcessForceAsync($path, $arguments = []) {
-		// $builder = new ProcessBuilder();
-		// $builder->setPrefix($path);
-
-		// // $arguments []= "> /dev/null";
-		// // $arguments []= "2> /dev/null";
-		// // $arguments []= "&";
-
-		// $builder->setArguments($arguments);
-		
-		// $process = $builder->getProcess();
-		$process = new Process($path . " > /dev/null 2> /dev/null &");
-		$process->run();
-
-		return $process;
-	}
-
-	public function getInputArguments() {
-		return $this->inputArguments;
 	}
 }

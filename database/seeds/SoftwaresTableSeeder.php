@@ -18,11 +18,11 @@ class SoftwaresTableSeeder extends Seeder
         Software::create([
         	"name" => "matlab"
         ]);
-        // SoftwareEnvironment::create([
-        // 	"name" => "scilab"
-        // ]);
-        // SoftwareEnvironment::create([
-        // 	"name" => "openmodelica"
-        // ]);
+        Software::create([
+        	"name" => "scilab"
+        ]);
+        Software::create([
+        	"name" => "openmodelica"
+        ]);
     }
 }
