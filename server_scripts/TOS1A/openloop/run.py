@@ -51,8 +51,18 @@ def startReading(args):
         while (now < end):
             file = open(filePath, "a+")        
             ser.write(makeCommand("SGV"))
-            out = ser.readline()
-            file.write(out)
+            output = ser.readline()
+            
+            try :
+                beginPos = output.find("$") + 1
+                endPos = output.find("*")
+                output = output[beginPos:endPos] + "\n"
+                print output
+            except ValueError:
+                # How to handle such thing ?
+                print "ops"
+
+            file.write(output)
             # file.close()
             now = calendar.timegm(time.gmtime())
             # if(readTimes % 10 == 0):

@@ -71,26 +71,78 @@ class ExperimentLog extends Model
 		return $reducedOutput;
 	}
 
-	//@Todo check this method for empty result ?
 	protected function parseOutput($contents) {
-		$output = str_replace("\r","",$contents);
-		$output = array_filter(explode("\n", $output));
-		
-		$output = array_map(function($line) {
-			$line = substr($line, 1, strpos($line, "*") - 1);
-			$arr = explode(",",$line);
-			return $arr;
-		}, $output);
+		$lines = array_filter(explode("\n", $contents));
 
-		$formattedOutput = [];
+		// $lines = $this->skipHeader($lines);
+
+		$output = [];
+
+		foreach ($lines as $line) {
+			$output []= array_map('intval',explode(",", $line));
+		}
+
+		return $this->rotateOutput($output);
+	}
+
+	protected function skipHeader($lines) {
+		// skip all lines, till csv  argument types
+		$line = array_shift($lines);
+
+		$outputArguments = $this->experiment->getInputArguments();
+
+		while(!($line == $outputArguments)) {
+			$line = array_shift($lines);
+		}
+
+		return $lines;
+	}
+
+	/**
+	 * Rotate array
+	 * from
+	 * a1,b1,c1,d1 ...
+	 * a2,b2,c2,d2 ...
+	 * to
+	 * a1,a2 ...
+	 * b1,b2 ...
+	 * c1,c2 ...
+	 * d1,d2 ...
+	 * @param  array $output
+	 * @return array $rotatedOutput
+	 */
+	protected function rotateOutput($output) {
+		$rotatedOutput = [];
 
 		foreach ($output as $measurement) {
 			foreach ($measurement as $index => $value) {
-				$formattedOutput[$index] []= (float) $value;
+				$rotatedOutput[$index] []= (float) $value;
 			}
 		}
 
-		return $formattedOutput;
+		return $rotatedOutput;
 	}
+
+	// //@Todo check this method for empty result ?
+	// protected function parseOutput($contents) {
+	// 	$output = str_replace("\r","",$contents);
+	// 	$output = array_filter(explode("\n", $output));
+		
+	// 	$output = array_map(function($line) {
+	// 		$line = substr($line, 1, strpos($line, "*") - 1);
+	// 		$arr = explode(",",$line);
+	// 		return $arr;
+	// 	}, $output);
+
+	// 	$formattedOutput = [];
+
+	// 	foreach ($output as $measurement) {
+	// 		foreach ($measurement as $index => $value) {
+	// 			$formattedOutput[$index] []= (float) $value;
+	// 		}
+	// 	}
+
+	// 	return $formattedOutput;
+	// }
 
 }

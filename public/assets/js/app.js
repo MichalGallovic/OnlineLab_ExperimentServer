@@ -54,7 +54,7 @@ Vue.component('olm-graph', {
 		            layout: 'vertical',
 		            x: 0,
 		            y: 0,
-		            itemMarginTop: 10
+		            itemMarginTop: 5
 				},
 				series: series
 			});

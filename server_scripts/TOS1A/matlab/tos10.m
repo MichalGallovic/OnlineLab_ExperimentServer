@@ -313,6 +313,9 @@ function Outputs(block)
     try
 	% output_path = block.DialogPrm(7).Data;
         values = strcat(values, fscanf(s,'%s'));
+        beginPos = strfind(values, '$') + 1;
+        endPos = strfind(values, '*') - 1;
+        values = values(beginPos:endPos);
         % values = strcat(values,outputPath);
 	fid = fopen(outputPath,'a+');
         % fid = fopen(output_path,'a+');
