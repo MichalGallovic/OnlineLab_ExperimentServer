@@ -196,6 +196,7 @@ var vm = new Vue({
 			};
 		},
 		formatGraphInput: function(data, rate, output_arguments) {
+			console.log(output_arguments);
 			var me = this;
 			var series = [];
 			$.each(data, function(index, measurement) {
@@ -205,7 +206,7 @@ var vm = new Vue({
 				});
 				series.push({
 					type: "line",
-					name: output_arguments[index],
+					name: output_arguments[index].title,
 					data: measurementWithTime,
 					visible: false
 				});

@@ -21,11 +21,27 @@ class Experiment extends Model
     	return $this->getInputFromConfig($deviceName, $softwareName);
     }
 
+    public function getOutputArgumentsTitles() {
+        $deviceName = $this->device->type->name;
+
+        $configOutput = $this->getOutputFromConfig($deviceName);
+
+        return $this->parseOutputTitles($configOutput);
+    }
+
+    public function getOutputArgumentsAll() {
+        $deviceName = $this->device->type->name;
+
+        return $this->getOutputFromConfig($deviceName);
+    }
+
     public function getOutputArguments()
     {
     	$deviceName = $this->device->type->name;
 
-    	return $this->getOutputFromConfig($deviceName);
+        $configOutput = $this->getOutputFromConfig($deviceName);
+
+    	return $this->parseOutputNames($configOutput);
     }
 
     public function getInputRules()
@@ -43,12 +59,28 @@ class Experiment extends Model
 
     }
 
+    protected function parseOutputTitles($output) {
+        $output = array_map(function($item) {
+            return $item['title'];
+        }, $output);
+
+        return $output;
+    }
+
+    protected function parseOutputNames($output) {
+        $output = array_map(function($item) {
+            return $item['name'];
+        }, $output);
+
+        return $output;
+    }
+
     protected function getInputFromConfig($deviceName, $softwareName)
     {
     	return config(
     		'devices.'  . 
     		$deviceName . 
-    		'.experiments.' .
+    		'.softwares.' .
     		$softwareName .
     		'.input'
     	);

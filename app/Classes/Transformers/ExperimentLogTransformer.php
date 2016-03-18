@@ -75,6 +75,6 @@ class ExperimentLogTransformer extends TransformerAbstract
 
 	public function includeOutputArguments(ExperimentLog $log)
 	{
-		return $this->item($log->experiment->getOutputArguments(), new GeneralArrayTransformer);
+		return $this->item($log->experiment->getOutputArgumentsAll(), new GeneralArrayTransformer);
 	}
 }
