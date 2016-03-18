@@ -19,7 +19,7 @@ class DeviceTransformer extends TransformerAbstract
 				"id" 	=>	$experiment->id,
 				"name"	=>	$experiment->software->name,
 				"input"	=>	$experiment->getInputArguments(),
-				"output"=>	$experiment->getOutputArguments()
+				"output"=>	$experiment->getOutputArgumentsAll()
 			];
 		}
 
