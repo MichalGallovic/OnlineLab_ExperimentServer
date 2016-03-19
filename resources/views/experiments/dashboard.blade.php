@@ -14,6 +14,9 @@
 			<div class="row">
 				<ul class="nav nav-tabs">
 					<li v-on:click="showInfo" v-bind:class="{ 'active' : (activeMenu == 'info')}"><a href="#Info">Info</a></li>
+					<li v-on:click="toggleLayout">
+						<a href="#@{{ layout }}">Toggle layout</a>
+					</li>
 					<li
 					data-step="1"
 					data-intro="Here you can replay all your previous experiments" 
@@ -37,13 +40,17 @@
 			</div>
 
 			<div class="row" v-if="activeMenu == 'device'">
-				<div class="col-lg-9" v-if="activeDevice && !waitingForData">
+				<div 
+				v-bind:class="{ 'col-lg-12' : fullWidth, 'col-lg-9' : !fullWidth }"
+				v-if="activeDevice && !waitingForData">
 					<olm-graph 
 						:description="experimentDescription"
 						:series="experimentData"
 					></olm-graph>
 				</div>
-				<div class="col-lg-9" v-else>
+				<div 
+				v-bind:class="{ 'col-lg-12' : fullWidth, 'col-lg-9' : !fullWidth }" 
+				v-else>
 					<div class="spinner"></div>
 					<span 
 					style="display: inline-block;
@@ -54,7 +61,9 @@
 					</span>
 				</div>
 
-				<div class="col-lg-3">
+				<div 
+				v-bind:class="{ 'col-lg-12' : fullWidth, 'col-lg-3' : !fullWidth }" 
+				>
 					<div class="row">
 						<h4>Select software environment:</h4>
 						<select class="form-control" v-model="selectedExperiment">
@@ -80,13 +89,17 @@
 
 		
 			<div class="row" v-if="activeMenu == 'experiments'">
-				<div class="col-lg-9">
+				<div 
+				v-bind:class="{ 'col-lg-12' : fullWidth, 'col-lg-9' : !fullWidth }" 
+				>
 					<olm-graph 
 						:description="pastExperiment.description"
 						:series="pastExperiment.series"
 					></olm-graph>
 				</div>
-				<div class="col-lg-3">
+				<div 
+				v-bind:class="{ 'col-lg-12' : fullWidth, 'col-lg-3' : !fullWidth }" 
+				>
 					<h4>Previous experiments</h4>
 					<ul 
 					class="list-group" 

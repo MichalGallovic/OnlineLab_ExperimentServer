@@ -2,34 +2,30 @@
 
 namespace App\Events;
 
+use App\Device;
 use App\Events\Event;
 use Illuminate\Queue\SerializesModels;
-use Illuminate\Contracts\Broadcasting\ShouldBroadcast;
-use App\ExperimentLog;
 
-class ExperimentFinished extends Event
-{
-    use SerializesModels;
+class ExperimentFinished extends Event {
+	use SerializesModels;
 
-    public $experimentLogger;
+	public $device;
 
-    /**
-     * Create a new event instance.
-     *
-     * @return void
-     */
-    public function __construct(ExperimentLog $experimentLogger)
-    {
-        $this->experimentLogger = $experimentLogger;
-    }
+	/**
+	 * Create a new event instance.
+	 *
+	 * @return void
+	 */
+	public function __construct(Device $device) {
+		$this->device = $device;
+	}
 
-    /**
-     * Get the channels the event should be broadcast on.
-     *
-     * @return array
-     */
-    public function broadcastOn()
-    {
-        return [];
-    }
+	/**
+	 * Get the channels the event should be broadcast on.
+	 *
+	 * @return array
+	 */
+	public function broadcastOn() {
+		return [];
+	}
 }

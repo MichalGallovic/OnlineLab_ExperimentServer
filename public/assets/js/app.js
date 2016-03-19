@@ -54,7 +54,7 @@ Vue.component('olm-graph', {
 		            layout: 'vertical',
 		            x: 0,
 		            y: 0,
-		            itemMarginTop: 5
+		            itemMarginTop: 10
 				},
 				series: series
 			});
@@ -84,6 +84,14 @@ Vue.component('olm-graph', {
 				text: newDescription
 			})
 		}
+	},
+	events : {
+		toggleLayout: function() {
+			var me = this;
+			setTimeout(function() {
+				me.getjQueryGraph().highcharts().reflow();
+			}, 100);
+		}
 	}
 });
 
@@ -97,6 +105,7 @@ var vm = new Vue({
 		this.showExperiments();		
 	},
 	data : {
+		fullWidth: false,
 		waitingForData: false,
 		devices: null,
 		activeDevice: null,
@@ -296,6 +305,10 @@ var vm = new Vue({
 		getDevicesPromise: function() {
 			return $.getJSON('api/server/devices');
 		},
+		toggleLayout: function() {
+			this.fullWidth  = !this.fullWidth;
+			this.$broadcast('toggleLayout');
+		}
 	},
 	computed : {
 		experimentDescription: function() {

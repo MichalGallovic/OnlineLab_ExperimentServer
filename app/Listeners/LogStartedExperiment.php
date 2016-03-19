@@ -7,6 +7,7 @@ use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use App\ExperimentLog;
 use App\Experiment;
+use App\Devices\Contracts\DeviceDriverContract;
 
 class LogStartedExperiment
 {
@@ -17,7 +18,6 @@ class LogStartedExperiment
      */
     public function __construct()
     {
-        //
     }
 
     /**
@@ -29,14 +29,14 @@ class LogStartedExperiment
     public function handle(ExperimentStarted $event)
     {
         $logger = new ExperimentLog;
-        $experiment = $event->experiment;
-        $logger->experiment()->associate($experiment);
+        $logger->experiment()->associate($event->experiment);
         $logger->input_arguments = json_encode($event->input);
         
         $logger->requested_by = $event->requestedBy;
         $logger->save();
 
-        $device = $event->device;
-        $device->currentExperimentLogger()->associate($logger)->save();
+        $event->device->status = DeviceDriverContract::STATUS_EXPERIMENTING;
+        $event->device->currentExperiment()->associate($event->experiment)->save();
+        $event->device->currentExperimentLogger()->associate($logger)->save();
     }
 }

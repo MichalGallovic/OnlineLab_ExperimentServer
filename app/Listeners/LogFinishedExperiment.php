@@ -2,10 +2,10 @@
 
 namespace App\Listeners;
 
+use App\Devices\Contracts\DeviceDriverContract;
 use App\Events\ExperimentFinished;
-use Illuminate\Queue\InteractsWithQueue;
-use Illuminate\Contracts\Queue\ShouldQueue;
 use Carbon\Carbon;
+
 class LogFinishedExperiment
 {
     /**
@@ -26,9 +26,10 @@ class LogFinishedExperiment
      */
     public function handle(ExperimentFinished $event)
     {
+        $event->device->status = DeviceDriverContract::STATUS_READY;
+        $event->device->save();
 
-        $logger = $event->experimentLogger;
-
+        $logger = $event->device->currentExperimentLogger;
         $logger->finished_at = Carbon::now();
         $logger->save();
     }
