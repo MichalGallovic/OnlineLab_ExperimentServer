@@ -28,6 +28,7 @@ use League\Fractal\Manager;
 use App\Http\Requests\DeviceExperimentsRequest;
 use Illuminate\Support\Facades\Artisan;
 use App\Classes\Transformers\ReadDeviceTransformer;
+use App\Events\ExperimentStarted;
 
 class DeviceController extends ApiController
 {
@@ -65,11 +66,10 @@ class DeviceController extends ApiController
             return $this->deviceNotFound();
         }
 
-        $deviceDriver = $device->driver();
-        $status = $deviceDriver->status();
+        $device->getStatus();
         
         return $this->respondWithArray([
-                "status" => $status
+                "status" => $device->status
             ]);
     }
 
@@ -178,17 +178,28 @@ class DeviceController extends ApiController
             return $this->errorForbidden("Experiment type: '" . $type . "'" . " does not exist");
         }
 
+        $experiment = $device->getCurrentOrRequestedExperiment($software->name);
+
+        $experiment->validate($request->input('input'));
 
         // When everything looks fine it is
         // time to boot up classes for
         // specific device
         $deviceDriver = $device->driver($software->name);
 
+        // We don't want to run multiple experiments
+        // at the same time, on once device
+        if ($deviceDriver->isRunningExperiment()) {
+            throw new DeviceAlreadyRunningExperimentException;
+        }
+
         // This is for development
         if (App::environment() == 'local') {
-            $experimentLog = $deviceDriver->run($request->input("input"), 1);
+            event(new ExperimentStarted($device, $experiment, $request->input('input'), 1));
+            $experimentLog = $deviceDriver->run($request->input("input"));
         } else {
-            $experimentLog = $deviceDriver->run($request->input("input"), $request->input("requested_by"));
+            event(new ExperimentStarted($device, $experiment, $request->input('input'), $request->input("requested_by")));
+            $experimentLog = $deviceDriver->run($request->input("input"));
         }
 
         return $this->respondWithSuccess($experimentLog->getResult());

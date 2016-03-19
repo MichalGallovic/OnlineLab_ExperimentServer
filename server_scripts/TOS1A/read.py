@@ -29,5 +29,8 @@ if port not in ports:
 
 ser = serial.Serial(port, 115200)
 ser.write(makeCommand("SGV"))
-out = ser.readline()
-print out
+output = ser.readline()
+beginPos = output.find("$") + 1
+endPos = output.find("*")
+output = output[beginPos:endPos]
+print output
