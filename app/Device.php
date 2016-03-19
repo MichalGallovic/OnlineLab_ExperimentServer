@@ -9,13 +9,18 @@ use App\Devices\Exceptions\ExperimentNotSupportedException;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Support\Str;
+use Illuminate\Support\Facades\File;
+use App\Devices\Contracts\DeviceDriverContract;
+use App\Devices\Exceptions\DeviceNotConnectedException;
 
 class Device extends Model
 {
 
     public function driver($softwareName = null)
     {
-
+        if($this->isOffline())
+            throw new DeviceNotConnectedException;
+        
         // @Todo rozbit do viacerych ?
         // Get Current / Default / Requested experiment
         $experiment = $this->getCurrentOrRequestedExperiment($softwareName);
@@ -127,5 +132,47 @@ class Device extends Model
     public function type()
     {
         return $this->belongsTo(DeviceType::class, 'device_type_id');
+    }
+
+    protected function isOffline() {
+        return !File::exists($this->port);
+    }
+
+    public function getStatus() {
+        if($this->isOffline()) {
+            $this->status = DeviceDriverContract::STATUS_OFFLINE;
+            $this->save();
+            return $this->status;
+        }
+
+        // Database says the device if offline, but reality is,
+        // there is a something connected at port of this
+        // device, so we better check it out, if status
+        // is not outdated
+        if($this->status == DeviceDriverContract::STATUS_OFFLINE) {
+            $driver = $this->driver();
+            $this->status = $driver->status();
+            $this->save();
+        }
+
+        return $this->status;
+    }
+
+    public function resetDevice() {
+        // We can't really do anything with a device
+        // if there is nothing connected at the
+        // port this device has in DB
+        if($this->isOffline())
+            throw new DeviceNotConnectedException;
+
+        // First things first - lets try to stop all
+        // processes attached to this device
+        $driver = $this->driver();
+        $driver->forceStop();
+
+        // Now let's query the physical device for its
+        // status
+        $this->status = $driver->status();
+        $this->save();
     }
 }

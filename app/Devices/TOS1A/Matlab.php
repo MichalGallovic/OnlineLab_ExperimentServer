@@ -8,12 +8,12 @@ use App\Devices\Contracts\DeviceDriverContract;
 
 class Matlab extends AbstractTOS1A implements DeviceDriverContract
 {
-	use Outputable, AsyncRunnable;
+	use AsyncRunnable;
 
 	public function __construct($device,$experiment) 
 	{
 		parent::__construct($device,$experiment);
-		$this->scriptNames["matlab"] = "matlab/run.py";
+		$this->scriptNames["run"] = "matlab/run.py";
 	}
 
 	protected function getSimulationTime() {

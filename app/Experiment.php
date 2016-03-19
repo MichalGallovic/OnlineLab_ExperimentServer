@@ -3,6 +3,8 @@
 namespace App;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Facades\Validator;
+use App\Devices\Exceptions\ParametersInvalidException;
 
 class Experiment extends Model
 {
@@ -57,6 +59,20 @@ class Experiment extends Model
 
     	return $inputRules;
 
+    }
+
+    public function validate($input) {
+        if (!is_array($input)) {
+            $arguments = array_keys($input);
+            $arguments = implode(" ,", $arguments);
+            throw new ParametersInvalidException("Wrong input arguments, expected: [" . $arguments . "]");
+        }
+
+        $validator = Validator::make($input, $this->getInputRules());
+
+        if ($validator->fails()) {
+            throw new ParametersInvalidException($validator->messages());
+        }
     }
 
     protected function parseOutputTitles($output) {

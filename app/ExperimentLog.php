@@ -79,7 +79,7 @@ class ExperimentLog extends Model
 		$output = [];
 
 		foreach ($lines as $line) {
-			$output []= array_map('intval',explode(",", $line));
+			$output []= array_map('floatval',explode(",", $line));
 		}
 
 		return $this->rotateOutput($output);

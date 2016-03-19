@@ -8,12 +8,16 @@ interface DeviceDriverContract
 	const STATUS_READY = "ready";
 	const STATUS_EXPERIMENTING = "experimenting";
 
-	public function read();
-
-	public function run($input, $requestedBy);
+	public function run($input);
 	
 	public function stop();
 
 	public function status();
+
+	public function isConnected();
+
+    public function isReady();
+
+    public function isRunningExperiment();
 
 }

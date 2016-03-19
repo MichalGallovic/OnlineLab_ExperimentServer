@@ -4,8 +4,8 @@ namespace App\Devices\Traits;
 
 trait AsyncRunnable {
 
-	public function run($input, $requestedBy) {
-		parent::run($input, $requestedBy);
+	public function run($input) {
+		parent::run($input);
 		
 		$experimentProcess =  $this->runExperimentAsync($input);
 		

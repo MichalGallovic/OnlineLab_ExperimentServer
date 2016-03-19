@@ -14,21 +14,41 @@ use App\Devices\Exceptions\DeviceAlreadyRunningExperimentException;
 use App\Devices\Exceptions\ParametersInvalidException;
 use App\Devices\Traits\Outputable;
 use App\Devices\Contracts\DeviceDriverContract;
+use App\Devices\Exceptions\DeviceNotConnectedException;
 
 abstract class AbstractDevice
 {
+    /**
+     * Path to folder with device specific scripts
+     * @var string
+     */
+    protected $scriptsPath;
 
-    protected $path;
+    /**
+     * Paths to read/stop/run scripts relative to
+     * $scriptsPath
+     * @var array
+     */
+    protected $scriptNames;
+    
+    /**
+     * Path to output experiment output file
+     * @var string
+     */
+    protected $outputFile;
+
     protected $device;
-
-    protected $inputArguments;
-    protected $maxRunningTime;
-
-    protected $experiment;
     protected $software;
+    protected $experiment;
     protected $experimentInput;
     protected $experimentLogger;
-    protected $experimentSuccessful;
+
+    protected $outputArguments;
+    protected $outputRetrieved;
+    protected $output;
+    protected $status;
+
+    protected $maxRunningTime;
 
     const MAX_INITIALIZATION_TIME = 25;
 
@@ -37,13 +57,14 @@ abstract class AbstractDevice
         $this->device = $device;
         $this->experiment = $experiment;
         $this->software = $experiment->software;
-        $this->experimentSuccessful = false;
+        $this->outputArguments = $experiment->getOutputArguments();
+        $this->output = null;
+        $this->scriptsPath = $this->generateScriptsPath();
     }
-
     /**
      * Get simulation time has to be implemented
      * per experiment basis, because simulation
-     * time is deduced from the input
+     * time is deduced from the input arguments
      * 
      * @return int
      */
@@ -57,39 +78,56 @@ abstract class AbstractDevice
      */
     abstract protected function getMeasuringRate();
 
-    abstract protected function isConnected();
+    /**
+     * Based on device statuses types that are defined in
+     * App\Devices\Contracts\DeviceDriverContract
+     * child class has to implement status
+     * getters
+     */
 
-    abstract protected function isReady();
+    abstract public function isConnected();
 
-    abstract protected function isRunningExperiment();
+    abstract public function isReady();
 
-    
+    abstract public function isRunningExperiment();
 
-    public function run($input, $requestedBy)
+    /**
+     * Read output in 2 step
+     * 
+     * 1. get output from physical device
+     * 2. query device / check output and deduce device status
+     * 
+     * @todo Some SW environments as matlab can crash
+     * when read during experiment, so we could check before ?
+     * @return array
+     */
+    public function read()
     {
-        // We don't want to run multiple experiments
-        // at the same time, on once device
-        if ($this->isRunningExperiment()) {
-            throw new DeviceAlreadyRunningExperimentException;
-        }
+        $this->getDeviceOutput();
+        $this->getDeviceStatus();
+        return $this->output;
+    }
 
-        // Validate the input
-        $this->validateInput($input);
+    /**
+     * Read and deduce device status
+     * Very similar to @method read
+     * @return string
+     */
+    public function status()
+    {
+        $this->getDeviceOutput();
+        $this->getDeviceStatus();
+        return $this->status;
+    }
 
-        event(new ExperimentStarted($this->device, $this->experiment, $input, $requestedBy));
-
-
-        $this->experimentLogger = $this->device->currentExperimentLogger;
+    public function run($input)
+    {
         $this->experimentInput = $input;
-
-        // If experiment concrete implementation uses Outputable
-        // trait, it will be able
-        if (in_array(Outputable::class, class_uses(get_called_class()))) {
-            $this->generateOutputFileNameWithId($requestedBy);
-            $this->experimentLogger->output_path = $this->getOutputFilePath();
-            $this->experimentLogger->measuring_rate = $this->getMeasuringRate();
-            $this->experimentLogger->save();
-        }
+        $this->experimentLogger = $this->device->currentExperimentLogger;
+        $this->generateOutputFilePath($this->experimentLogger->requested_by);
+        $this->experimentLogger->output_path = $this->outputFile;
+        $this->experimentLogger->measuring_rate = $this->getMeasuringRate();
+        $this->experimentLogger->save();
     }
 
     public function stop()
@@ -107,7 +145,6 @@ abstract class AbstractDevice
             !$this->wasForceStopped() &&
             !$this->wasTimedOut()) {
             event(new ExperimentFinished($this->device));
-            $this->experimentSuccessful = true;
         }
 
         $this->device->detachCurrentExperiment();
@@ -140,12 +177,6 @@ abstract class AbstractDevice
         $this->device->save();
     }
 
-
-    public function experimentWasSuccessful()
-    {
-        return $this->experimentSuccessful;
-    }
-
     public function wasForceStopped()
     {
         if (is_null($this->device->currentExperimentLogger)) {
@@ -167,22 +198,6 @@ abstract class AbstractDevice
 
         $process = $this->runProcess($path, $arguments);
     }
-
-    protected function validateInput($input)
-    {
-        if (!is_array($input)) {
-            $arguments = array_keys($this->inputArguments);
-            $arguments = implode(" ,", $arguments);
-            throw new ParametersInvalidException("Wrong input arguments, expected: [" . $arguments . "]");
-        }
-
-        $validator = Validator::make($input, $this->inputArguments);
-
-        if ($validator->fails()) {
-            throw new ParametersInvalidException($validator->messages());
-        }
-    }
-
 
     protected function attachPid($pid)
     {
@@ -325,7 +340,11 @@ abstract class AbstractDevice
     {
         $this->maxRunningTime = $this->prepareExperiment($arguments);
         $arguments = $this->prepareArguments($arguments);
-        $process = $this->runProcess($this->path, $arguments, $this->maxRunningTime);
+        $process = $this->runProcess(
+        	$this->getScriptPath("run"),
+        	$arguments,
+        	$this->maxRunningTime
+        	);
         return $process;
     }
 
@@ -333,17 +352,20 @@ abstract class AbstractDevice
     {
         $this->maxRunningTime = $this->prepareExperiment($arguments);
         $arguments = $this->prepareArguments($arguments);
-        $process = $this->runProcessAsync($this->path, $arguments, $this->maxRunningTime);
+        $process = $this->runProcessAsync(
+        	 $this->getScriptPath("run"),
+        	 $arguments,
+        	 $this->maxRunningTime
+        	 );
+
         $this->attachPid($process->getPid());
         return $process;
     }
 
     protected function prepareExperiment($arguments)
     {
-        $this->path = $this->getScriptPath($this->software->name);
-
-        $this->simulationTime = $this->getSimulationTime();
-        $this->experimentLogger->duration = $this->simulationTime;
+        $duration = $this->getSimulationTime();
+        $this->experimentLogger->duration = $duration;
         $this->experimentLogger->save();
 
         // Max simulation time is just a rough estimate
@@ -351,7 +373,23 @@ abstract class AbstractDevice
         // experiment is not running longer
         // than expected
 
-        return $this->simulationTime + self::MAX_INITIALIZATION_TIME;
+        return $duration + self::MAX_INITIALIZATION_TIME;
+    }
+
+    protected function getDirName()
+    {
+        //@Todo add checks if the folder exists ?
+        $namespaceSegments = explode("\\", get_called_class());
+        
+        $softwareTypeFolder = end($namespaceSegments);
+        $deviceFolder = $namespaceSegments[count($namespaceSegments) - 2];
+
+        return storage_path() . "/logs/experiments/" . strtolower($deviceFolder) . "/" . strtolower($softwareTypeFolder);
+    }
+
+    protected function generateOutputFilePath($id)
+    {
+        $this->outputFile = $this->getDirName() . "/" . $id . "_" . time() . ".log";
     }
 
     protected function prepareArguments($arguments)
@@ -365,7 +403,85 @@ abstract class AbstractDevice
 
         return [
             "--port=" . $this->device->port,
+            "--output=" . $this->outputFile,
             "--input=" . $input
         ];
+    }
+
+    protected function assignOutputToArguments($output, $arguments)
+    {
+        try {
+            $this->output = array_combine($arguments, $output);
+        } catch (\Exception $e) {
+            $this->output = null;
+        }
+    }
+
+    protected function parseOutput($output)
+    {
+        $output = array_map('floatval', explode(',', $output));
+        return $output;
+    }
+
+    public function getDeviceOutput()
+    {
+        // Lazily instantiante the output
+        // if it was not obtained, get it
+        // upon first request or if the value was
+        // retrieved before more than 200ms
+        $now = microtime(true)*1000;
+        $diffRetrieved = $now - $this->outputRetrieved;
+
+        if (is_null($this->output)  || ($diffRetrieved > 100)) {
+            $output = $this->readOnce();
+            $this->assignOutputToArguments($output, $this->experiment->getOutputArguments());
+        }
+
+        return $this->output;
+    }
+
+    /**
+     * Read physical device output
+     * outputRetrieved marks last time 
+     * physical device was queried
+     */
+    protected function readOnce()
+    {
+        $path = $this->getScriptPath("read");
+
+        // dd($path);
+        $arguments = [$this->device->port];
+
+        $process = $this->runProcess($path, $arguments);
+        $this->outputRetrieved = microtime(true)*1000;
+
+        $output = $this->parseOutput($process->getOutput());
+
+        return $output;
+    }
+
+    public function getDeviceStatus()
+    {
+        if ($this->isRunningExperiment()) {
+            $this->status = DeviceDriverContract::STATUS_EXPERIMENTING;
+        } elseif ($this->isReady()) {
+            $this->status = DeviceDriverContract::STATUS_READY;
+            // When device is ready, we don't necesarilly
+            // need to sent the output, but it could
+            // be set on again just, by commenting
+            // this out
+            $this->output = null;
+        } else {
+            $this->status = DeviceDriverContract::STATUS_OFFLINE;
+        }
+    }
+
+    protected function generateScriptsPath()
+    {
+        $namespaceSegments = explode("\\", get_called_class());
+
+        $deviceName = $namespaceSegments[count($namespaceSegments) - 2];
+
+        return base_path() . "/server_scripts/" . strtolower($deviceName);
     }
 }

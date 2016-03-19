@@ -8,12 +8,12 @@ use App\Devices\Contracts\DeviceDriverContract;
 
 class OpenLoop extends AbstractTOS1A implements DeviceDriverContract
 {
-	use Outputable, AsyncRunnable;
+	use AsyncRunnable;
 
 	public function __construct($device,$experiment) 
 	{
 		parent::__construct($device,$experiment);
-		$this->scriptNames["openloop"] = "openloop/run.py";
+		$this->scriptNames["run"] = "openloop/run.py";
 	}
 
 	protected function getSimulationTime() {

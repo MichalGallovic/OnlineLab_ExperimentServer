@@ -49,8 +49,7 @@ class PingDevices extends Command
 
         foreach ($devices as $device) {
             try {
-                $deviceDriver = $device->driver();
-                $status = $deviceDriver->status();
+                $status = $device->getStatus();
             } catch(DeviceNotConnectedException $e) {
                 $status = DeviceDriverContract::STATUS_OFFLINE;
             }
@@ -62,9 +61,6 @@ class PingDevices extends Command
                 $status,
                 $device->currentSoftwareName()
             ];
-
-            $device->status = $status;
-            $device->save();
         }
 
         $this->table($this->headers, $outputRows);
