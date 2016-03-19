@@ -7,6 +7,7 @@ use App\Experiment;
 use App\Events\Event;
 use Illuminate\Queue\SerializesModels;
 use Illuminate\Contracts\Broadcasting\ShouldBroadcast;
+use App\Devices\Contracts\DeviceDriverContract;
 
 class ExperimentStarted extends Event
 {
@@ -28,8 +29,6 @@ class ExperimentStarted extends Event
         $this->experiment = $experiment;
         $this->input = $input;
         $this->requestedBy = $requestedBy;
-
-        $device->currentExperiment()->associate($experiment)->save();
     }
 
     /**

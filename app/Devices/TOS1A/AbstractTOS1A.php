@@ -16,18 +16,16 @@ use App\ExperimentType;
 abstract class AbstractTOS1A extends AbstractDevice
 {
 
+	protected $scriptNames = [
+		"read" 	=> "read.py",
+		"stop"	=> "stop.py"
+	];
 	protected $scriptsPath;
 
-	protected $scriptNames = [
-		"readonce" 		=> "readonce.py",
-		"stop"     		=> "stop.py",
-		"readexperiment"=> "readexperiment.py"
-	];
-
-	protected $outputArguments;
-	
 	protected $status;
 	protected $output;
+	protected $outputArguments;
+	
 	protected $outputRetrieved;
 	protected $assignedOutput;
 
@@ -72,9 +70,11 @@ abstract class AbstractTOS1A extends AbstractDevice
 	 * @return string
 	 */
 	public function status() {
-		$this->getDeviceOutput();
-		$this->checkDeviceStatus();
-		return $this->status;
+		// $this->getDeviceOutput();
+		// $this->checkDeviceStatus();
+		// 
+		dd(stat($this->device->port));
+		// return $this->getDeviceStatus();
 	}
 
 	/**
@@ -84,7 +84,7 @@ abstract class AbstractTOS1A extends AbstractDevice
 	 */
 	protected function readOnce() {
 
-		$path = $this->getScriptPath("readonce");
+		$path = $this->getScriptPath("read");
 		$arguments = [$this->device->port];
 
 		$process = $this->runProcess($path, $arguments);
@@ -152,6 +152,11 @@ abstract class AbstractTOS1A extends AbstractDevice
 		}
 
 		return $this->output;
+	}
+
+	protected function getDeviceStatus() {
+		$device = $this->device->fresh();
+		return $device->status;
 	}
 
 	protected function assignOutputToArguments() {
