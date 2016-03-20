@@ -32,21 +32,50 @@ abstract class AbstractDevice
     protected $scriptNames;
     
     /**
-     * Path to output experiment output file
+     * Path to experiment output file
      * @var string
      */
     protected $outputFile;
 
+    /**
+     * Experiment output
+     * @method getDeviceOutput
+     * @var array
+     */
+    protected $output;
+
+    /**
+     * Experiment status
+     * @method getDeviceStatus
+     * @var array
+     */
+    protected $status;
+
+    /**
+     * Device model (from DB)
+     * @var App\Device
+     */
     protected $device;
-    protected $software;
+
+    /**
+     * Experiment model (from DB)
+     * @var App\Experiment
+     */
     protected $experiment;
+
+    /**
+     * Experiment user input
+     * @method getSimulationTime
+     * @method getMeasuringRate
+     * @var array
+     */
     protected $experimentInput;
+
     protected $experimentLogger;
 
     protected $outputArguments;
     protected $outputRetrieved;
-    protected $output;
-    protected $status;
+    
 
     protected $maxRunningTime;
 
@@ -56,7 +85,6 @@ abstract class AbstractDevice
     {
         $this->device = $device;
         $this->experiment = $experiment;
-        $this->software = $experiment->software;
         $this->outputArguments = $experiment->getOutputArguments();
         $this->output = null;
         $this->scriptsPath = $this->generateScriptsPath();
@@ -68,7 +96,7 @@ abstract class AbstractDevice
      * 
      * @return int
      */
-    abstract protected function getSimulationTime();
+    abstract protected function getSimulationTime($input);
 
     /**
      * Get measuring rate (usually equals to the sampling)
@@ -76,7 +104,7 @@ abstract class AbstractDevice
      * measured
      * @return int
      */
-    abstract protected function getMeasuringRate();
+    abstract protected function getMeasuringRate($input);
 
     /**
      * Based on device statuses types that are defined in
@@ -126,7 +154,7 @@ abstract class AbstractDevice
         $this->experimentLogger = $this->device->currentExperimentLogger;
         $this->generateOutputFilePath($this->experimentLogger->requested_by);
         $this->experimentLogger->output_path = $this->outputFile;
-        $this->experimentLogger->measuring_rate = $this->getMeasuringRate();
+        $this->experimentLogger->measuring_rate = $this->getMeasuringRate($this->experimentInput);
         $this->experimentLogger->save();
     }
 
@@ -364,7 +392,7 @@ abstract class AbstractDevice
 
     protected function prepareExperiment($arguments)
     {
-        $duration = $this->getSimulationTime();
+        $duration = $this->getSimulationTime($this->experimentInput);
         $this->experimentLogger->duration = $duration;
         $this->experimentLogger->save();
 
