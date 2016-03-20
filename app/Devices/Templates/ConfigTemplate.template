@@ -1,0 +1,10 @@
+<?php
+
+return [
+	"input"	=>	[
+		$1
+	],
+	"output"  =>  [
+
+	]
+];

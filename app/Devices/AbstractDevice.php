@@ -1,20 +1,23 @@
-<?php 
+<?php
 
 namespace App\Devices;
 
-use Symfony\Component\Process\ProcessBuilder;
-use Symfony\Component\Process\Process;
-use App\Events\ProcessWasRan;
-use Illuminate\Support\Facades\Validator;
-use App\Events\ExperimentStarted;
-use App\Events\ExperimentFinished;
+use App\Device;
 use Carbon\Carbon;
+use App\Experiment;
+use App\Events\ProcessWasRan;
+use App\Events\ExperimentStarted;
+use App\Devices\Traits\Outputable;
+use App\Events\ExperimentFinished;
+use Illuminate\Support\Facades\File;
+use Symfony\Component\Process\Process;
+use Illuminate\Support\Facades\Validator;
+use Symfony\Component\Process\ProcessBuilder;
+use App\Devices\Contracts\DeviceDriverContract;
+use App\Devices\Exceptions\ParametersInvalidException;
+use App\Devices\Exceptions\DeviceNotConnectedException;
 use App\Devices\Exceptions\DeviceNotRunningExperimentException;
 use App\Devices\Exceptions\DeviceAlreadyRunningExperimentException;
-use App\Devices\Exceptions\ParametersInvalidException;
-use App\Devices\Traits\Outputable;
-use App\Devices\Contracts\DeviceDriverContract;
-use App\Devices\Exceptions\DeviceNotConnectedException;
 
 abstract class AbstractDevice
 {
@@ -42,7 +45,7 @@ abstract class AbstractDevice
      * @method getDeviceOutput
      * @var array
      */
-    protected $output;
+    protected $output = null;
 
     /**
      * Experiment status
@@ -71,24 +74,47 @@ abstract class AbstractDevice
      */
     protected $experimentInput;
 
+    /**
+     * ExperimentLog model (from DB)
+     * Keeps track of current experiment information
+     * i.e. path to output file, input, duration, measuring rate...
+     * @var App\ExperimentLog
+     */
     protected $experimentLogger;
 
-    protected $outputArguments;
+    /**
+     * Experiment Running time
+     * maximum time, the program will wait till experiment will end
+     * @var int
+     */
+    protected $experimentRunningTime;
+    
+    /**
+     * Unix timestamp of last time the output from device
+     * was retrieved
+     * @var float
+     */
     protected $outputRetrieved;
     
 
-    protected $maxRunningTime;
-
+    /**
+     * Max time the experiment initializes itself
+     */
     const MAX_INITIALIZATION_TIME = 25;
 
-    public function __construct($device, $experiment)
+    public function __construct(Device $device, Experiment $experiment)
     {
         $this->device = $device;
         $this->experiment = $experiment;
-        $this->outputArguments = $experiment->getOutputArguments();
-        $this->output = null;
         $this->scriptsPath = $this->generateScriptsPath();
     }
+
+    /**
+     * Abstract methods to implement - also check 
+     * App\Devices\Contracts\DeviceDriverContract
+     * to see public interface that has to be implemented
+     */
+
     /**
      * Get simulation time has to be implemented
      * per experiment basis, because simulation
@@ -112,12 +138,15 @@ abstract class AbstractDevice
      * child class has to implement status
      * getters
      */
-
     abstract public function isConnected();
 
     abstract public function isReady();
 
     abstract public function isRunningExperiment();
+
+    /**
+     * Device Reading
+     */
 
     /**
      * Read output in 2 step
@@ -136,6 +165,69 @@ abstract class AbstractDevice
         return $this->output;
     }
 
+    public function getDeviceOutput()
+    {
+        // Lazily instantiante the output
+        // if it was not obtained, get it
+        // upon first request or if the value was
+        // retrieved before more than 200ms
+        $now = microtime(true)*1000;
+        $diffRetrieved = $now - $this->outputRetrieved;
+
+        if (is_null($this->output)  || ($diffRetrieved > 100)) {
+            $output = $this->readOnce();
+            $this->combimeOutputWithArguments($output, $this->experiment->getOutputArguments());
+        }
+
+        return $this->output;
+    }
+
+    /**
+     * Read physical device output
+     * outputRetrieved marks last time 
+     * physical device was queried
+     */
+    protected function readOnce()
+    {
+        $path = $this->getScriptPath("read");
+
+        $arguments = [$this->device->port];
+
+        $process = $this->runProcess($path, $arguments);
+        $this->outputRetrieved = microtime(true)*1000;
+
+        $output = $this->parseOutput($process->getOutput());
+
+        return $output;
+    }
+
+
+    /**
+     * Tries to combine output array with arguments array
+     * assigns it to the $this->output var
+     * @param  array $output    Parsed device output
+     * @param  array $arguments Device output arguments
+     */
+    protected function combimeOutputWithArguments($output, $arguments)
+    {
+        try {
+            $this->output = array_combine($arguments, $output);
+        } catch (\Exception $e) {
+            $this->output = null;
+        }
+    }
+
+    /**
+     * Parses raw string output from device, into array of floats
+     * @param  string $output Raw
+     * @return array          
+     */
+    protected function parseOutput($output)
+    {
+        $output = array_map('floatval', explode(',', $output));
+        return $output;
+    }
+
     /**
      * Read and deduce device status
      * Very similar to @method read
@@ -146,6 +238,22 @@ abstract class AbstractDevice
         $this->getDeviceOutput();
         $this->getDeviceStatus();
         return $this->status;
+    }
+
+    public function getDeviceStatus()
+    {
+        if ($this->isRunningExperiment()) {
+            $this->status = DeviceDriverContract::STATUS_EXPERIMENTING;
+        } elseif ($this->isReady()) {
+            $this->status = DeviceDriverContract::STATUS_READY;
+            // When device is ready, we don't necesarilly
+            // need to sent the output, but it could
+            // be set on again just, by commenting
+            // this out
+            $this->output = null;
+        } else {
+            $this->status = DeviceDriverContract::STATUS_OFFLINE;
+        }
     }
 
     public function run($input)
@@ -268,30 +376,7 @@ abstract class AbstractDevice
     }
     
 
-    /**
-     * Method uses pstree to get a tree of all
-     * subprocesses created by a process
-     * defined with PID
-     *
-     * It returns array with all processes created
-     * for python+experiment runner and also
-     * contains the pid of parent process
-     * @return array
-     */
-    protected function getAllChildProcesses($pid)
-    {
-        $process = new Process("pstree -p ". $pid ." | grep -o '([0-9]\+)' | grep -o '[0-9]\+'");
-         
-        $process->run();
-        $allProcesses = array_filter(explode("\n", $process->getOutput()));
-
-        return $allProcesses;
-    }
-
-    protected function getScriptPath($name)
-    {
-        return $this->scriptsPath . "/" . $this->scriptNames[$name];
-    }
+    
 
     protected function runProcess($path, $arguments = [])
     {
@@ -313,7 +398,7 @@ abstract class AbstractDevice
     // when forcing experiment to 
     // stop
     // Such occasion producesses lots of errors
-    // but works :) - have to fix it
+    // but works - this could be fixed someday :D
     protected function runProcessWithoutLog($path, $arguments = [])
     {
         $builder = new ProcessBuilder();
@@ -366,25 +451,25 @@ abstract class AbstractDevice
 
     protected function runExperiment($arguments)
     {
-        $this->maxRunningTime = $this->prepareExperiment($arguments);
+        $this->experimentRunningTime = $this->prepareExperiment($arguments);
         $arguments = $this->prepareArguments($arguments);
         $process = $this->runProcess(
-        	$this->getScriptPath("run"),
-        	$arguments,
-        	$this->maxRunningTime
-        	);
+            $this->getScriptPath("run"),
+            $arguments,
+            $this->experimentRunningTime
+            );
         return $process;
     }
 
     protected function runExperimentAsync($arguments)
     {
-        $this->maxRunningTime = $this->prepareExperiment($arguments);
+        $this->experimentRunningTime = $this->prepareExperiment($arguments);
         $arguments = $this->prepareArguments($arguments);
         $process = $this->runProcessAsync(
-        	 $this->getScriptPath("run"),
-        	 $arguments,
-        	 $this->maxRunningTime
-        	 );
+             $this->getScriptPath("run"),
+             $arguments,
+             $this->experimentRunningTime
+             );
 
         $this->attachPid($process->getPid());
         return $process;
@@ -404,22 +489,7 @@ abstract class AbstractDevice
         return $duration + self::MAX_INITIALIZATION_TIME;
     }
 
-    protected function getDirName()
-    {
-        //@Todo add checks if the folder exists ?
-        $namespaceSegments = explode("\\", get_called_class());
-        
-        $softwareTypeFolder = end($namespaceSegments);
-        $deviceFolder = $namespaceSegments[count($namespaceSegments) - 2];
-
-        return storage_path() . "/logs/experiments/" . strtolower($deviceFolder) . "/" . strtolower($softwareTypeFolder);
-    }
-
-    protected function generateOutputFilePath($id)
-    {
-        $this->outputFile = $this->getDirName() . "/" . $id . "_" . time() . ".log";
-    }
-
+    
     protected function prepareArguments($arguments)
     {
         $input = "";
@@ -436,74 +506,121 @@ abstract class AbstractDevice
         ];
     }
 
-    protected function assignOutputToArguments($output, $arguments)
+    /**
+     * Method uses pstree to get a tree of all
+     * subprocesses created by a process
+     * defined with PID
+     *
+     * It returns array with all processes created
+     * for python+experiment runner and also
+     * contains the pid of parent process
+     * @return array
+     */
+    protected function getAllChildProcesses($pid)
     {
-        try {
-            $this->output = array_combine($arguments, $output);
-        } catch (\Exception $e) {
-            $this->output = null;
-        }
+        $process = new Process("pstree -p ". $pid ." | grep -o '([0-9]\+)' | grep -o '[0-9]\+'");
+         
+        $process->run();
+        $allProcesses = array_filter(explode("\n", $process->getOutput()));
+
+        return $allProcesses;
     }
 
-    protected function parseOutput($output)
+
+    /**
+     * Generate path to concrete script
+     * @param  string $name Script name
+     * @return string       Path to script
+     */
+    protected function getScriptPath($name)
     {
-        $output = array_map('floatval', explode(',', $output));
-        return $output;
-    }
-
-    public function getDeviceOutput()
-    {
-        // Lazily instantiante the output
-        // if it was not obtained, get it
-        // upon first request or if the value was
-        // retrieved before more than 200ms
-        $now = microtime(true)*1000;
-        $diffRetrieved = $now - $this->outputRetrieved;
-
-        if (is_null($this->output)  || ($diffRetrieved > 100)) {
-            $output = $this->readOnce();
-            $this->assignOutputToArguments($output, $this->experiment->getOutputArguments());
-        }
-
-        return $this->output;
+        return $this->scriptsPath . "/" . $this->scriptNames[$name];
     }
 
     /**
-     * Read physical device output
-     * outputRetrieved marks last time 
-     * physical device was queried
+     * Output file helper methods 
      */
-    protected function readOnce()
+
+    /**
+     * Generate path to logs directory of specific experiment
+     * i.e. root/storage/logs/experiments/tos1a/matlab/
+     * If the folder does not yet exist, it creates it
+     * @return string Path to logs directory
+     */
+    protected function getLogsDirName()
     {
-        $path = $this->getScriptPath("read");
+        $namespaceSegments = explode("\\", get_called_class());   
+        $softwareTypeFolder = end($namespaceSegments);
+        $deviceFolder = $namespaceSegments[count($namespaceSegments) - 2];
 
-        // dd($path);
-        $arguments = [$this->device->port];
+        $path = storage_path() . "/logs/experiments/" . strtolower($deviceFolder) . "/" . strtolower($softwareTypeFolder);
+        
+        if(!File::exists($path)) {
+        	File::makeDirectory($path, 0775, true);
+        }
 
-        $process = $this->runProcess($path, $arguments);
-        $this->outputRetrieved = microtime(true)*1000;
-
-        $output = $this->parseOutput($process->getOutput());
-
-        return $output;
+        return $path;
     }
-
-    public function getDeviceStatus()
+    
+    /**
+     * Generate path and create experiment 
+     * log file with header contents
+     * @param  int $id 	Id of a user, that requested the experiment
+     */
+    protected function generateOutputFilePath($id)
     {
-        if ($this->isRunningExperiment()) {
-            $this->status = DeviceDriverContract::STATUS_EXPERIMENTING;
-        } elseif ($this->isReady()) {
-            $this->status = DeviceDriverContract::STATUS_READY;
-            // When device is ready, we don't necesarilly
-            // need to sent the output, but it could
-            // be set on again just, by commenting
-            // this out
-            $this->output = null;
-        } else {
-            $this->status = DeviceDriverContract::STATUS_OFFLINE;
+        $this->outputFile = $this->getLogsDirName() . "/" . $id . "_" . time() . ".log";
+        
+        $header = $this->generateLogHeaderContents();
+
+        if(!File::exists($this->outputFile)) {
+        	File::put($this->outputFile, $header);
         }
     }
 
+    /**
+     * Generate header of a log file
+     * @return string Header contents
+     */
+    protected function generateLogHeaderContents() {
+    	$header = $this->device->type->name . "\n";
+    	$header .= $this->experiment->software->name . "\n";
+    	$header .= $this->getSimulationTime($this->experimentInput) . "\n";
+    	$header .= $this->getMeasuringRate($this->experimentInput) . "\n";
+    	$header .= $this->experimentLogger->created_at . "\n";
+
+    	$input = $this->experimentLogger->input_arguments;
+    	$input = json_decode($input);
+    	$inputNames = collect(array_keys(get_object_vars($input)))->__toString();
+    	$inputValues = collect(array_values(get_object_vars($input)))->__toString();
+    	$inputNames = str_replace("[","",$inputNames);
+    	$inputNames = str_replace("]","",$inputNames);
+
+    	$inputValues = str_replace("[","",$inputValues);
+    	$inputValues = str_replace("]","",$inputValues);
+
+    	$header .= $inputNames . "\n";
+    	$header .= $inputValues. "\n";
+
+    	$names = $this->experiment->getOutputArguments();
+		$names = collect($names);
+		$names = $names->__toString();
+		$names = str_replace("[","",$names);
+		$names = str_replace("]","",$names);
+    	
+    	$header .= $names . "\n";
+    	$header .= "===\n";
+
+    	return $header;
+    }
+    
+    /**
+     * Generate path to base folder with read/run/stop/other scripts
+     * i.e. app/server_scripts/tos1a (tos1a is deduced from the
+     * concrete class that is instantiated when specific
+     * experiment = device+software is requested)
+     * @return string Path to device scripts
+     */
     protected function generateScriptsPath()
     {
         $namespaceSegments = explode("\\", get_called_class());
