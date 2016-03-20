@@ -1,11 +1,13 @@
 <?php namespace App\Devices;
 
-use App\Devices\TOS1A\OpenLoop;
-use App\Devices\TOS1A\OpenModelica;
-use App\Devices\TOS1A\Scilab;
-use App\Devices\TOS1A\Matlab;
 use App\Device;
 use App\Experiment;
+use Illuminate\Support\Str;
+use App\Devices\TOS1A\Matlab;
+use App\Devices\TOS1A\Scilab;
+use App\Devices\TOS1A\OpenLoop;
+use App\Devices\TOS1A\OpenModelica;
+use App\Devices\Exceptions\DriverDoesNotExistException;
 
 /**
  * Manages the instatiation strategy
@@ -13,53 +15,27 @@ use App\Experiment;
  */
 class DeviceManager
 {
-	protected $device;
-	protected $experiment;
+    protected $device;
+    protected $experiment;
 
-	/**
-	 * @param App\Device
-	 */
-	public function __construct(Device $device, Experiment $experiment) {
-		$this->device = $device;
-		$this->experiment = $experiment;
-	}
+    /**
+     * @param App\Device
+     */
+    public function __construct(Device $device, Experiment $experiment)
+    {
+        $this->device = $device;
+        $this->experiment = $experiment;
+    }
 
 
-	/**
-	 * Running experiments on TOS1A in openloop
-	 * 
-	 * @return App\Devices\TOS1A\Loop
-	 */
-	public function createTOS1AOpenloopDriver() {
-		return new OpenLoop($this->device, $this->experiment);
-	}
+    public function createDriver($device, $software)
+    {
+    	$className = "App\Devices\\" .  Str::upper($device) . "\\" . Str::ucfirst($software);
 
-	
-	/**
-	 * Running experiments on TOS1A using Matlab
-	 * 
-	 * @return App\Devices\TOS1A\Matlab
-	 */
-	public function createTOS1AMatlabDriver() {
-		return new Matlab($this->device, $this->experiment);
-	}
+    	if (!class_exists($className)) {
+            throw new DriverDoesNotExistException;
+        }
 
-	/**
-	 * Running experiments on TOS1A using Openmodelica
-	 * 
-	 * @return App\Devices\TOS1A\Openmodelica
- */
-	public function createTOS1AOpenmodelicaDriver() {
-		return new OpenModelica($this->device, $this->experiment);
-	}
-
-	
-	/**
-	 * Running experiments on TOS1A using Scilab
-	 * 
-	 * @return App\Devices\TOS1A\Scilab
-	 */
-	public function createTOS1AScilabDriver() {
-		return new Scilab($this->device, $this->experiment);
-	}
+    	return new $className($this->device, $this->experiment);
+    }
 }

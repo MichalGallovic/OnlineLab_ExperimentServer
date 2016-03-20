@@ -73,4 +73,12 @@ Route::group(['prefix' => 'api'], function() {
 
 Route::group(['middleware' => ['web']], function () {
 	Route::get('/',['uses' => 'DevelopmentController@index']);
+	Route::get('/testik', function() {
+		$input = App\Experiment::first()->getInputArgumentsNames();
+		$input = collect($input);
+		$output = $input->__toString();
+		$output = str_replace("[","",$output);
+		$output = str_replace("]","",$output);
+		return $output;
+	});
 });

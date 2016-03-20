@@ -74,7 +74,7 @@ class ExperimentLog extends Model
 	protected function parseOutput($contents) {
 		$lines = array_filter(explode("\n", $contents));
 
-		// $lines = $this->skipHeader($lines);
+		$lines = $this->skipHeader($lines);
 
 		$output = [];
 
@@ -89,13 +89,20 @@ class ExperimentLog extends Model
 		// skip all lines, till csv  argument types
 		$line = array_shift($lines);
 
-		$outputArguments = $this->experiment->getInputArguments();
+		$outputArguments = $this->experiment->getOutputArguments();
 
-		while(!($line == $outputArguments)) {
+		while($line != "===") {
 			$line = array_shift($lines);
 		}
 
 		return $lines;
+	}
+
+	public function getInputik() {
+		$input = $this->input_arguments;
+		$input = json_decode($input);
+
+		return array_keys(get_object_vars($input));
 	}
 
 	/**
@@ -122,27 +129,5 @@ class ExperimentLog extends Model
 
 		return $rotatedOutput;
 	}
-
-	// //@Todo check this method for empty result ?
-	// protected function parseOutput($contents) {
-	// 	$output = str_replace("\r","",$contents);
-	// 	$output = array_filter(explode("\n", $output));
-		
-	// 	$output = array_map(function($line) {
-	// 		$line = substr($line, 1, strpos($line, "*") - 1);
-	// 		$arr = explode(",",$line);
-	// 		return $arr;
-	// 	}, $output);
-
-	// 	$formattedOutput = [];
-
-	// 	foreach ($output as $measurement) {
-	// 		foreach ($measurement as $index => $value) {
-	// 			$formattedOutput[$index] []= (float) $value;
-	// 		}
-	// 	}
-
-	// 	return $formattedOutput;
-	// }
 
 }

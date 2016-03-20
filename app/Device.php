@@ -25,15 +25,9 @@ class Device extends Model
         // Get Current / Default / Requested experiment
         $experiment = $this->getCurrentOrRequestedExperiment($softwareName);
 
-        $method = 'create' . Str::upper($this->type->name) . Str::ucfirst($experiment->software->name) . 'Driver';
-
         $deviceManager = new DeviceManager($this, $experiment);
 
-        if (!method_exists($deviceManager, $method)) {
-            throw new DriverDoesNotExistException;
-        }
-
-        return $deviceManager->$method();
+        return $deviceManager->createDriver($this->type->name, $experiment->software->name);
     }
 
     public function getCurrentOrRequestedExperiment($softwareName = null)

@@ -2,7 +2,6 @@
 
 namespace App\Devices\TOS1A;
 
-use App\Devices\Traits\Outputable;
 use App\Devices\Traits\AsyncRunnable;
 use App\Devices\Contracts\DeviceDriverContract;
 

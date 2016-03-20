@@ -23,6 +23,33 @@ class Experiment extends Model
     	return $this->getInputFromConfig($deviceName, $softwareName);
     }
 
+    public function getInputArgumentsNames() {
+        $arguments = $this->getInputArguments();
+
+        $inputNames = [];
+
+        foreach ($arguments as $argument) {
+            $inputNames []= $argument['name'];
+        }
+
+        return $inputNames;
+    }
+
+    public function getInputRules()
+    {
+        $inputArguments = $this->getInputArguments();
+
+        $inputRules = [];
+
+        foreach ($inputArguments as $argument) 
+        {
+            $inputRules[$argument['name']] = $argument['rules'];
+        }
+
+        return $inputRules;
+
+    }
+
     public function getOutputArgumentsTitles() {
         $deviceName = $this->device->type->name;
 
@@ -44,21 +71,6 @@ class Experiment extends Model
         $configOutput = $this->getOutputFromConfig($deviceName);
 
     	return $this->parseOutputNames($configOutput);
-    }
-
-    public function getInputRules()
-    {
-    	$inputArguments = $this->getInputArguments();
-
-    	$inputRules = [];
-
-    	foreach ($inputArguments as $argument) 
-    	{
-    		$inputRules[$argument['name']] = $argument['rules'];
-    	}
-
-    	return $inputRules;
-
     }
 
     public function validate($input) {
@@ -96,9 +108,8 @@ class Experiment extends Model
     	return config(
     		'devices.'  . 
     		$deviceName . 
-    		'.softwares.' .
-    		$softwareName .
-    		'.input'
+    		'.input.' .
+    		$softwareName
     	);
     }
 

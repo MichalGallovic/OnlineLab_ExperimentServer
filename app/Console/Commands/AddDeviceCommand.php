@@ -91,36 +91,53 @@ class AddDeviceCommand extends Command
         // Set default experiment
         $device->defaultExperiment()->associate($defaultSoftware)->save();
 
-        $experiments_path = storage_path("logs/experiments");
-        $new_files = [];
-        foreach ($softwares as $software) {
-            $software_path = $experiments_path . "/" . $device->type->name . "/" . $software->name;
-            $new_files[]=$software_path;
-            File::makeDirectory($software_path, 0775, true, true);
-        }
-
         $server_scripts_path = base_path("server_scripts");
 
         foreach ($softwares as $software) {
             $software_path = $server_scripts_path . "/" . $device->type->name . "/" . $software->name;
+            if(File::exists($software_path)) continue;
             $new_files[]=$software_path;
             File::makeDirectory($software_path, 0775, true);
         }
 
         $device_path = app_path("Devices") . "/" . Str::upper($device->type->name);
+        $template_path = app_path("Devices/Templates/DeviceDriverTemplate.template");
 
-        File::makeDirectory($device_path, 0755);
+        if(!File::exists($device_path)) {
+            File::makeDirectory($device_path, 0755);
+        }
+
+        $device_config_path = config_path('devices') . "/" . Str::lower($device->type->name) . ".php";
+        $config_template_path = app_path("Devices/Templates/ConfigTemplate.template");
+
+        $config_contents = File::get($config_template_path);
+
+        $config_input = "";
+
+        foreach ($softwares as $software) {
+            $config_input .= "\"" . $software->name . "\"" . " => [],";
+        }
+
+        $config_contents = str_replace("$1", $config_input, $config_contents);
+
+        if(File::exists($device_config_path)) {
+            if($this->confirm("Config file: " . $device_config_path . " already exists. Do you want to overwrite it ?")) {
+                File::put($device_config_path, $config_contents);
+            }
+        } else {
+            File::put($device_config_path, $config_contents);
+        }
+
 
         foreach ($softwares as $software) {
             $software_path = $device_path . "/" . Str::ucfirst($software->name) . ".php";
+            $contents = File::get($template_path);
+            $contents = str_replace("$1",Str::upper($device->type->name), $contents);
+            $contents = str_replace("$2",Str::ucfirst($software->name), $contents);
+            if(File::exists($software_path)) {
+                if(!$this->confirm("File: " . $software_path . " already exists. Do you want to overwrite it ?")) continue;
+            }
             $new_files[]=$software_path;
-            $contents = "<?php \n\n";
-            $contents .= "namespace App\\Devices\\" . Str::ucfirst($device->type->name) . ";\n\n";
-            $contents .= "use App\\Devices\\Traits\\Outputable;\n";
-            $contents .= "use App\Devices\Traits\AsyncRunnable;\n";
-            $contents .= "use App\Devices\Contracts\DeviceDriverContract;\n\n\n";
-            $contents .= "class " . Str::ucfirst($software->name) ." implements DeviceDriverContract {\n";
-            $contents .="//use Outputable, AsyncRunnable;\n\n }";
             File::put($software_path,$contents);
         }
 
