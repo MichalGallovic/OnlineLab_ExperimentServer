@@ -5,17 +5,18 @@ namespace App\Exceptions;
 use Exception;
 use Illuminate\Validation\ValidationException;
 use Illuminate\Auth\Access\AuthorizationException;
-use Illuminate\Database\Eloquent\ModelNotFoundException;
-use Symfony\Component\HttpKernel\Exception\HttpException;
-use Illuminate\Foundation\Exceptions\Handler as ExceptionHandler;
-use App\Devices\Exceptions\DeviceNotConnectedException;
-use App\Devices\Exceptions\DeviceAlreadyRunningExperimentException;
 use App\Devices\Exceptions\DeviceNotReadyException;
-use App\Devices\Exceptions\DriverDoesNotExistException;
 use App\Devices\Exceptions\ParametersInvalidException;
+use App\Devices\Exceptions\DeviceNotConnectedException;
+use App\Devices\Exceptions\DriverDoesNotExistException;
 use App\Devices\Exceptions\ExperimentTimedOutException;
-use App\Devices\Exceptions\DeviceNotRunningExperimentException;
+use Illuminate\Database\Eloquent\ModelNotFoundException;
+use App\Devices\Exceptions\ExperimentCommandNotAvailable;
+use Symfony\Component\HttpKernel\Exception\HttpException;
 use App\Devices\Exceptions\ExperimentNotSupportedException;
+use App\Devices\Exceptions\DeviceNotRunningExperimentException;
+use Illuminate\Foundation\Exceptions\Handler as ExceptionHandler;
+use App\Devices\Exceptions\DeviceAlreadyRunningExperimentException;
 
 class Handler extends ExceptionHandler
 {
@@ -39,7 +40,8 @@ class Handler extends ExceptionHandler
         ExperimentTimedOutException::class,
         DriverDoesNotExistException::class,
         DeviceNotRunningExperimentException::class,
-        ExperimentNotSupportedException::class
+        ExperimentNotSupportedException::class,
+        ExperimentCommandNotAvailable::class
     ];
 
     /**

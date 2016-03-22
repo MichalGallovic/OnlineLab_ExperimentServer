@@ -4,8 +4,9 @@ namespace App\Http\Requests;
 
 use App\Http\Requests\Request;
 use App\Classes\Traits\ApiRespondable;
+use App\Devices\Contracts\DeviceDriverContract;
 
-class DeviceRunRequest extends Request
+class DeviceStartRequest extends Request
 {
 
     use ApiRespondable;
@@ -30,7 +31,7 @@ class DeviceRunRequest extends Request
         return [
             "software"   =>  "required|string|min:1",
             "input"  =>  "required|array",
-            "requested_by"      =>  "required"
+            "requested_by" => "required"
         ];
     }
 

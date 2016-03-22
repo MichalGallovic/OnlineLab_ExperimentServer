@@ -1,0 +1,9 @@
+tos1a
+openloop
+10
+50
+2016-03-21 23:20:14
+"c_fan","c_led","c_lamp","t_sim","s_rate"
+20,0,50,10,50
+"temp_chip","f_temp_int","d_temp_int","f_temp_ext","d_temp_ext","f_light_int_lin","d_light_int_lin","f_light_int_log","d_light_int_log","I_bulb","V_bulb","I_fan","V_fan","f_rpm","d_rmp"
+===

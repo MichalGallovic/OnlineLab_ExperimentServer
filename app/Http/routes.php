@@ -12,54 +12,17 @@
 */
 
 Route::group(['prefix' => 'api'], function() {
-	/*
-	* GET JSON OF ALL EXPERIMENTS
-	* [
-	*	{
-	*		id : 123441,
-	*		status: offline | online | experiment
-	*	},
-	*	...
-	* ]
-	*/
+	
 	Route::get('devices',['uses' => 'DeviceController@statusAll']);
-	/*
-	* GET status of concrete device
-	* {
-	*	status: offline | online | experiment
-	* }
-	*/
 	Route::get('devices/{id}',['uses' => 'DeviceController@statusOne']);
 	Route::get('devices/{id}/read',['uses' => 'DeviceController@readOne']);
 	Route::get('devices/{id}/readexperiment',['uses' => 'DeviceController@readExperiment']);
 	Route::get('devices/{id}/experiments',['uses' => 'DeviceController@previousExperiments']);
 	Route::get('devices/{id}/experiments/latest',['uses' => 'DeviceController@latestExperimentOnDevice']);
-	// Route::get('devices/{id}/readexperiment',['uses' => 'DeviceController@readExperiment'])
-	/*
-	* RUN experiment on concrete device
-	* with params, with or without environment
-	*
-	* {
-	*	type: matlab|modelica|scilab|loop,
-	*	args: {
-	*		P : 1
-	*		I : 0.5
-	*		D : 0.8
-	*		...
-	*	} 
-	* }
- 	*/
-	Route::post('devices/{id}/run',['uses' => 'DeviceController@run']);
-	/*
-	* STOP experiment
-	* with type, so we can also do some clean up, like stopping
-	* matlab|modelica|scilab or run loop process
-	*
-	* {
-	*	type: matlab|modelica|scilab|loop 
-	* }
- 	*/
-	Route::get('devices/{id}/stop',['uses' => 'DeviceController@stop']);
+	Route::post('devices/{id}/init',['uses' => 'DeviceController@init']);
+	Route::post('devices/{id}/start',['uses' => 'DeviceController@start']);
+	Route::post('devices/{id}/stop',['uses' => 'DeviceController@stop']);
+	Route::post('devices/{id}/change',['uses' => 'DeviceController@change']);
 
 
 	Route::get('experiments/latest',['uses' => 'ExperimentController@latest']);

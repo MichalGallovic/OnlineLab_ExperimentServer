@@ -5,6 +5,7 @@ namespace App\Devices;
 use App\Device;
 use Carbon\Carbon;
 use App\Experiment;
+use Illuminate\Support\Str;
 use App\Events\ProcessWasRan;
 use App\Events\ExperimentStarted;
 use App\Devices\Traits\Outputable;
@@ -16,6 +17,7 @@ use Symfony\Component\Process\ProcessBuilder;
 use App\Devices\Contracts\DeviceDriverContract;
 use App\Devices\Exceptions\ParametersInvalidException;
 use App\Devices\Exceptions\DeviceNotConnectedException;
+use App\Devices\Exceptions\ExperimentCommandNotAvailable;
 use App\Devices\Exceptions\DeviceNotRunningExperimentException;
 use App\Devices\Exceptions\DeviceAlreadyRunningExperimentException;
 
@@ -144,6 +146,12 @@ abstract class AbstractDevice
 
     abstract public function isRunningExperiment();
 
+    public function isExperimenting()
+    {
+        return $this->isRunningExperiment();
+    }
+
+    
     /**
      * Device Reading
      */
@@ -256,7 +264,49 @@ abstract class AbstractDevice
         }
     }
 
-    public function run($input)
+    /**
+     * Magic method for command interface
+     * @param  string $method    Method name
+     * @param  array $arguments  Array of arguments
+     */
+    public function __call($method, $arguments)
+    {
+        $availableCommands = DeviceDriverContract::AVAILABLE_COMMANDS;
+        $commandMethods = [];
+        
+        // so the commands can be called with:
+        // start -> startCommand method
+        // init -> initCommand method etc.
+        foreach ($availableCommands as $command) {
+            $key = $command . "Command";
+            $commandMethods [$key]= $command;
+        }
+
+        if (in_array($method, array_keys($commandMethods))) {
+            $method = $commandMethods[$method];
+            $reflector = new \ReflectionClass($this);
+            $check = $reflector->getMethod($method);
+            if ($check->class != get_called_class()) {
+                throw new ExperimentCommandNotAvailable(
+                    $this->experiment,
+                    Str::ucfirst($method)
+                );
+            }
+            // Call first base class before method
+            $baseClassMethod = "before" . Str::ucfirst($method);
+            $this->$baseClassMethod($arguments[0]);
+            // Then call its public concrete implementation
+            call_user_func_array([$this, $method], $arguments);
+            // We do it like this, so developers don't have to call parent
+            // methods manually, they will be called for them automatically
+        }
+    }
+
+    protected function start($input)
+    {
+    }
+
+    protected function beforeStart($input)
     {
         $this->experimentInput = $input;
         $this->experimentLogger = $this->device->currentExperimentLogger;
@@ -264,6 +314,31 @@ abstract class AbstractDevice
         $this->experimentLogger->output_path = $this->outputFile;
         $this->experimentLogger->measuring_rate = $this->getMeasuringRate($this->experimentInput);
         $this->experimentLogger->save();
+    }
+
+    /**
+     * Initialize experiment method
+     * @param  array $input User experiment input
+     */
+    protected function init($input)
+    {
+    }
+
+    protected function beforeInit($input)
+    {
+    }
+
+    /**
+     * Change experiment input parameters
+     * while experiment is running
+     * @param  array $input User experiment input
+     */
+    protected function change($input)
+    {
+    }
+
+    protected function beforeChange($input)
+    {
     }
 
     public function stop()
@@ -449,7 +524,7 @@ abstract class AbstractDevice
         }
     }
 
-    protected function runExperiment($arguments)
+    protected function startExperiment($arguments)
     {
         $this->experimentRunningTime = $this->prepareExperiment($arguments);
         $arguments = $this->prepareArguments($arguments);
@@ -461,7 +536,7 @@ abstract class AbstractDevice
         return $process;
     }
 
-    protected function runExperimentAsync($arguments)
+    protected function startExperimentAsync($arguments)
     {
         $this->experimentRunningTime = $this->prepareExperiment($arguments);
         $arguments = $this->prepareArguments($arguments);
@@ -549,14 +624,14 @@ abstract class AbstractDevice
      */
     protected function getLogsDirName()
     {
-        $namespaceSegments = explode("\\", get_called_class());   
+        $namespaceSegments = explode("\\", get_called_class());
         $softwareTypeFolder = end($namespaceSegments);
         $deviceFolder = $namespaceSegments[count($namespaceSegments) - 2];
 
         $path = storage_path() . "/logs/experiments/" . strtolower($deviceFolder) . "/" . strtolower($softwareTypeFolder);
         
-        if(!File::exists($path)) {
-        	File::makeDirectory($path, 0775, true);
+        if (!File::exists($path)) {
+            File::makeDirectory($path, 0775, true);
         }
 
         return $path;
@@ -573,8 +648,8 @@ abstract class AbstractDevice
         
         $header = $this->generateLogHeaderContents();
 
-        if(!File::exists($this->outputFile)) {
-        	File::put($this->outputFile, $header);
+        if (!File::exists($this->outputFile)) {
+            File::put($this->outputFile, $header);
         }
     }
 
@@ -582,36 +657,37 @@ abstract class AbstractDevice
      * Generate header of a log file
      * @return string Header contents
      */
-    protected function generateLogHeaderContents() {
-    	$header = $this->device->type->name . "\n";
-    	$header .= $this->experiment->software->name . "\n";
-    	$header .= $this->getSimulationTime($this->experimentInput) . "\n";
-    	$header .= $this->getMeasuringRate($this->experimentInput) . "\n";
-    	$header .= $this->experimentLogger->created_at . "\n";
+    protected function generateLogHeaderContents()
+    {
+        $header = $this->device->type->name . "\n";
+        $header .= $this->experiment->software->name . "\n";
+        $header .= $this->getSimulationTime($this->experimentInput) . "\n";
+        $header .= $this->getMeasuringRate($this->experimentInput) . "\n";
+        $header .= $this->experimentLogger->created_at . "\n";
 
-    	$input = $this->experimentLogger->input_arguments;
-    	$input = json_decode($input);
-    	$inputNames = collect(array_keys(get_object_vars($input)))->__toString();
-    	$inputValues = collect(array_values(get_object_vars($input)))->__toString();
-    	$inputNames = str_replace("[","",$inputNames);
-    	$inputNames = str_replace("]","",$inputNames);
+        $input = $this->experimentLogger->input_arguments;
+        $input = json_decode($input);
+        $inputNames = collect(array_keys(get_object_vars($input)))->__toString();
+        $inputValues = collect(array_values(get_object_vars($input)))->__toString();
+        $inputNames = str_replace("[", "", $inputNames);
+        $inputNames = str_replace("]", "", $inputNames);
 
-    	$inputValues = str_replace("[","",$inputValues);
-    	$inputValues = str_replace("]","",$inputValues);
+        $inputValues = str_replace("[", "", $inputValues);
+        $inputValues = str_replace("]", "", $inputValues);
 
-    	$header .= $inputNames . "\n";
-    	$header .= $inputValues. "\n";
+        $header .= $inputNames . "\n";
+        $header .= $inputValues. "\n";
 
-    	$names = $this->experiment->getOutputArguments();
-		$names = collect($names);
-		$names = $names->__toString();
-		$names = str_replace("[","",$names);
-		$names = str_replace("]","",$names);
-    	
-    	$header .= $names . "\n";
-    	$header .= "===\n";
+        $names = $this->experiment->getOutputArguments();
+        $names = collect($names);
+        $names = $names->__toString();
+        $names = str_replace("[", "", $names);
+        $names = str_replace("]", "", $names);
+        
+        $header .= $names . "\n";
+        $header .= "===\n";
 
-    	return $header;
+        return $header;
     }
     
     /**

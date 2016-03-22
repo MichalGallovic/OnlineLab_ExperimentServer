@@ -4,6 +4,7 @@ namespace App\Devices\TOS1A;
 
 use App\Devices\Traits\AsyncRunnable;
 use App\Devices\Contracts\DeviceDriverContract;
+use App\Devices\Exceptions\ExperimentCommandNotAvailable;
 
 class OpenLoop extends AbstractTOS1A implements DeviceDriverContract
 {

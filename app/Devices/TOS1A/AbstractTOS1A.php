@@ -44,7 +44,7 @@ abstract class AbstractTOS1A extends AbstractDevice
     {
         // device TOS1A responds with non zero filtered internal temperature
         // when running experiment
-        return $this->isExperimenting() || $this->isStartingExperiment();
+        return $this->isAlreadyExperimenting() || $this->isStartingExperiment();
     }
 
     /**
@@ -59,9 +59,9 @@ abstract class AbstractTOS1A extends AbstractDevice
         return $this->isReady() && !is_null($this->device->attached_pids);
     }
 
-    protected function isExperimenting()
+    protected function isAlreadyExperimenting()
     {
-        return ($this->isConnected() &&
+        return ($this->isConnected($this->output) &&
             floatval($this->output["f_temp_int"]) != 0.0);
     }
 }

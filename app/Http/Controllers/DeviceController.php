@@ -2,44 +2,46 @@
 
 namespace App\Http\Controllers;
 
-use Illuminate\Http\Request;
-
-use App\Http\Requests;
-use App\Http\Controllers\ApiController;
 use App\Device;
+use App\Software;
+use App\ExperimentLog;
+use App\Http\Requests;
+use League\Fractal\Manager;
+use Illuminate\Http\Request;
+use App\Events\ExperimentStarted;
+use Illuminate\Support\Facades\App;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\DeviceRequest;
-use App\Devices\Contracts\DeviceDriverContract;
-use App\Software;
-use App\Devices\Exceptions\DeviceNotConnectedException;
-use App\Devices\Exceptions\DeviceNotReadyException;
-use App\Devices\Exceptions\DeviceAlreadyRunningExperimentException;
-use App\Devices\Exceptions\ParametersInvalidException;
-use Illuminate\Database\Eloquent\ModelNotFoundException;
-use App\Classes\Repositories\DeviceDbRepository;
-use App\Http\Requests\DeviceRunRequest;
-use App\Http\Requests\DevDeviceRunRequest;
-use Illuminate\Support\Facades\App;
 use Illuminate\Support\Facades\File;
-use Illuminate\Contracts\Filesystem\FileNotFoundException;
-use App\ExperimentLog;
-use App\Classes\Transformers\ExperimentLogTransformer;
-use League\Fractal\Manager;
-use App\Http\Requests\DeviceExperimentsRequest;
+use App\Http\Controllers\ApiController;
+use App\Http\Requests\DeviceStartRequest;
 use Illuminate\Support\Facades\Artisan;
+use App\Http\Requests\DevDeviceStartRequest;
+use App\Devices\Contracts\DeviceDriverContract;
+use App\Http\Requests\DeviceExperimentsRequest;
+use App\Classes\Repositories\DeviceDbRepository;
 use App\Classes\Transformers\ReadDeviceTransformer;
-use App\Events\ExperimentStarted;
+use App\Devices\Exceptions\DeviceNotReadyException;
+use App\Classes\Transformers\ExperimentLogTransformer;
+use App\Devices\Exceptions\ParametersInvalidException;
+use App\Devices\Exceptions\DeviceNotConnectedException;
+use Illuminate\Database\Eloquent\ModelNotFoundException;
+use Illuminate\Contracts\Filesystem\FileNotFoundException;
+use App\Devices\Exceptions\DeviceAlreadyRunningExperimentException;
+
 
 class DeviceController extends ApiController
 {
     protected $deviceRepository;
 
-    public function __construct(Manager $fractal, DeviceDbRepository $deviceRepo) {
+    public function __construct(Manager $fractal, DeviceDbRepository $deviceRepo)
+    {
         parent::__construct($fractal);
         $this->deviceRepository = $deviceRepo;
     }
 
-    public function statusAll(DeviceRequest $request) {
+    public function statusAll(DeviceRequest $request)
+    {
         $devices = $this->deviceRepository->getAll();
         $statuses = [];
 
@@ -59,30 +61,31 @@ class DeviceController extends ApiController
         return $this->respondWithArray($statuses);
     }
 
-    public function statusOne(DeviceRequest $request, $id) {
+    public function statusOne(DeviceRequest $request, $id)
+    {
         try {
             $device = $this->deviceRepository->getById($id);
-        } catch(ModelNotFoundException $e) {
+        } catch (ModelNotFoundException $e) {
             return $this->deviceNotFound();
         }
 
         $device->getStatus();
-        
         return $this->respondWithArray([
                 "status" => $device->status
             ]);
     }
 
-    public function readOne(DeviceRequest $request, $id) {
-    	try {
-    		$device = $this->deviceRepository->getById($id);
-    	} catch(ModelNotFoundException $e) {
+    public function readOne(DeviceRequest $request, $id)
+    {
+        try {
+            $device = $this->deviceRepository->getById($id);
+        } catch (ModelNotFoundException $e) {
             return $this->deviceNotFound();
-    	}
+        }
 
-    	$deviceDriver = $device->driver();
+        $deviceDriver = $device->driver();
 
-    	$output = $deviceDriver->read();
+        $output = $deviceDriver->read();
 
         return $this->respondWithItem($device, new ReadDeviceTransformer($output));
     }
@@ -99,22 +102,23 @@ class DeviceController extends ApiController
      * @param  mixed $id (int)
      * @return mixed json
      */
-    public function readExperiment(DeviceRequest $request, $id) {
+    public function readExperiment(DeviceRequest $request, $id)
+    {
         try {
             $device = $this->deviceRepository->getById($id);
-        } catch(ModelNotFoundException $e) {
+        } catch (ModelNotFoundException $e) {
             return $this->deviceNotFound();
         }
 
         $logger = $device->currentExperimentLogger;
 
-        if(is_null($logger)) {
+        if (is_null($logger)) {
             return $this->errorForbidden("Experiment is not running. No data to read");
         }
 
         try {
             $output = $logger->readExperiment();
-        } catch(FileNotFoundException $e) {
+        } catch (FileNotFoundException $e) {
             return $this->errorInternalError("File not found or associated with experiment");
         }
 
@@ -122,19 +126,19 @@ class DeviceController extends ApiController
                 "measuring_rate" =>  $logger->measuring_rate,
                 "data" => $output
             ]);
-        
     }
 
-    public function previousExperiments(DeviceExperimentsRequest $request, $id) {
+    public function previousExperiments(DeviceExperimentsRequest $request, $id)
+    {
         try {
             $device = $this->deviceRepository->getById($id);
-        } catch(ModelNotFoundException $e) {
+        } catch (ModelNotFoundException $e) {
             return $this->deviceNotFound();
         }
 
         $measurementsEvery = 200;
 
-        if($request->has("every")) {
+        if ($request->has("every")) {
             $measurementsEvery = $request->input("every");
         }
 
@@ -144,16 +148,17 @@ class DeviceController extends ApiController
         return $this->respondWithCollection($logs, new ExperimentLogTransformer($measurementsEvery));
     }
 
-    public function latestExperimentOnDevice(DeviceExperimentsRequest $request, $id) {
+    public function latestExperimentOnDevice(DeviceExperimentsRequest $request, $id)
+    {
         try {
             $device = $this->deviceRepository->getById($id);
-        } catch(ModelNotFoundException $e) {
+        } catch (ModelNotFoundException $e) {
             return $this->deviceNotFound();
         }
 
         $measurementsEvery = 200;
 
-        if($request->has("every")) {
+        if ($request->has("every")) {
             $measurementsEvery = $request->input("every");
         }
 
@@ -163,18 +168,72 @@ class DeviceController extends ApiController
         return $this->respondWithItem($log, new ExperimentLogTransformer($measurementsEvery));
     }
 
-    public function run(DevDeviceRunRequest $request, $id) 
+    public function change(Request $request, $id)
     {
         try {
             $device = $this->deviceRepository->getById($id);
-        } catch(ModelNotFoundException $e) {
+        } catch (ModelNotFoundException $e) {
             return $this->errorNotFound("Device not found");
         }
 
         try {
             $softwareName = strtolower($request->input('software'));
             $software = Software::where('name', $softwareName)->firstOrFail();
-        } catch(ModelNotFoundException $e) {
+        } catch (ModelNotFoundException $e) {
+            return $this->errorForbidden("Experiment type: '" . $type . "'" . " does not exist");
+        }
+
+        $experiment = $device->getCurrentOrRequestedExperiment($software->name);
+
+        $experiment->validate($request->input('input'));
+
+        // When everything looks fine it is
+        // time to boot up classes for
+        // specific device
+        $deviceDriver = $device->driver($software->name);
+
+        $deviceDriver->changeCommand($request->input("input"));
+    }
+
+    public function init(Request $request, $id)
+    {
+        try {
+            $device = $this->deviceRepository->getById($id);
+        } catch (ModelNotFoundException $e) {
+            return $this->errorNotFound("Device not found");
+        }
+
+        try {
+            $softwareName = strtolower($request->input('software'));
+            $software = Software::where('name', $softwareName)->firstOrFail();
+        } catch (ModelNotFoundException $e) {
+            return $this->errorForbidden("Experiment type: '" . $type . "'" . " does not exist");
+        }
+
+        $experiment = $device->getCurrentOrRequestedExperiment($software->name);
+
+        $experiment->validate($request->input('input'));
+
+        // When everything looks fine it is
+        // time to boot up classes for
+        // specific device
+        $deviceDriver = $device->driver($software->name);
+
+        $deviceDriver->initCommand($request->input("input"));
+    }
+
+    public function start(DevDeviceRunRequest $request, $id)
+    {
+        try {
+            $device = $this->deviceRepository->getById($id);
+        } catch (ModelNotFoundException $e) {
+            return $this->errorNotFound("Device not found");
+        }
+
+        try {
+            $softwareName = strtolower($request->input('software'));
+            $software = Software::where('name', $softwareName)->firstOrFail();
+        } catch (ModelNotFoundException $e) {
             return $this->errorForbidden("Experiment type: '" . $type . "'" . " does not exist");
         }
 
@@ -193,22 +252,22 @@ class DeviceController extends ApiController
             throw new DeviceAlreadyRunningExperimentException;
         }
 
-        // This is for development
         if (App::environment() == 'local') {
             event(new ExperimentStarted($device, $experiment, $request->input('input'), 1));
-            $experimentLog = $deviceDriver->run($request->input("input"));
+            $experimentLog = $deviceDriver->startCommand($request->input("input"));
         } else {
             event(new ExperimentStarted($device, $experiment, $request->input('input'), $request->input("requested_by")));
-            $experimentLog = $deviceDriver->run($request->input("input"));
+            $experimentLog = $deviceDriver->startCommand($request->input("input"));
         }
 
         return $this->respondWithSuccess($experimentLog->getResult());
     }
 
-    public function stop(DeviceRequest $request, $id) {
+    public function stop(DeviceRequest $request, $id)
+    {
         try {
             $device = $this->deviceRepository->getById($id);
-        } catch(ModelNotFoundException $e) {
+        } catch (ModelNotFoundException $e) {
             return $this->errorNotFound("Device not found");
         }
 
@@ -216,11 +275,10 @@ class DeviceController extends ApiController
 
         $deviceDriver->forceStop();
 
-        if(!$deviceDriver->wasForceStopped()) {
+        if (!$deviceDriver->wasForceStopped()) {
             return $this->errorInternalError("Experiment did not stop");
         }
 
         return $this->respondWithSuccess("Experiment stopped successfully");
     }
-
 }
