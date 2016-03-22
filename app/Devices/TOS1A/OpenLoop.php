@@ -6,14 +6,14 @@ use App\Devices\Traits\AsyncRunnable;
 use App\Devices\Contracts\DeviceDriverContract;
 use App\Devices\Exceptions\ExperimentCommandNotAvailable;
 
-class OpenLoop extends AbstractTOS1A implements DeviceDriverContract
+class Openloop extends AbstractTOS1A implements DeviceDriverContract
 {
 	use AsyncRunnable;
 
 	public function __construct($device,$experiment) 
 	{
 		parent::__construct($device,$experiment);
-		$this->scriptNames["run"] = "openloop/run.py";
+		$this->scriptNames["start"] = "openloop/start.py";
 	}
 
 	protected function getSimulationTime($input) {

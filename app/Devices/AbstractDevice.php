@@ -302,6 +302,22 @@ abstract class AbstractDevice
         }
     }
 
+    public function availableCommands()
+    {
+    	$reflector = new \ReflectionClass($this);
+        $commands = DeviceDriverContract::AVAILABLE_COMMANDS;
+        $availableCommands = [];
+
+        foreach ($commands as $command) {
+    		$check = $reflector->getMethod($command);
+        	if($check->class == get_called_class()) {
+        		$availableCommands []= $command;
+        	}		
+    	}
+
+    	return $availableCommands;	
+    }
+
     protected function start($input)
     {
     }
@@ -541,7 +557,7 @@ abstract class AbstractDevice
         $this->experimentRunningTime = $this->prepareExperiment($arguments);
         $arguments = $this->prepareArguments($arguments);
         $process = $this->runProcessAsync(
-             $this->getScriptPath("run"),
+             $this->getScriptPath("start"),
              $arguments,
              $this->experimentRunningTime
              );
