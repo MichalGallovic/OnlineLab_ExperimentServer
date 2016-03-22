@@ -10,7 +10,7 @@ use App\Devices\Contracts\DeviceDriverContract;
 
 class $2 extends AbstractDevice implements DeviceDriverContract {
 
-	use AsyncRunnable;
+	//use AsyncRunnable;
 
 	/**
      * Paths to read/stop/run scripts relative to
@@ -20,7 +20,9 @@ class $2 extends AbstractDevice implements DeviceDriverContract {
 	protected $scriptNames = [
         "read"	=> "",
         "stop"  => "",
-        "run"	=> ""	
+        "start"	=> "",
+        "init"  => "",
+        "change"=> ""
     ];
 
 
@@ -39,8 +41,7 @@ class $2 extends AbstractDevice implements DeviceDriverContract {
 	 * appropriate device script
 	 * @param array $input User experiment input
 	 */
-	// public function run($input) {
-	// 	parent::run($input);
+	// public function start($input) {
 		
 		
 	// }
