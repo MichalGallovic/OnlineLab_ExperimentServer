@@ -12,7 +12,7 @@ class Matlab extends AbstractTOS1A implements DeviceDriverContract
 	public function __construct($device,$experiment) 
 	{
 		parent::__construct($device,$experiment);
-		$this->scriptNames["run"] = "matlab/run.py";
+		$this->scriptNames["start"] = "matlab/start.py";
 	}
 
 	protected function getSimulationTime($input) {

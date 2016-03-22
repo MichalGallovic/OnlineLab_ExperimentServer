@@ -195,6 +195,30 @@ class DeviceController extends ApiController
         $deviceDriver->changeCommand($request->input("input"));
     }
 
+    public function listCommands(Request $request, $id)
+    {
+        try {
+            $device = $this->deviceRepository->getById($id);
+        } catch (ModelNotFoundException $e) {
+            return $this->errorNotFound("Device not found");
+        }
+
+        try {
+            $softwareName = strtolower($request->input('software'));
+            $software = Software::where('name', $softwareName)->firstOrFail();
+        } catch (ModelNotFoundException $e) {
+            return $this->errorForbidden("Experiment type: '" . $type . "'" . " does not exist");
+        }
+
+        $experiment = $device->getCurrentOrRequestedExperiment($software->name);
+
+        $deviceDriver = $device->driver($software->name);
+
+        return $this->respondWithArray([
+                "commands" => $deviceDriver->availableCommands()
+            ]);
+    }
+
     public function init(Request $request, $id)
     {
         try {
@@ -222,7 +246,8 @@ class DeviceController extends ApiController
         $deviceDriver->initCommand($request->input("input"));
     }
 
-    public function start(DevDeviceRunRequest $request, $id)
+    //@Todo change for App\Http\Requests\DeviceStartRequest
+    public function start(DevDeviceStartRequest $request, $id)
     {
         try {
             $device = $this->deviceRepository->getById($id);
