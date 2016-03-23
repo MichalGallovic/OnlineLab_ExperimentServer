@@ -2,8 +2,10 @@
 
 namespace App;
 
+use Illuminate\Support\Str;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Validator;
+use App\Devices\Contracts\DeviceDriverContract;
 use App\Devices\Exceptions\ParametersInvalidException;
 
 class Experiment extends Model
@@ -16,34 +18,56 @@ class Experiment extends Model
     	return $this->belongsTo(Software::class);
     }
 
-    public function getInputArguments() {
+    public function getInputArguments($command = null) {
     	$deviceName = $this->device->type->name;
     	$softwareName = $this->software->name;
 
-    	return $this->getInputFromConfig($deviceName, $softwareName);
+    	return $this->getInputFromConfig($deviceName, $softwareName, $command);
     }
 
-    public function getInputArgumentsNames() {
-        $arguments = $this->getInputArguments();
+    public function getInputArgumentsNames($command = null) {
+        $inputArguments = $this->getInputArguments($command);
+
+        if(is_null($inputArguments)) return null;
 
         $inputNames = [];
 
-        foreach ($arguments as $argument) {
-            $inputNames []= $argument['name'];
+        if(is_null($command)) {
+            foreach ($inputArguments as $commandName => $arguments) {
+                $inputNames[$commandName] = [];
+                foreach ($arguments as $argument) {
+                    $inputNames[$commandName] []= $argument['name'];
+                }
+            }
+        } else {
+            foreach ($inputArguments as $argument) {
+                $inputNames []= $argument['name'];
+            }
         }
 
         return $inputNames;
     }
 
-    public function getInputRules()
+    public function getInputRules($command = null)
     {
-        $inputArguments = $this->getInputArguments();
+        $inputArguments = $this->getInputArguments($command);
+
+        if(is_null($inputArguments)) return null;
 
         $inputRules = [];
 
-        foreach ($inputArguments as $argument) 
-        {
-            $inputRules[$argument['name']] = $argument['rules'];
+        if(is_null($command)) {
+            foreach ($inputArguments as $commandName => $arguments) {
+                $inputRules[$commandName] = [];
+                foreach ($arguments as $argument) {
+                    $inputRules[$commandName][$argument['name']] = $argument['rules'];
+                }
+            }
+        } else {
+            foreach ($inputArguments as $argument) 
+            {
+                $inputRules[$argument['name']] = $argument['rules'];
+            }
         }
 
         return $inputRules;
@@ -73,14 +97,29 @@ class Experiment extends Model
     	return $this->parseOutputNames($configOutput);
     }
 
-    public function validate($input) {
+    public function __call($method, $arguments) 
+    {
+        $availableCommands = DeviceDriverContract::AVAILABLE_COMMANDS;
+        $command = str_replace("validate", "", $method);
+        $command = Str::lower($command);
+        if(in_array($command, $availableCommands)) {
+            return $this->validate($arguments[0], $command);
+        }
+
+        return parent::__call($method, $arguments);
+    }
+
+    public function validate($input, $command) {
         if (!is_array($input)) {
             $arguments = array_keys($input);
             $arguments = implode(" ,", $arguments);
             throw new ParametersInvalidException("Wrong input arguments, expected: [" . $arguments . "]");
         }
 
-        $validator = Validator::make($input, $this->getInputRules());
+        $rules = $this->getInputRules($command);
+        $rules = is_null($rules) ? [] : $rules;
+
+        $validator = Validator::make($input, $rules);
 
         if ($validator->fails()) {
             throw new ParametersInvalidException($validator->messages());
@@ -103,13 +142,16 @@ class Experiment extends Model
         return $output;
     }
 
-    protected function getInputFromConfig($deviceName, $softwareName)
+    protected function getInputFromConfig($deviceName, $softwareName, $command)
     {
+        $command = !is_null($command) ? ".$command" : ""; 
+
     	return config(
     		'devices.'  . 
-    		$deviceName . 
-    		'.input.' .
-    		$softwareName
+    		"$deviceName." .
+    		"$softwareName." .
+            'input' .
+            $command
     	);
     }
 

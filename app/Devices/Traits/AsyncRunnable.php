@@ -9,6 +9,5 @@ trait AsyncRunnable
     {
         $experimentProcess =  $this->startExperimentAsync($input);
         $this->waitOrTimeoutAsync($experimentProcess, $this->experimentRunningTime);
-        return $this->stop();
     }
 }

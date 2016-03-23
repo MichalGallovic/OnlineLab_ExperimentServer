@@ -98,12 +98,6 @@ class ExperimentLog extends Model
 		return $lines;
 	}
 
-	public function getInputik() {
-		$input = $this->input_arguments;
-		$input = json_decode($input);
-
-		return array_keys(get_object_vars($input));
-	}
 
 	/**
 	 * Rotate array
