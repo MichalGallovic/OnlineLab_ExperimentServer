@@ -18,9 +18,9 @@ class Device extends Model
 
     public function driver($softwareName = null)
     {
-        // if($this->isOffline())
-        //     throw new DeviceNotConnectedException;
-        
+        if($this->isOffline())
+            throw new DeviceNotConnectedException;
+
         // @Todo rozbit do viacerych ?
         // Get Current / Default / Requested experiment
         $experiment = $this->getCurrentOrRequestedExperiment($softwareName);
@@ -32,7 +32,6 @@ class Device extends Model
 
     public function getCurrentOrRequestedExperiment($softwareName = null)
     {
-        $softwareName = $softwareName;
         // Get current running experiment
         $experiment = $this->currentExperiment;
         if (!is_null($experiment)) {
@@ -71,7 +70,6 @@ class Device extends Model
         } catch (ModelNotFoundException $e) {
             throw new ExperimentNotSupportedException($softwareName);
         }
-
         return $experiment;
     }
 

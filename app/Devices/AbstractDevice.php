@@ -293,33 +293,31 @@ abstract class AbstractDevice
                 );
             }
             // Call first base class before method
-            $baseClassMethod = "before" . Str::ucfirst($method);
-            $this->$baseClassMethod($arguments[0]);
+            $beforeMethod = "before" . Str::ucfirst($method);
+            $this->$beforeMethod($arguments[0]);
             // Then call its public concrete implementation
             call_user_func_array([$this, $method], $arguments);
             // We do it like this, so developers don't have to call parent
             // methods manually, they will be called for them automatically
+            $afterMethod = "after" . Str::ucfirst($method);
+            return $this->$afterMethod();
         }
     }
 
     public function availableCommands()
     {
-    	$reflector = new \ReflectionClass($this);
+        $reflector = new \ReflectionClass($this);
         $commands = DeviceDriverContract::AVAILABLE_COMMANDS;
         $availableCommands = [];
 
         foreach ($commands as $command) {
-    		$check = $reflector->getMethod($command);
-        	if($check->class == get_called_class()) {
-        		$availableCommands []= $command;
-        	}		
-    	}
+            $check = $reflector->getMethod($command);
+            if ($check->class == get_called_class()) {
+                $availableCommands []= $command;
+            }
+        }
 
-    	return $availableCommands;	
-    }
-
-    protected function start($input)
-    {
+        return $availableCommands;
     }
 
     protected function beforeStart($input)
@@ -332,6 +330,18 @@ abstract class AbstractDevice
         $this->experimentLogger->save();
     }
 
+    protected function start($input)
+    {
+    }
+
+    protected function afterStart()
+    {
+        return $this->stop();
+    }
+
+    protected function beforeInit($input)
+    {
+    }
     /**
      * Initialize experiment method
      * @param  array $input User experiment input
@@ -340,20 +350,20 @@ abstract class AbstractDevice
     {
     }
 
-    protected function beforeInit($input)
+    protected function afterInit()
     {
     }
 
+
+    protected function beforeChange($input)
+    {
+    }
     /**
      * Change experiment input parameters
      * while experiment is running
      * @param  array $input User experiment input
      */
     protected function change($input)
-    {
-    }
-
-    protected function beforeChange($input)
     {
     }
 

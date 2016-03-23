@@ -4,7 +4,6 @@ namespace App\Http\Requests;
 
 use App\Http\Requests\Request;
 use App\Classes\Traits\ApiRespondable;
-use App\Devices\Contracts\DeviceDriverContract;
 
 class DevDeviceStartRequest extends Request
 {

@@ -27,7 +27,9 @@ class AvailableExperimentTransformer extends TransformerAbstract
 
 	public function includeInputArguments(Experiment $experiment)
 	{
-		return $this->item($experiment->getInputArguments(), new GeneralArrayTransformer);
+		$inputArguments = $experiment->getInputArguments(); 
+		$inputArguments = is_null($inputArguments) ? [] : $inputArguments;
+		return $this->item($inputArguments, new GeneralArrayTransformer);
 	}
 
 	public function includeOutputArguments(Experiment $experiment)

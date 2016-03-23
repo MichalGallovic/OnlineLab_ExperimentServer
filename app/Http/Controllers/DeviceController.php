@@ -14,8 +14,11 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\DeviceRequest;
 use Illuminate\Support\Facades\File;
 use App\Http\Controllers\ApiController;
-use App\Http\Requests\DeviceStartRequest;
 use Illuminate\Support\Facades\Artisan;
+use App\Http\Requests\DeviceInitRequest;
+use App\Http\Requests\DeviceStopRequest;
+use App\Http\Requests\DeviceStartRequest;
+use App\Http\Requests\DeviceChangeRequest;
 use App\Http\Requests\DevDeviceStartRequest;
 use App\Devices\Contracts\DeviceDriverContract;
 use App\Http\Requests\DeviceExperimentsRequest;
@@ -168,7 +171,7 @@ class DeviceController extends ApiController
         return $this->respondWithItem($log, new ExperimentLogTransformer($measurementsEvery));
     }
 
-    public function change(Request $request, $id)
+    public function change(DeviceChangeRequest $request, $id)
     {
         try {
             $device = $this->deviceRepository->getById($id);
@@ -185,7 +188,7 @@ class DeviceController extends ApiController
 
         $experiment = $device->getCurrentOrRequestedExperiment($software->name);
 
-        $experiment->validate($request->input('input'));
+        $experiment->validateChange($request->input('input'));
 
         // When everything looks fine it is
         // time to boot up classes for
@@ -219,7 +222,7 @@ class DeviceController extends ApiController
             ]);
     }
 
-    public function init(Request $request, $id)
+    public function init(DeviceInitRequest $request, $id)
     {
         try {
             $device = $this->deviceRepository->getById($id);
@@ -236,7 +239,7 @@ class DeviceController extends ApiController
 
         $experiment = $device->getCurrentOrRequestedExperiment($software->name);
 
-        $experiment->validate($request->input('input'));
+        $experiment->validateInit($request->input('input'));
 
         // When everything looks fine it is
         // time to boot up classes for
@@ -264,7 +267,7 @@ class DeviceController extends ApiController
 
         $experiment = $device->getCurrentOrRequestedExperiment($software->name);
 
-        $experiment->validate($request->input('input'));
+        $experiment->validateStart($request->input('input'));
 
         // When everything looks fine it is
         // time to boot up classes for
@@ -288,7 +291,7 @@ class DeviceController extends ApiController
         return $this->respondWithSuccess($experimentLog->getResult());
     }
 
-    public function stop(DeviceRequest $request, $id)
+    public function stop(DeviceStopRequest $request, $id)
     {
         try {
             $device = $this->deviceRepository->getById($id);

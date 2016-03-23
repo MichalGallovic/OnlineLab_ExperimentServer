@@ -70,7 +70,9 @@ class ExperimentLogTransformer extends TransformerAbstract
 
 	public function includeInputArguments(ExperimentLog $log)
 	{
-		return $this->item($log->experiment->getInputArguments(), new GeneralArrayTransformer);
+		$inputArguments = $log->experiment->getInputArguments(); 
+		$inputArguments = is_null($inputArguments) ? [] : $inputArguments;
+		return $this->item($inputArguments, new GeneralArrayTransformer);
 	}
 
 	public function includeOutputArguments(ExperimentLog $log)
