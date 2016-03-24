@@ -11,7 +11,12 @@ use App\Events\ExperimentStarted;
 use App\Devices\Traits\Outputable;
 use App\Events\ExperimentFinished;
 use Illuminate\Support\Facades\File;
+use App\Devices\Commands\InitCommand;
+use App\Devices\Commands\ReadCommand;
+use App\Devices\Commands\StopCommand;
+use App\Devices\Commands\StartCommand;
 use Symfony\Component\Process\Process;
+use App\Devices\Commands\ChangeCommand;
 use Illuminate\Support\Facades\Validator;
 use Symfony\Component\Process\ProcessBuilder;
 use App\Devices\Contracts\DeviceDriverContract;
@@ -98,7 +103,11 @@ abstract class AbstractDevice
      */
     protected $outputRetrieved;
     
-
+    /**
+     * Available commands per Experiment
+     * @var array
+     */
+    protected $commands;
     /**
      * Max time the experiment initializes itself
      */
@@ -109,6 +118,34 @@ abstract class AbstractDevice
         $this->device = $device;
         $this->experiment = $experiment;
         $this->scriptsPath = $this->generateScriptsPath();
+    }
+
+    public function initCommands()
+    {
+    	$this->commands = [];
+    	foreach ($this->scriptNames as $name => $path) {
+
+    		$command = null;
+    		switch ($name) {
+    			// case 'init':
+    			// 	$command = new InitCommand($this->experiment, $path);
+    			// 	break;
+    			case 'start':
+    				$command = new StartCommand($this->experiment, $path);
+	    			break;
+    			// case 'change':
+    			// 	$command = new ChangeCommand($this->experiment, $path);
+	    		// 	break;
+	    		// case 'stop':
+		    	// 	$command = new StopCommand($this->experiment, $path);
+		    	// 	break;
+	    		// case 'read':
+	    		// 	$command = new ReadCommand($this->experiment, $path);
+		    	// 	break;
+    		}
+
+    		$this->commands[$name] = $command;
+    	}
     }
 
     /**
@@ -292,6 +329,8 @@ abstract class AbstractDevice
                     Str::ucfirst($method)
                 );
             }
+            //@Todo if it is not command method, error normally
+            $this->initCommands();
             // Call first base class before method
             $beforeMethod = "before" . Str::ucfirst($method);
             $this->$beforeMethod($arguments[0]);
@@ -322,6 +361,14 @@ abstract class AbstractDevice
 
     protected function beforeStart($input)
     {
+    	// $command = new App\Devices\Commands\StartCommand($this->experiment);
+    	// $command->setInput($input);
+    	// $command->setMeasuringRate($this->getMeasuringRate($input));
+    	// $command->setSimulationTime($this->getSimulationTime($input));
+    	// $command->logToFile();
+    	// 
+
+
         $this->experimentInput = $input;
         $this->experimentLogger = $this->device->currentExperimentLogger;
         $this->generateOutputFilePath($this->experimentLogger->requested_by);
@@ -364,6 +411,10 @@ abstract class AbstractDevice
      * @param  array $input User experiment input
      */
     protected function change($input)
+    {
+    }
+
+    protected function afterChange()
     {
     }
 
@@ -566,8 +617,9 @@ abstract class AbstractDevice
     {
         $this->experimentRunningTime = $this->prepareExperiment($arguments);
         $arguments = $this->prepareArguments($arguments);
+
         $process = $this->runProcessAsync(
-             $this->getScriptPath("start"),
+             $this->commands["start"]->getScriptPath(),
              $arguments,
              $this->experimentRunningTime
              );

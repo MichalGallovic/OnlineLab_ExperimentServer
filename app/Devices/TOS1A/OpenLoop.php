@@ -13,7 +13,7 @@ class Openloop extends AbstractTOS1A implements DeviceDriverContract
 	public function __construct($device,$experiment) 
 	{
 		parent::__construct($device,$experiment);
-		$this->scriptNames["start"] = "openloop/start.py";
+		$this->scriptNames["start"] = "tos1a/openloop/start.py";
 	}
 
 	protected function getSimulationTime($input) {
