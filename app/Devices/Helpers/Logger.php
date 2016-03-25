@@ -4,7 +4,7 @@ namespace App\Devices\Helpers;
 
 use App\Experiment;
 use App\ExperimentLog;
-use App\Devices\Scripts\Script;
+use App\Devices\Scripts\StartScript;
 use Illuminate\Support\Facades\File;
 
 class Logger
@@ -40,37 +40,28 @@ class Logger
 	 */
 	protected $software;
 
-
-	/**
-	 * Command associated script
-	 * @var App\Devices\Scripts\Script
-	 */
-	protected $script;
-
 	/**
 	 * Requested by
 	 * @var int ID
 	 */
 	protected $requestedBy;
 
-	public function __construct(Experiment $experiment, Script $script)
+	public function __construct(Experiment $experiment, $input)
 	{
-		// $this->experimentLog = $experimentLog;
 		$this->experiment = $experiment;
 		$this->device = $experiment->device;
 		$this->software = $experiment->software;
-		$this->script = $script;
-		$this->initDbLogging();
+		$this->initDbLogging($input);
 	}
 
 	public function setMeasuringRate($rate)
 	{
-		$this->experimentLog->measuring_rate = $rate;
+		$this->experimentLogger->measuring_rate = $rate;
 	}
 
 	public function setSimulationTime($time)
 	{
-		$this->experimentLog->duration = $time;
+		$this->experimentLogger->duration = $time;
 	}
 
 	public function setRequestedBy($userId)
@@ -78,11 +69,11 @@ class Logger
 		$this->requestedBy = $userId;
 	}
 
-	protected function initDbLogging()
+	protected function initDbLogging($input)
 	{
 		$logger = new ExperimentLog;
         $logger->experiment()->associate($this->experiment);
-        $logger->input_arguments = json_encode($this->script->getInput());
+        $logger->input_arguments = json_encode($input);
         
         $logger->requested_by = $this->requestedBy;
         $logger->save();
@@ -93,12 +84,24 @@ class Logger
 
 	public function createLogFile()
 	{
-		$this->createOutputFile($this->experimentLog->requested_by);
+		$this->createOutputFile($this->experimentLogger->requested_by);
 	}
 
 	public function save()
 	{
-		$this->experimentLog->save();
+		$this->experimentLogger->save();
+	}
+
+	public function saveScript(StartScript $script)
+	{
+		event(new ProcessWasRan($script->getProcess(), $this->device));
+
+        if ($script->timedOut()) {
+            $this->experimentLogger->timedout_at = Carbon::now();
+            $this->experimentLogger->save();
+        } else {
+        	event(new ExperimentFinished($this->device));
+        }
 	}
 
 	/**
@@ -106,14 +109,14 @@ class Logger
      * log file with header contents
      * @param  int $id 	Id of a user, that requested the experiment
      */
-    protected function createOutputFile($id)
+    protected function createOutputFile()
     {
-        $this->outputFile = $this->getLogsDirName() . "/" . $id . "_" . time() . ".log";
-        $this->experimentLog->output_file = $this->outputFile;
+        $this->outputFilePath = $this->getOutputFilePath();
+        $this->experimentLogger->output_path = $this->outputFilePath;
         $header = $this->generateLogHeaderContents();
 
-        if (!File::exists($this->outputFile)) {
-            File::put($this->outputFile, $header);
+        if (!File::exists($this->outputFilePath)) {
+            File::put($this->outputFilePath, $header);
         }
     }
 
@@ -128,7 +131,7 @@ class Logger
         $deviceTypeFolder = strtolower($this->device->type->name);
         $softwareTypeFolder = strtolower($this->software->name);
 
-        $path = storage_path() . "/logs/experiments/" . $deviceFolder . "/" . $softwareTypeFolder;
+        $path = storage_path() . "/logs/experiments/" . $deviceTypeFolder . "/" . $softwareTypeFolder;
         
         if (!File::exists($path)) {
             File::makeDirectory($path, 0775, true);
@@ -145,11 +148,11 @@ class Logger
     {
         $header = $this->device->type->name . "\n";
         $header .= $this->software->name . "\n";
-        $header .= $this->experimentLog->duration . "\n";
-        $header .= $this->experimentLog->measuring_rate . "\n";
-        $header .= $this->experimentLog->created_at . "\n";
+        $header .= $this->experimentLogger->duration . "\n";
+        $header .= $this->experimentLogger->measuring_rate . "\n";
+        $header .= $this->experimentLogger->created_at . "\n";
 
-        $input = $this->experimentLog->input_arguments;
+        $input = $this->experimentLogger->input_arguments;
         $input = json_decode($input);
         $inputNames = collect(array_keys(get_object_vars($input)))->__toString();
         $inputValues = collect(array_values(get_object_vars($input)))->__toString();
@@ -183,5 +186,21 @@ class Logger
     public function getExperimentLogger()
     {
         return $this->experimentLogger;
+    }
+
+    /**
+     * Gets the Path to experiment log file.
+     *
+     * @return string
+     */
+    public function getOutputFilePath()
+    {
+    	if($this->outputFilePath) {
+    		return $this->outputFilePath;
+    	}
+
+    	$this->outputFilePath = $this->getLogsDirName() . "/" . $this->requestedBy . "_" . time() . ".log";
+
+        return $this->outputFilePath;
     }
 }

@@ -2,12 +2,14 @@
 
 namespace App\Devices\Traits;
 
+use App\Devices\Commands\StartCommand;
+
 trait AsyncRunnable
 {
 
-    protected function start($input)
+    protected function start(StartCommand $command)
     {
-        $experimentProcess =  $this->startExperimentAsync($input);
-        $this->waitOrTimeoutAsync($experimentProcess, $this->experimentRunningTime);
+        $command->execute();
+        $command->wait();
     }
 }

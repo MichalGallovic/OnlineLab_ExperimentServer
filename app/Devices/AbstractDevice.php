@@ -131,7 +131,7 @@ abstract class AbstractDevice
     			// 	$command = new InitCommand($this->experiment, $path);
     			// 	break;
     			case 'start':
-    				$command = new StartCommand($this->experiment, $path, $experimentInput);
+    				$command = new StartCommand($this->experiment, $path, $experimentInput, $requestedBy);
 	    			break;
     			// case 'change':
     			// 	$command = new ChangeCommand($this->experiment, $path);
@@ -144,7 +144,7 @@ abstract class AbstractDevice
 		    	// 	break;
     		}
 
-    		$command->setRequestedBy($requestedBy);
+    		// $command->setRequestedBy($requestedBy);
     		$this->commands[$name] = $command;
     	}
     }
@@ -334,13 +334,13 @@ abstract class AbstractDevice
             $this->initCommands($arguments[0], $arguments[1]);
             // Call first base class before method
             $beforeMethod = "before" . Str::ucfirst($method);
-            $this->$beforeMethod($arguments[0]);
+            $this->$beforeMethod($this->commands["start"]);
             // Then call its public concrete implementation
-            call_user_func_array([$this, $method], $arguments);
+            call_user_func_array([$this, $method], [$this->commands["start"]]);
             // We do it like this, so developers don't have to call parent
             // methods manually, they will be called for them automatically
             $afterMethod = "after" . Str::ucfirst($method);
-            return $this->$afterMethod();
+            return $this->$afterMethod($this->commands["start"]);
         }
     }
 
@@ -360,7 +360,7 @@ abstract class AbstractDevice
         return $availableCommands;
     }
 
-    protected function beforeStart($input)
+    protected function beforeStart(StartCommand $command)
     {
     	// $command = new App\Devices\Commands\StartCommand($this->experiment);
     	// $command->setInput($input);
@@ -369,22 +369,27 @@ abstract class AbstractDevice
     	// $command->logToFile();
     	// 
 
+    	$command->logToFile();
 
-        $this->experimentInput = $input;
-        $this->experimentLogger = $this->commands["start"]->getExperimentLogger();
-        $this->generateOutputFilePath($this->experimentLogger->requested_by);
-        $this->experimentLogger->output_path = $this->outputFile;
-        $this->experimentLogger->measuring_rate = $this->getMeasuringRate($this->experimentInput);
-        $this->experimentLogger->save();
+
+        // $this->experimentInput = $input;
+        // $this->experimentLogger = $this->commands["start"]->getExperimentLogger();
+        // $this->generateOutputFilePath($this->experimentLogger->requested_by);
+        // $this->experimentLogger->output_path = $this->outputFile;
+        // $this->experimentLogger->measuring_rate = $this->getMeasuringRate($this->experimentInput);
+        // $this->experimentLogger->save();
     }
 
-    protected function start($input)
+    protected function start(StartCommand $command)
     {
+    	
     }
 
-    protected function afterStart()
+    protected function afterStart(StartCommand $command)
     {
-        return $this->stop();
+        $command->stop();
+     	$logger = $command->getExperimentLogger();
+     	return $logger->fresh();
     }
 
     protected function beforeInit($input)
@@ -486,21 +491,6 @@ abstract class AbstractDevice
         $arguments = [$this->device->port];
 
         $process = $this->runProcess($path, $arguments);
-    }
-
-    protected function attachPid($pid)
-    {
-        $this->device->fresh();
-        $pids = json_decode($this->device->attached_pids);
-        $pids []= $pid;
-        $this->device->attached_pids = json_encode($pids);
-        $this->device->save();
-    }
-
-    protected function detachPids()
-    {
-        $this->device->attached_pids = null;
-        $this->device->save();
     }
 
     protected function isLoggingExperiment()
@@ -625,7 +615,7 @@ abstract class AbstractDevice
              $this->experimentRunningTime
              );
 
-        $this->attachPid($process->getPid());
+        $this->device->attachPid($process->getPid());
         return $process;
     }
 
