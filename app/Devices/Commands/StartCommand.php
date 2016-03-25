@@ -7,7 +7,9 @@ use App\Devices\Helpers\Logger;
 use App\Devices\Scripts\Script;
 use App\Devices\Commands\Command;
 use App\Events\ExperimentStarted;
+use App\Devices\Scripts\StopScript;
 use App\Devices\Scripts\StartScript;
+use App\Devices\Contracts\DeviceDriverContract;
 /**
 * StartCommand
 */
@@ -23,7 +25,13 @@ class StartCommand extends Command
 	 * Start script
 	 * @var App\Devices\Scripts\StartScript
 	 */
-	protected $script;
+	protected $startScript;
+
+	/**
+	 * Stop script
+	 * @var StopScript
+	 */
+	protected $stopScript;
 
 	/**
 	 * Experiment Model (DB)
@@ -57,21 +65,49 @@ class StartCommand extends Command
 	protected $software;
 
 
-	public function __construct(Experiment $experiment, $path, $input)
+	public function __construct(Experiment $experiment, $path, $input, $requestedBy)
 	{
 		$this->experiment = $experiment;
 		$this->device = $experiment->device;
 		$this->software = $experiment->software;
-		$this->script = new StartScript($path, $input);
-		$this->logger = new Logger($experiment, $this->script);
+		$this->logger = new Logger($experiment, $input);
+		$this->setRequestedBy($requestedBy);
+		$this->stopScript = new StopScript($path, $this->device->port);
+		$this->startScript = new StartScript(
+				$path, 
+				$this->device->port, 
+				$this->logger->getOutputFilePath(), 
+				$input
+		);
 	}
 
 	public function execute()
 	{
 		$this->logger->save();
 		$this->device->status = DeviceDriverContract::STATUS_EXPERIMENTING;
-		$this->script->run();
-		$pids = $this->script->getPids();
+		$this->startScript->run();
+		$this->device->attachPid($this->startScript->getPid());
+	}
+
+	public function stop()
+	{
+		$this->startScript->stop();
+		$this->startScript->cleanUp();
+
+		$this->stopScript->run();
+		
+		$this->device->detachPids();
+		$this->device->detachCurrentExperiment();
+	}
+
+	public function wait()
+	{
+		$this->startScript->waitOrTimeout();
+	}
+
+	public function saveLog()
+	{
+		$this->logger->saveScript($this->startScript);
 	}
 
 	public function setInput(array $input)
@@ -87,6 +123,7 @@ class StartCommand extends Command
 	public function setSimulationTime($time)
 	{
 		$this->logger->setSimulationTime($time);
+		$this->startScript->setExecutionTime($time);
 	}
 
 	public function setRequestedBy($userId)
@@ -101,7 +138,7 @@ class StartCommand extends Command
 
 	public function getScriptPath()
 	{
-		return $this->script->getPath();
+		return $this->startScript->getPath();
 	}
 
 	public function getExperimentLogger()
