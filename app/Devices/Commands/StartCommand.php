@@ -6,6 +6,7 @@ use App\Experiment;
 use App\Devices\Helpers\Logger;
 use App\Devices\Scripts\Script;
 use App\Devices\Commands\Command;
+use App\Events\ExperimentStarted;
 use App\Devices\Scripts\StartScript;
 /**
 * StartCommand
@@ -56,18 +57,21 @@ class StartCommand extends Command
 	protected $software;
 
 
-	public function __construct(Experiment $experiment, $path)
+	public function __construct(Experiment $experiment, $path, $input)
 	{
 		$this->experiment = $experiment;
 		$this->device = $experiment->device;
 		$this->software = $experiment->software;
-		$this->logger = new Logger($experiment->device->currentExperimentLogger);
-		$this->script = new StartScript($path);
+		$this->script = new StartScript($path, $input);
+		$this->logger = new Logger($experiment, $this->script);
 	}
 
 	public function execute()
 	{
 		$this->logger->save();
+		$this->device->status = DeviceDriverContract::STATUS_EXPERIMENTING;
+		$this->script->run();
+		$pids = $this->script->getPids();
 	}
 
 	public function setInput(array $input)
@@ -85,6 +89,11 @@ class StartCommand extends Command
 		$this->logger->setSimulationTime($time);
 	}
 
+	public function setRequestedBy($userId)
+	{
+		$this->logger->setRequestedBy($userId);
+	}
+
 	public function logToFile()
 	{
 		$this->logger->createLogFile();
@@ -93,6 +102,11 @@ class StartCommand extends Command
 	public function getScriptPath()
 	{
 		return $this->script->getPath();
+	}
+
+	public function getExperimentLogger()
+	{
+		return $this->logger->getExperimentLogger();
 	}
 
 }
