@@ -72,7 +72,6 @@ class StartCommand extends Command
 		$this->software = $experiment->software;
 		$this->logger = new Logger($experiment, $input);
 		$this->setRequestedBy($requestedBy);
-		$this->stopScript = new StopScript($path, $this->device->port);
 		$this->startScript = new StartScript(
 				$path, 
 				$this->device->port, 
@@ -81,9 +80,13 @@ class StartCommand extends Command
 		);
 	}
 
+	public function setStopScript($path)
+	{
+		$this->stopScript = new StopScript($path, $this->device->port);
+	}
+
 	public function execute()
 	{
-		$this->logger->save();
 		$this->device->status = DeviceDriverContract::STATUS_EXPERIMENTING;
 		$this->startScript->run();
 		$this->device->attachPid($this->startScript->getPid());

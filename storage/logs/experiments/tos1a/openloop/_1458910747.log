@@ -1,9 +1,0 @@
-tos1a
-openloop
-
-
-2016-03-25 12:59:07
-"c_fan","c_led","c_lamp","t_sim","s_rate"
-60,0,50,10,50
-"temp_chip","f_temp_int","d_temp_int","f_temp_ext","d_temp_ext","f_light_int_lin","d_light_int_lin","f_light_int_log","d_light_int_log","I_bulb","V_bulb","I_fan","V_fan","f_rpm","d_rmp"
-===
