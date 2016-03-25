@@ -2,14 +2,11 @@
 
 namespace App\Devices\TOS1A;
 
-use App\Devices\Traits\AsyncRunnable;
 use App\Devices\Contracts\DeviceDriverContract;
 use App\Devices\Exceptions\ExperimentCommandNotAvailable;
 
 class Openloop extends AbstractTOS1A implements DeviceDriverContract
 {
-	use AsyncRunnable;
-
 	public function __construct($device,$experiment) 
 	{
 		parent::__construct($device,$experiment);

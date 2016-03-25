@@ -30,6 +30,7 @@ use App\Devices\Exceptions\ParametersInvalidException;
 use App\Devices\Exceptions\DeviceNotConnectedException;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Contracts\Filesystem\FileNotFoundException;
+use App\Devices\Exceptions\DeviceNotRunningExperimentException;
 use App\Devices\Exceptions\DeviceAlreadyRunningExperimentException;
 
 
@@ -297,13 +298,17 @@ class DeviceController extends ApiController
             return $this->errorNotFound("Device not found");
         }
 
+        // if (is_null($device->currentExperimentLogger)) {
+        //     throw new DeviceNotRunningExperimentException;
+        // }
+
         $deviceDriver = $device->driver();
 
-        $deviceDriver->forceStop();
+        $deviceDriver->stopCommand();
 
-        if (!$deviceDriver->wasForceStopped()) {
-            return $this->errorInternalError("Experiment did not stop");
-        }
+        // if (!$deviceDriver->wasForceStopped()) {
+        //     return $this->errorInternalError("Experiment did not stop");
+        // }
 
         return $this->respondWithSuccess("Experiment stopped successfully");
     }

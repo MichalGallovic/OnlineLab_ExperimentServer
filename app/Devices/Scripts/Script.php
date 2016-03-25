@@ -60,6 +60,7 @@ abstract class Script
     	$this->checkPathCombinations($path);
     	$this->didTimeOut = false;
     	$this->input = $input;
+    	$this->executionTime = 20;
     }
 
     // abstract protected function prepareArguments($arguments);
@@ -70,24 +71,31 @@ abstract class Script
     	$this->process->stop(0);
     }
 
-    public function cleanUp()
+    public function cleanUp($pids = null)
     {
-    	$pids = $this->getAllChildProcesses($this->process->getPid());
+    	$scriptPid = $this->process->getPid();
 
-    	// Kill all processes created for experiment running
+    	if(is_null($scriptPid) && is_null($pids)) return;
+
+    	$scriptPid = is_null($scriptPid) ? [] : [$scriptPid];
+
+    	$pids = array_merge($pids, $scriptPid);
+
+    	// Kill all processes created by script
         foreach ($pids as $pid) {
             $arguments = [
                 "-TERM",
                 $pid
             ];
-            $process = $this->runProcess("kill", $arguments);
+            $this->runProcess("kill", $arguments);
+            var_dump($this->process->isSuccessful());
         }
     }
 
-    protected function runProcessAsync($arguments = [], $timeout = 20)
+    protected function runProcessAsync($path, $arguments = [], $timeout = 20)
     {
     	$builder = new ProcessBuilder();
-    	$builder->setPrefix($this->path);
+    	$builder->setPrefix($path);
     	$builder->setArguments($arguments);
     	
     	$process = $builder->getProcess();
@@ -96,10 +104,10 @@ abstract class Script
     	$this->process = $process;
     }
 
-    protected function runProcess($arguments = [])
+    protected function runProcess($path, $arguments = [])
     {
         $builder = new ProcessBuilder();
-        $builder->setPrefix($this->path);
+        $builder->setPrefix($path);
         $builder->setArguments($arguments);
         
         $process = $builder->getProcess();
@@ -201,9 +209,9 @@ abstract class Script
      *
      * @param int $executionTime the execution time
      */
-    protected function setExecutionTime($executionTime)
+    public function setExecutionTime($executionTime)
     {
-        $this->executionTime = $executionTime;
+        $this->executionTime += $executionTime;
     }
 
     /**

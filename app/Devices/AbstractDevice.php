@@ -7,6 +7,7 @@ use Carbon\Carbon;
 use App\Experiment;
 use Illuminate\Support\Str;
 use App\Events\ProcessWasRan;
+use App\Devices\Commands\Command;
 use App\Events\ExperimentStarted;
 use App\Devices\Traits\Outputable;
 use App\Events\ExperimentFinished;
@@ -117,37 +118,38 @@ abstract class AbstractDevice
     {
         $this->device = $device;
         $this->experiment = $experiment;
+        $this->commands = [];
         $this->scriptsPath = $this->generateScriptsPath();
     }
 
-    public function initCommands($experimentInput, $requestedBy)
+    protected function initCommand($type, $arguments)
     {
-    	$this->commands = [];
-    	foreach ($this->scriptNames as $name => $path) {
-    		if(!in_array($name, ['start'])) continue;
-    		$command = null;
-    		switch ($name) {
-    			// case 'init':
-    			// 	$command = new InitCommand($this->experiment, $path);
-    			// 	break;
-    			case 'start':
-    				$command = new StartCommand($this->experiment, $path, $experimentInput, $requestedBy);
-	    			break;
-    			// case 'change':
-    			// 	$command = new ChangeCommand($this->experiment, $path);
-	    		// 	break;
-	    		// case 'stop':
-		    	// 	$command = new StopCommand($this->experiment, $path);
-		    	// 	break;
-	    		// case 'read':
-	    		// 	$command = new ReadCommand($this->experiment, $path);
-		    	// 	break;
+    	$command = null;
+    	//@Todo Some check here ?
+    	switch ($type) {
+    		case 'start': {
+    			$command = new StartCommand(
+    					$this->experiment,
+    					$this->scriptNames[$type],
+    					$arguments[0],
+    					$arguments[1]
+    				);
+    			$command->setStopScript($this->scriptNames["stop"]);
+    			break;
     		}
-
-    		// $command->setRequestedBy($requestedBy);
-    		$this->commands[$name] = $command;
+    		case 'stop': {
+    			$command = new StopCommand(
+    				$this->device,
+    				$this->scriptNames[$type]
+    				);
+    			break;
+    		}
     	}
+
+    	$this->commands[$type] = $command;
     }
+
+   
 
     /**
      * Abstract methods to implement - also check 
@@ -324,23 +326,24 @@ abstract class AbstractDevice
             $method = $commandMethods[$method];
             $reflector = new \ReflectionClass($this);
             $check = $reflector->getMethod($method);
-            if ($check->class != get_called_class()) {
+
+            if ($check->class == get_class()) {
                 throw new ExperimentCommandNotAvailable(
                     $this->experiment,
                     Str::ucfirst($method)
                 );
             }
             //@Todo if it is not command method, error normally
-            $this->initCommands($arguments[0], $arguments[1]);
+            $this->initCommand($method, $arguments);
             // Call first base class before method
             $beforeMethod = "before" . Str::ucfirst($method);
-            $this->$beforeMethod($this->commands["start"]);
+            $this->$beforeMethod($this->commands[$method]);
             // Then call its public concrete implementation
-            call_user_func_array([$this, $method], [$this->commands["start"]]);
+            call_user_func_array([$this, $method], [$this->commands[$method]]);
             // We do it like this, so developers don't have to call parent
             // methods manually, they will be called for them automatically
             $afterMethod = "after" . Str::ucfirst($method);
-            return $this->$afterMethod($this->commands["start"]);
+            return $this->$afterMethod($this->commands[$method]);
         }
     }
 
@@ -362,22 +365,9 @@ abstract class AbstractDevice
 
     protected function beforeStart(StartCommand $command)
     {
-    	// $command = new App\Devices\Commands\StartCommand($this->experiment);
-    	// $command->setInput($input);
-    	// $command->setMeasuringRate($this->getMeasuringRate($input));
-    	// $command->setSimulationTime($this->getSimulationTime($input));
-    	// $command->logToFile();
-    	// 
-
+    	$command->setMeasuringRate($this->getMeasuringRate($this->experimentInput));
+    	$command->setSimulationTime($this->getSimulationTime($this->experimentInput));
     	$command->logToFile();
-
-
-        // $this->experimentInput = $input;
-        // $this->experimentLogger = $this->commands["start"]->getExperimentLogger();
-        // $this->generateOutputFilePath($this->experimentLogger->requested_by);
-        // $this->experimentLogger->output_path = $this->outputFile;
-        // $this->experimentLogger->measuring_rate = $this->getMeasuringRate($this->experimentInput);
-        // $this->experimentLogger->save();
     }
 
     protected function start(StartCommand $command)
@@ -394,6 +384,19 @@ abstract class AbstractDevice
 
     protected function beforeInit($input)
     {
+    }
+
+    protected function beforeStop(StopCommand $command)
+    {
+
+    }
+    protected function stop(StopCommand $command)
+    {
+
+    }
+    protected function afterStop(StopCommand $command)
+    {
+    	return "stopped like a boss";
     }
     /**
      * Initialize experiment method
@@ -424,34 +427,31 @@ abstract class AbstractDevice
     {
     }
 
-    public function stop()
-    {
-        // Stops experiment and cleans up all processes
-        if (!is_null($this->device->attached_pids)) {
-            $this->stopExperimentRunner();
-        }
-        // Stop the experiment on the physical device
-        $this->stopDevice();
-        // Detaches the main process pid from db
-        $this->detachPids();
+    // public function stop()
+    // {
+    //     // Stops experiment and cleans up all processes
+    //     if (!is_null($this->device->attached_pids)) {
+    //         $this->stopExperimentRunner();
+    //     }
+    //     // Stop the experiment on the physical device
+    //     $this->stopDevice();
+    //     // Detaches the main process pid from db
+    //     $this->detachPids();
 
-        if ($this->isLoggingExperiment() &&
-            !$this->wasForceStopped() &&
-            !$this->wasTimedOut()) {
-            event(new ExperimentFinished($this->device));
-        }
+    //     if ($this->isLoggingExperiment() &&
+    //         !$this->wasForceStopped() &&
+    //         !$this->wasTimedOut()) {
+    //         event(new ExperimentFinished($this->device));
+    //     }
 
-        $this->device->detachCurrentExperiment();
+    //     $this->device->detachCurrentExperiment();
 
-        return $this->experimentLogger->fresh();
-    }
+    //     return $this->experimentLogger->fresh();
+    // }
 
     public function forceStop()
     {
-        if (is_null($this->device->currentExperimentLogger)) {
-            throw new DeviceNotRunningExperimentException;
-        }
-
+        
         if ($this->isLoggingExperiment()) {
             $logger = $this->device->currentExperimentLogger;
             $logger->stopped_at = Carbon::now();

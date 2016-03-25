@@ -40,7 +40,7 @@ class StartScript extends Script
     {        
         $arguments = $this->prepareArguments($this->input);
 
-        $this->runProcessAsync($arguments,$this->executionTime);
+        $this->runProcessAsync($this->path,$arguments,$this->executionTime);
         $this->startedAt = Carbon::now();
     }
 

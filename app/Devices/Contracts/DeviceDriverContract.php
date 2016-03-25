@@ -12,8 +12,6 @@ interface DeviceDriverContract
 	
 	public function availableCommands();
 
-	public function stop();
-
 	public function status();
 
     public function isExperimenting();

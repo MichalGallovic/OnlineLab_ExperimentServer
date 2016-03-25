@@ -32,13 +32,13 @@ class StopScript extends Script
     public function run()
     {        
         $arguments = $this->prepareArguments();
-        $this->runProcess($arguments);
+        $this->runProcess($this->path, $arguments);
     }
 
     protected function prepareArguments()
     {
         return [
-            "--port=" . $this->port
+            $this->port
         ];
     }
 }
