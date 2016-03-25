@@ -2,7 +2,9 @@
 
 namespace App\Devices\Helpers;
 
+use App\Experiment;
 use App\ExperimentLog;
+use App\Devices\Scripts\Script;
 use Illuminate\Support\Facades\File;
 
 class Logger
@@ -11,7 +13,7 @@ class Logger
 	 * Experiment log (DB)
 	 * @var App\ExperimentLog
 	 */
-	protected $experimentLog;
+	protected $experimentLogger;
 
 
 	/**
@@ -38,12 +40,27 @@ class Logger
 	 */
 	protected $software;
 
-	public function __construct(ExperimentLog $experimentLog)
+
+	/**
+	 * Command associated script
+	 * @var App\Devices\Scripts\Script
+	 */
+	protected $script;
+
+	/**
+	 * Requested by
+	 * @var int ID
+	 */
+	protected $requestedBy;
+
+	public function __construct(Experiment $experiment, Script $script)
 	{
-		$this->experimentLog = $experimentLog;
-		$this->experiment = $experimentLog->experiment;
-		$this->device = $this->experiment->device;
-		$this->software = $this->experiment->software;
+		// $this->experimentLog = $experimentLog;
+		$this->experiment = $experiment;
+		$this->device = $experiment->device;
+		$this->software = $experiment->software;
+		$this->script = $script;
+		$this->initDbLogging();
 	}
 
 	public function setMeasuringRate($rate)
@@ -54,6 +71,24 @@ class Logger
 	public function setSimulationTime($time)
 	{
 		$this->experimentLog->duration = $time;
+	}
+
+	public function setRequestedBy($userId)
+	{
+		$this->requestedBy = $userId;
+	}
+
+	protected function initDbLogging()
+	{
+		$logger = new ExperimentLog;
+        $logger->experiment()->associate($this->experiment);
+        $logger->input_arguments = json_encode($this->script->getInput());
+        
+        $logger->requested_by = $this->requestedBy;
+        $logger->save();
+        $this->device->currentExperiment()->associate($this->experiment)->save();
+        $this->device->currentExperimentLogger()->associate($logger)->save();
+        $this->experimentLogger = $logger;
 	}
 
 	public function createLogFile()
@@ -139,4 +174,14 @@ class Logger
         return $header;
     }
 
+
+    /**
+     * Gets the Experiment log (DB).
+     *
+     * @return App\ExperimentLog
+     */
+    public function getExperimentLogger()
+    {
+        return $this->experimentLogger;
+    }
 }

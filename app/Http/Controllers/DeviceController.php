@@ -281,11 +281,9 @@ class DeviceController extends ApiController
         }
 
         if (App::environment() == 'local') {
-            event(new ExperimentStarted($device, $experiment, $request->input('input'), 1));
-            $experimentLog = $deviceDriver->startCommand($request->input("input"));
+            $experimentLog = $deviceDriver->startCommand($request->input("input"), 1);
         } else {
-            event(new ExperimentStarted($device, $experiment, $request->input('input'), $request->input("requested_by")));
-            $experimentLog = $deviceDriver->startCommand($request->input("input"));
+            $experimentLog = $deviceDriver->startCommand($request->input("input"), $request->input("requested_by"));
         }
 
         return $this->respondWithSuccess($experimentLog->getResult());

@@ -15,15 +15,14 @@ class ExperimentStarted extends Event
 
     public $device;
     public $experiment;
-    public $input;
-    public $requestedBy;
+    public $logger;
 
     /**
      * Create a new event instance.
      *
      * @return void
      */
-    public function __construct(Device $device, Experiment $experiment, array $input, $requestedBy)
+    public function __construct(Device $device, Experiment $experiment, ExperimentLo)
     {
         $this->device = $device;
         $this->experiment = $experiment;

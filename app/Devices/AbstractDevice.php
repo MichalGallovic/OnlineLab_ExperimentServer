@@ -120,18 +120,18 @@ abstract class AbstractDevice
         $this->scriptsPath = $this->generateScriptsPath();
     }
 
-    public function initCommands()
+    public function initCommands($experimentInput, $requestedBy)
     {
     	$this->commands = [];
     	foreach ($this->scriptNames as $name => $path) {
-
+    		if(!in_array($name, ['start'])) continue;
     		$command = null;
     		switch ($name) {
     			// case 'init':
     			// 	$command = new InitCommand($this->experiment, $path);
     			// 	break;
     			case 'start':
-    				$command = new StartCommand($this->experiment, $path);
+    				$command = new StartCommand($this->experiment, $path, $experimentInput);
 	    			break;
     			// case 'change':
     			// 	$command = new ChangeCommand($this->experiment, $path);
@@ -144,6 +144,7 @@ abstract class AbstractDevice
 		    	// 	break;
     		}
 
+    		$command->setRequestedBy($requestedBy);
     		$this->commands[$name] = $command;
     	}
     }
@@ -330,7 +331,7 @@ abstract class AbstractDevice
                 );
             }
             //@Todo if it is not command method, error normally
-            $this->initCommands();
+            $this->initCommands($arguments[0], $arguments[1]);
             // Call first base class before method
             $beforeMethod = "before" . Str::ucfirst($method);
             $this->$beforeMethod($arguments[0]);
@@ -370,7 +371,7 @@ abstract class AbstractDevice
 
 
         $this->experimentInput = $input;
-        $this->experimentLogger = $this->device->currentExperimentLogger;
+        $this->experimentLogger = $this->commands["start"]->getExperimentLogger();
         $this->generateOutputFilePath($this->experimentLogger->requested_by);
         $this->experimentLogger->output_path = $this->outputFile;
         $this->experimentLogger->measuring_rate = $this->getMeasuringRate($this->experimentInput);
