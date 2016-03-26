@@ -2,6 +2,7 @@
 
 namespace App\Devices\Scripts;
 
+use App\Device;
 use Carbon\Carbon;
 use App\Devices\Scripts\Script;
 
@@ -23,10 +24,10 @@ class StopScript extends Script
      */
     protected $port;
 
-    public function __construct($path, $port)
+    public function __construct($path, Device $device)
     {
-        parent::__construct($path, []);
-        $this->port = $port;
+        parent::__construct($path, [], $device);
+        $this->port = $device->port;
     }
 
     public function run()

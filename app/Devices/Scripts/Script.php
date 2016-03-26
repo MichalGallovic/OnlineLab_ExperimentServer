@@ -2,6 +2,8 @@
 
 namespace App\Devices\Scripts;
 
+use App\Device;
+use App\Events\ProcessWasRan;
 use Illuminate\Support\Facades\File;
 use Symfony\Component\Process\Process;
 use Symfony\Component\Process\ProcessBuilder;
@@ -55,12 +57,19 @@ abstract class Script
      */
     protected $didTimeOut;
 
-    public function __construct($path, $input)
+    /**
+     * Device the script is concerned with
+     * @var App\Device
+     */
+    protected $device;
+
+    public function __construct($path, $input, Device $device)
     {
     	$this->checkPathCombinations($path);
     	$this->didTimeOut = false;
     	$this->input = $input;
     	$this->executionTime = 20;
+    	$this->device = $device;
     }
 
     // abstract protected function prepareArguments($arguments);
@@ -71,24 +80,27 @@ abstract class Script
     	$this->process->stop(0);
     }
 
-    public function cleanUp($pids = null)
+    public function cleanUp(array $pidsToClear = null)
     {
-    	$scriptPid = $this->process->getPid();
-
-    	if(is_null($scriptPid) && is_null($pids)) return;
+    	$scriptPid = is_null($this->process) ? null : $this->process->getPid();
+    	if(is_null($scriptPid) && is_null($pidsToClear)) return;
 
     	$scriptPid = is_null($scriptPid) ? [] : [$scriptPid];
 
-    	$pids = array_merge($pids, $scriptPid);
+    	$parentPids = array_merge($pidsToClear, $scriptPid);
+
+    	$allPids = [];
+    	foreach ($parentPids as $pid) {
+    		$allPids = array_merge($this->getAllChildProcesses($pid), $allPids);
+    	}
 
     	// Kill all processes created by script
-        foreach ($pids as $pid) {
+        foreach ($allPids as $pid) {
             $arguments = [
                 "-TERM",
                 $pid
             ];
             $this->runProcess("kill", $arguments);
-            var_dump($this->process->isSuccessful());
         }
     }
 
@@ -113,6 +125,7 @@ abstract class Script
         $process = $builder->getProcess();
 
         $process->run();
+        $this->logProcess($process);
         $this->process = $process;
     }
 
@@ -222,5 +235,10 @@ abstract class Script
     public function timedOut()
     {
         return $this->didTimeOut;
+    }
+
+    protected function logProcess(Process $process)
+    {
+    	event(new ProcessWasRan($process, $this->device));
     }
 }
