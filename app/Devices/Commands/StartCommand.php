@@ -74,7 +74,7 @@ class StartCommand extends Command
 		$this->setRequestedBy($requestedBy);
 		$this->startScript = new StartScript(
 				$path, 
-				$this->device->port, 
+				$this->device, 
 				$this->logger->getOutputFilePath(), 
 				$input
 		);
@@ -82,7 +82,7 @@ class StartCommand extends Command
 
 	public function setStopScript($path)
 	{
-		$this->stopScript = new StopScript($path, $this->device->port);
+		$this->stopScript = new StopScript($path, $this->device);
 	}
 
 	public function execute()

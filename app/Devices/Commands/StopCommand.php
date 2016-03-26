@@ -31,7 +31,7 @@ class StopCommand extends Command
 	public function __construct(Device $device, $path)
 	{
 		$this->device = $device;
-		$this->stopScript = new StopScript($path, $this->device->port);
+		$this->stopScript = new StopScript($path, $device);
 	}
 
 	public function execute()

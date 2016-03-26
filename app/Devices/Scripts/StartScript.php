@@ -2,6 +2,7 @@
 
 namespace App\Devices\Scripts;
 
+use App\Device;
 use Carbon\Carbon;
 use App\Devices\Scripts\Script;
 
@@ -29,10 +30,10 @@ class StartScript extends Script
      */
     protected $runningTime;
 
-    public function __construct($path, $port, $outputFile, $input)
+    public function __construct($path, Device $device, $outputFile, $input)
     {
-        parent::__construct($path, $input);
-        $this->port = $port;
+        parent::__construct($path, $input, $device);
+        $this->port = $device->port;
         $this->outputFile = $outputFile;
     }
 
@@ -60,6 +61,8 @@ class StartScript extends Script
         }
 
         $this->endedAt = Carbon::now();
+
+        $this->logProcess($this->process);
     }
 
     protected function prepareArguments($arguments)

@@ -73,9 +73,12 @@ class DeviceController extends ApiController
             return $this->deviceNotFound();
         }
 
-        $device->getStatus();
+        $deviceDriver = $device->driver();
+
+        $status = $deviceDriver->statusCommand();
+
         return $this->respondWithArray([
-                "status" => $device->status
+                "status" => $status
             ]);
     }
 
@@ -89,7 +92,7 @@ class DeviceController extends ApiController
 
         $deviceDriver = $device->driver();
 
-        $output = $deviceDriver->read();
+        $output = $deviceDriver->readCommand();
 
         return $this->respondWithItem($device, new ReadDeviceTransformer($output));
     }
@@ -298,17 +301,17 @@ class DeviceController extends ApiController
             return $this->errorNotFound("Device not found");
         }
 
-        // if (is_null($device->currentExperimentLogger)) {
-        //     throw new DeviceNotRunningExperimentException;
-        // }
+        if (is_null($device->currentExperimentLogger)) {
+            throw new DeviceNotRunningExperimentException;
+        }
 
         $deviceDriver = $device->driver();
 
         $deviceDriver->stopCommand();
 
-        // if (!$deviceDriver->wasForceStopped()) {
-        //     return $this->errorInternalError("Experiment did not stop");
-        // }
+        if (!$deviceDriver->wasForceStopped()) {
+            return $this->errorInternalError("Experiment did not stop");
+        }
 
         return $this->respondWithSuccess("Experiment stopped successfully");
     }

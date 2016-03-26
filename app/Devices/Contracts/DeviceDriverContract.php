@@ -8,12 +8,8 @@ interface DeviceDriverContract
 	const STATUS_READY = "ready";
 	const STATUS_EXPERIMENTING = "experimenting";
 
-	const AVAILABLE_COMMANDS = ["init","change","start","stop"];
+	const AVAILABLE_COMMANDS = ["init","change","start","read","status","stop"];
 	
 	public function availableCommands();
-
-	public function status();
-
-    public function isExperimenting();
 
 }
