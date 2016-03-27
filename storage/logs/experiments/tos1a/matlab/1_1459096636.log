@@ -1,0 +1,9 @@
+tos1a
+matlab
+15
+100
+2016-03-27 16:37:16
+"P","I","D","c_fan","c_led","c_lamp","ctrltyp","in_sw","out_sw","t_sim","s_rate","input","scifun"
+0.8,2.95,0,20,0,50,"NO",3,1,15,100,30,"y1=u1"
+"temp_chip","f_temp_int","d_temp_int","f_temp_ext","d_temp_ext","f_light_int_lin","d_light_int_lin","f_light_int_log","d_light_int_log","I_bulb","V_bulb","I_fan","V_fan","f_rpm","d_rmp"
+===

@@ -5,8 +5,11 @@ namespace App\Devices;
 use App\Device;
 use App\Experiment;
 use Illuminate\Support\Str;
+use App\Devices\Helpers\Logger;
 use App\Devices\Commands\Command;
 use App\Devices\Scripts\ReadScript;
+use App\Devices\Scripts\StopScript;
+use App\Devices\Scripts\StartScript;
 use App\Devices\Commands\InitCommand;
 use App\Devices\Commands\ReadCommand;
 use App\Devices\Commands\StopCommand;
@@ -37,14 +40,6 @@ abstract class AbstractDevice
     protected $experiment;
 
     /**
-     * Experiment user input
-     * @method getSimulationTime
-     * @method getMeasuringRate
-     * @var array
-     */
-    protected $experimentInput;
-
-    /**
      * Available commands per Experiment
      * @var array
      */
@@ -55,83 +50,64 @@ abstract class AbstractDevice
         $this->device = $device;
         $this->experiment = $experiment;
         $this->commands = [];
-        $this->scriptsPath = $this->generateScriptsPath();
     }
 
     protected function initCommand($type, $arguments)
     {
-    	$command = null;
-    	//@Todo Some check here ?
-    	switch ($type) {
-    		case 'start': {
-    			$command = new StartCommand(
-    					$this->experiment,
-    					$this->scriptNames[$type],
-    					$arguments[0],
-    					$arguments[1]
-    				);
-    			$command->setStopScript($this->scriptNames["stop"]);
-    			break;
-    		}
-    		case 'stop': {
-    			$command = new StopCommand(
-    				$this->device,
-    				$this->scriptNames[$type]
-    				);
-    			break;
-    		}
-    		case 'read': {
-    			$script = new ReadScript(
-    				$this->scriptNames[$type],
-    				$this->device
-    				);
-    			$command = new ReadCommand(
-    				$this->experiment,
-    				$script
-    				);
-    			break;
-    		}
-    		case 'status': {
-    			$script = new ReadScript(
-    				$this->scriptNames["read"],
-    				$this->device
-    				);
-    			$command = new StatusCommand(
-    				$this->experiment,
-    				$script
-    				);
-    			break;
-    		}
-    	}
+        $command = null;
+        //@Todo Some check here ?
+        switch ($type) {
+            case 'start': {
+            	$logger = new Logger($this->experiment, $arguments[0], $arguments[1]);
+            	$startScript = new StartScript(
+						$this->scriptNames[$type], 
+						$this->experiment->device, 
+						$logger->getOutputFilePath(), 
+						$arguments[0]
+					);
+            	$stopScript = new StopScript($this->scriptNames["stop"], $this->device);
+                $command = new StartCommand(
+                        $this->experiment,
+                        $startScript,
+                        $stopScript,
+                        $logger
+                    );
+                break;
+            }
+            case 'stop': {
+            	$stopScript = new StopScript($this->scriptNames[$type], $this->device);
+                $command = new StopCommand(
+	                    $this->device,
+	                    $stopScript
+                    );
+                break;
+            }
+            case 'read': {
+                $script = new ReadScript(
+                    $this->scriptNames[$type],
+                    $this->device
+                    );
+                $command = new ReadCommand(
+                    $this->experiment,
+                    $script
+                    );
+                break;
+            }
+            case 'status': {
+                $script = new ReadScript(
+                    $this->scriptNames["read"],
+                    $this->device
+                    );
+                $command = new StatusCommand(
+                    $this->experiment,
+                    $script
+                    );
+                break;
+            }
+        }
 
-    	$this->commands[$type] = $command;
+        $this->commands[$type] = $command;
     }
-
-   
-
-    /**
-     * Abstract methods to implement - also check 
-     * App\Devices\Contracts\DeviceDriverContract
-     * to see public interface that has to be implemented
-     */
-
-    /**
-     * Get simulation time has to be implemented
-     * per experiment basis, because simulation
-     * time is deduced from the input arguments
-     * 
-     * @return int
-     */
-    abstract protected function getSimulationTime($input);
-
-    /**
-     * Get measuring rate (usually equals to the sampling)
-     * time - number which tells how often results are
-     * measured
-     * @return int
-     */
-    abstract protected function getMeasuringRate($input);
-
 
     /**
      * Magic method for command interface
@@ -194,58 +170,45 @@ abstract class AbstractDevice
 
     protected function beforeRead(ReadCommand $command)
     {
-
     }
 
     protected function read(ReadCommand $command)
     {
-
     }
 
     protected function afterRead(ReadCommand $command)
     {
-    	return $command->getOutput();
+        return $command->getOutput();
     }
 
     protected function beforeStart(StartCommand $command)
     {
-    	$command->setMeasuringRate($this->getMeasuringRate($this->experimentInput));
-    	$command->setSimulationTime($this->getSimulationTime($this->experimentInput));
-    	$command->logToFile();
+        $command->logToFile();
     }
 
     protected function start(StartCommand $command)
     {
-    	
     }
 
     protected function afterStart(StartCommand $command)
     {
         $command->stop();
-     	$logger = $command->getExperimentLogger();
-     	return $logger->fresh();
     }
 
     protected function beforeStop(StopCommand $command)
     {
-
     }
     protected function stop(StopCommand $command)
     {
-
     }
     protected function afterStop(StopCommand $command)
     {
-    	return "stopped like a boss";
+        return "stopped like a boss";
     }
 
-    protected function beforeInit($input)
+    protected function beforeInit(Command $command)
     {
     }
-    /**
-     * Initialize experiment method
-     * @param  array $input User experiment input
-     */
     protected function init($input)
     {
     }
@@ -273,38 +236,14 @@ abstract class AbstractDevice
 
     protected function beforeStatus(Command $command)
     {
-
     }
 
     protected function status(Command $command)
     {
-
     }
 
     protected function afterStatus(Command $command)
     {
-    	return $command->getStatus();
+        return $command->getStatus();
     }
-
-  
-    public function wasForceStopped()
-    {
-        if (is_null($this->device->currentExperimentLogger)) {
-            return true;
-        }
-        
-        return !is_null($this->device->currentExperimentLogger->stopped_at);
-    }
-
-    public function wasTimedOut()
-    {
-        return !is_null($this->experimentLogger->fresh()->timedout_at);
-    }
-
-    protected function isLoggingExperiment()
-    {
-        $this->device = $this->device->fresh();
-        return !is_null($this->device->currentExperimentLogger);
-    }   
-   
 }

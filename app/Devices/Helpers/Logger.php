@@ -4,6 +4,8 @@ namespace App\Devices\Helpers;
 
 use App\Experiment;
 use App\ExperimentLog;
+use App\Events\ProcessWasRan;
+use App\Events\ExperimentFinished;
 use App\Devices\Scripts\StartScript;
 use Illuminate\Support\Facades\File;
 
@@ -46,11 +48,13 @@ class Logger
 	 */
 	protected $requestedBy;
 
-	public function __construct(Experiment $experiment, $input)
+
+	public function __construct(Experiment $experiment, $input, $requestedBy = null)
 	{
 		$this->experiment = $experiment;
 		$this->device = $experiment->device;
 		$this->software = $experiment->software;
+		$this->requestedBy = $requestedBy;
 		$this->initDbLogging($input);
 	}
 
@@ -62,11 +66,6 @@ class Logger
 	public function setSimulationTime($time)
 	{
 		$this->experimentLogger->duration = $time;
-	}
-
-	public function setRequestedBy($userId)
-	{
-		$this->requestedBy = $userId;
 	}
 
 	protected function initDbLogging($input)

@@ -61,8 +61,6 @@ class StartScript extends Script
         }
 
         $this->endedAt = Carbon::now();
-
-        $this->logProcess($this->process);
     }
 
     protected function prepareArguments($arguments)

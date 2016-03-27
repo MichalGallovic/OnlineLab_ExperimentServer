@@ -10,6 +10,7 @@ interface DeviceDriverContract
 
 	const AVAILABLE_COMMANDS = ["init","change","start","read","status","stop"];
 	
+	
 	public function availableCommands();
 
 }
