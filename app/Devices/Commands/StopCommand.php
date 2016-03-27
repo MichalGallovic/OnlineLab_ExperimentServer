@@ -28,10 +28,10 @@ class StopCommand extends Command
 	 */
 	protected $device;
 
-	public function __construct(Device $device, $path)
+	public function __construct(Device $device, StopScript $script)
 	{
 		$this->device = $device;
-		$this->stopScript = new StopScript($path, $device);
+		$this->stopScript = $script;
 	}
 
 	public function execute()

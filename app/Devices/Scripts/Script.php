@@ -241,4 +241,24 @@ abstract class Script
     {
     	event(new ProcessWasRan($process, $this->device));
     }
+
+    /**
+     * Gets the Timestamp script started.
+     *
+     * @return Carbon\Carbon
+     */
+    public function getStartedAt()
+    {
+        return $this->startedAt;
+    }
+
+    /**
+     * Gets the Timestamp script ended.
+     *
+     * @return Carbon\Carbon
+     */
+    public function getEndedAt()
+    {
+        return $this->endedAt;
+    }
 }

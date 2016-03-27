@@ -33,17 +33,6 @@ class StartCommand extends Command
 	 */
 	protected $stopScript;
 
-	/**
-	 * Experiment Model (DB)
-	 * @var App\Experiment
-	 */
-	protected $experiment;
-
-	/**
-	 * Experiment input
-	 * @var array
-	 */
-	protected $input;
 
 	/**
 	 * Experiment logger 
@@ -58,38 +47,27 @@ class StartCommand extends Command
 	 */
 	protected $device;
 
-	/**
-	 * Software reference (DB)
-	 * @var App\Software
-	 */
-	protected $software;
 
 
-	public function __construct(Experiment $experiment, $path, $input, $requestedBy)
+	public function __construct(Experiment $experiment, Script $startScript, Script $stopScript, Logger $logger)
 	{
-		$this->experiment = $experiment;
 		$this->device = $experiment->device;
-		$this->software = $experiment->software;
-		$this->logger = new Logger($experiment, $input);
-		$this->setRequestedBy($requestedBy);
-		$this->startScript = new StartScript(
-				$path, 
-				$this->device, 
-				$this->logger->getOutputFilePath(), 
-				$input
-		);
+		$this->startScript = $startScript;
+		$this->stopScript = $stopScript;
+		$this->logger = $logger;
+
+		$input = $this->startScript->getInput();
+		$this->setMeasuringRate($input);
+		$this->setSimulationTime($input);
 	}
 
-	public function setStopScript($path)
-	{
-		$this->stopScript = new StopScript($path, $this->device);
-	}
 
 	public function execute()
 	{
 		$this->device->status = DeviceDriverContract::STATUS_EXPERIMENTING;
 		$this->startScript->run();
 		$this->device->attachPid($this->startScript->getPid());
+		$this->device->save();
 	}
 
 	public function stop()
@@ -100,7 +78,7 @@ class StartCommand extends Command
 		$this->stopScript->run();
 		
 		$this->device->detachPids();
-		$this->device->detachCurrentExperiment();
+		$this->saveLog();
 	}
 
 	public function wait()
@@ -108,30 +86,22 @@ class StartCommand extends Command
 		$this->startScript->waitOrTimeout();
 	}
 
-	public function saveLog()
+	protected function saveLog()
 	{
 		$this->logger->saveScript($this->startScript);
 	}
 
-	public function setInput(array $input)
+	protected function setMeasuringRate($input)
 	{
-		$this->input = $input;
-	}
-
-	public function setMeasuringRate($rate)
-	{
+		$rate = $input["s_rate"];
 		$this->logger->setMeasuringRate($rate);
 	}
 
-	public function setSimulationTime($time)
+	protected function setSimulationTime($input)
 	{
+		$time = $input["t_sim"];
 		$this->logger->setSimulationTime($time);
 		$this->startScript->setExecutionTime($time);
-	}
-
-	public function setRequestedBy($userId)
-	{
-		$this->logger->setRequestedBy($userId);
 	}
 
 	public function logToFile()
@@ -139,14 +109,5 @@ class StartCommand extends Command
 		$this->logger->createLogFile();
 	}
 
-	public function getScriptPath()
-	{
-		return $this->startScript->getPath();
-	}
-
-	public function getExperimentLogger()
-	{
-		return $this->logger->getExperimentLogger();
-	}
 
 }
