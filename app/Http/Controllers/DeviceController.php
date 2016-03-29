@@ -290,7 +290,13 @@ class DeviceController extends ApiController
             $$deviceDriver->startCommand($request->input("input"), $request->input("requested_by"));
         }
 
-        $result = $device->currentExperimentLogger->getResult();
+        $logger = $device->fresh()->currentExperimentLogger;
+
+        if(is_null($logger)) {
+            return $this->setStatusCode(400)->respondWithError("Experiment was stopped!", 400);
+        }
+
+        $result = $logger->getResult();
 
         $device->detachCurrentExperiment();
 
@@ -311,9 +317,9 @@ class DeviceController extends ApiController
 
         $deviceDriver = $device->driver();
 
-        $deviceDriver->stopCommand();
+        $didStop = $deviceDriver->stopCommand();
 
-        if (!$deviceDriver->wasForceStopped()) {
+        if (!$didStop) {
             return $this->errorInternalError("Experiment did not stop");
         }
 

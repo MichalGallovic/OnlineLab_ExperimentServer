@@ -12,7 +12,7 @@ use App\Devices\Exceptions\DeviceNotConnectedException;
 abstract class AbstractTOS1A extends AbstractDevice
 {
 
-    protected $scriptNames = [
+    protected $scriptPaths = [
         "read"    => "tos1a/read.py",
         "stop"    => "tos1a/stop.py"
     ];

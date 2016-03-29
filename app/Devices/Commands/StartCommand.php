@@ -91,15 +91,25 @@ class StartCommand extends Command
 		$this->logger->saveScript($this->startScript);
 	}
 
+	protected function getMeasuringRate($input)
+	{
+		return $input["s_rate"];
+	}
+
+	protected function getSimulationTime($input)
+	{
+		return $input["t_sim"];
+	}
+
 	protected function setMeasuringRate($input)
 	{
-		$rate = $input["s_rate"];
+		$rate = $this->getMeasuringRate($input);
 		$this->logger->setMeasuringRate($rate);
 	}
 
 	protected function setSimulationTime($input)
 	{
-		$time = $input["t_sim"];
+		$time = $this->getSimulationTime($input);
 		$this->logger->setSimulationTime($time);
 		$this->startScript->setExecutionTime($time);
 	}

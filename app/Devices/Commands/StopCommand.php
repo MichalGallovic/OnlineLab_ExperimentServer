@@ -27,11 +27,14 @@ class StopCommand extends Command
 	 * @var App\Device
 	 */
 	protected $device;
+	protected $logger;
 
 	public function __construct(Device $device, StopScript $script)
 	{
 		$this->device = $device;
 		$this->stopScript = $script;
+
+		$this->logger = null;
 	}
 
 	public function execute()
@@ -39,10 +42,10 @@ class StopCommand extends Command
 		$this->device->status = DeviceDriverContract::STATUS_READY;
 		$this->stopScript->run();
 
-		$logger = $this->device->currentExperimentLogger;
-		if(!is_null($logger)) {
-			$logger->stopped_at = Carbon::now();
-			$logger->save();
+		$this->logger = $this->device->currentExperimentLogger;
+		if(!is_null($this->logger)) {
+			$this->logger->stopped_at = Carbon::now();
+			$this->logger->save();
 		} 
 
 
@@ -59,5 +62,10 @@ class StopCommand extends Command
 	public function stop()
 	{
 
+	}
+
+	public function stoppedSuccessfully()
+	{
+		return !is_null($this->logger) ? isset($this->logger->stopped_at) : false;
 	}
 }
