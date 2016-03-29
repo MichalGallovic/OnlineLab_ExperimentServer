@@ -5,6 +5,7 @@ namespace App\Devices;
 use App\Device;
 use App\Experiment;
 use Illuminate\Support\Str;
+use App\Devices\CommandFactory;
 use App\Devices\Helpers\Logger;
 use App\Devices\Commands\Command;
 use App\Devices\Scripts\ReadScript;
@@ -17,6 +18,7 @@ use App\Devices\Commands\StartCommand;
 use App\Devices\Commands\ChangeCommand;
 use App\Devices\Commands\StatusCommand;
 use App\Devices\Contracts\DeviceDriverContract;
+use App\Devices\Exceptions\ExperimentCommandNotAvailable;
 
 abstract class AbstractDevice
 {
@@ -25,7 +27,7 @@ abstract class AbstractDevice
      * $scriptsPath
      * @var array
      */
-    protected $scriptNames;
+    protected $scriptPaths;
  
     /**
      * Device model (from DB)
@@ -52,61 +54,32 @@ abstract class AbstractDevice
         $this->commands = [];
     }
 
-    protected function initCommand($type, $arguments)
+    protected function initCommand($commandType, $arguments)
     {
-        $command = null;
-        //@Todo Some check here ?
-        switch ($type) {
-            case 'start': {
-            	$logger = new Logger($this->experiment, $arguments[0], $arguments[1]);
-            	$startScript = new StartScript(
-						$this->scriptNames[$type], 
-						$this->experiment->device, 
-						$logger->getOutputFilePath(), 
-						$arguments[0]
-					);
-            	$stopScript = new StopScript($this->scriptNames["stop"], $this->device);
-                $command = new StartCommand(
-                        $this->experiment,
-                        $startScript,
-                        $stopScript,
-                        $logger
-                    );
+
+        $deviceType = $this->device->type->name;
+        $softwareType = $this->experiment->software->name;
+
+        $commandFactory = new CommandFactory($deviceType, $softwareType, $commandType, $this->scriptPaths);
+        $method = $commandType . Str::upper($deviceType) . Str::ucfirst($softwareType);
+
+        switch ($commandType) {
+            case 'start':
+            	$command = $commandFactory->$method($this->experiment, $arguments);
                 break;
-            }
-            case 'stop': {
-            	$stopScript = new StopScript($this->scriptNames[$type], $this->device);
-                $command = new StopCommand(
-	                    $this->device,
-	                    $stopScript
-                    );
+            case 'stop':
+            	$command = $commandFactory->$method($this->experiment, $this->device);
                 break;
-            }
-            case 'read': {
-                $script = new ReadScript(
-                    $this->scriptNames[$type],
-                    $this->device
-                    );
-                $command = new ReadCommand(
-                    $this->experiment,
-                    $script
-                    );
+            case 'read':
+				$command = $commandFactory->$method($this->experiment, $this->device);
                 break;
-            }
             case 'status': {
-                $script = new ReadScript(
-                    $this->scriptNames["read"],
-                    $this->device
-                    );
-                $command = new StatusCommand(
-                    $this->experiment,
-                    $script
-                    );
+                $command = $commandFactory->$method($this->experiment, $this->device);
                 break;
             }
         }
 
-        $this->commands[$type] = $command;
+        $this->commands[$commandType] = $command;
     }
 
     /**
@@ -160,7 +133,7 @@ abstract class AbstractDevice
 
         foreach ($commands as $command) {
             $check = $reflector->getMethod($command);
-            if ($check->class == get_called_class()) {
+            if ($check->class != get_class()) {
                 $availableCommands []= $command;
             }
         }
@@ -203,7 +176,7 @@ abstract class AbstractDevice
     }
     protected function afterStop(StopCommand $command)
     {
-        return "stopped like a boss";
+        return $command->stoppedSuccessfully();
     }
 
     protected function beforeInit(Command $command)
