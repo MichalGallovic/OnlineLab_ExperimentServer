@@ -16,6 +16,9 @@ class StartCommand extends GeneralStartCommand
 	public function __construct(Experiment $experiment, Script $startScript, Script $stopScript, Logger $logger)
 	{
 		parent::__construct($experiment, $startScript, $stopScript, $logger);
+		$input = $this->startScript->getInput();
+		$this->setMeasuringRate($input);
+		$this->setSimulationTime($input);
 	}
 
 	protected function getMeasuringRate($input)

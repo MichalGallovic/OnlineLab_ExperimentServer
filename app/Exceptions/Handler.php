@@ -5,6 +5,7 @@ namespace App\Exceptions;
 use Exception;
 use Illuminate\Validation\ValidationException;
 use Illuminate\Auth\Access\AuthorizationException;
+use App\Devices\Exceptions\CommandTypeNotSupported;
 use App\Devices\Exceptions\DeviceNotReadyException;
 use App\Devices\Exceptions\ParametersInvalidException;
 use App\Devices\Exceptions\DeviceNotConnectedException;
@@ -41,7 +42,8 @@ class Handler extends ExceptionHandler
         DriverDoesNotExistException::class,
         DeviceNotRunningExperimentException::class,
         ExperimentNotSupportedException::class,
-        ExperimentCommandNotAvailable::class
+        ExperimentCommandNotAvailable::class,
+        CommandTypeNotSupported::class
     ];
 
     /**

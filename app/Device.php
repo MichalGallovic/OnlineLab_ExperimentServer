@@ -18,12 +18,10 @@ class Device extends Model
 
     public function driver($softwareName = null)
     {
-        if ($this->isOffline()) {
-            throw new DeviceNotConnectedException;
-        }
+        // if ($this->isOffline()) {
+        //     throw new DeviceNotConnectedException;
+        // }
 
-        // @Todo rozbit do viacerych ?
-        // Get Current / Default / Requested experiment
         $experiment = $this->getCurrentOrRequestedExperiment($softwareName);
 
         $deviceManager = new DeviceManager($this, $experiment);

@@ -18,6 +18,7 @@ use App\Devices\Commands\StartCommand;
 use App\Devices\Commands\ChangeCommand;
 use App\Devices\Commands\StatusCommand;
 use App\Devices\Contracts\DeviceDriverContract;
+use App\Devices\Exceptions\CommandTypeNotSupported;
 use App\Devices\Exceptions\ExperimentCommandNotAvailable;
 
 abstract class AbstractDevice
@@ -62,7 +63,7 @@ abstract class AbstractDevice
 
         $commandFactory = new CommandFactory($deviceType, $softwareType, $commandType, $this->scriptPaths);
         $method = $commandType . Str::upper($deviceType) . Str::ucfirst($softwareType);
-
+        
         switch ($commandType) {
             case 'start':
             	$command = $commandFactory->$method($this->experiment, $arguments);
@@ -73,10 +74,12 @@ abstract class AbstractDevice
             case 'read':
 				$command = $commandFactory->$method($this->experiment, $this->device);
                 break;
-            case 'status': {
+            case 'status':
                 $command = $commandFactory->$method($this->experiment, $this->device);
                 break;
-            }
+            case 'init':
+            	$command = $commandFactory->$method($this->experiment, $this->device);
+            	break;
         }
 
         $this->commands[$commandType] = $command;
@@ -123,6 +126,27 @@ abstract class AbstractDevice
             $afterMethod = "after" . Str::ucfirst($method);
             return $this->$afterMethod($this->commands[$method]);
         }
+    }
+
+    public function checkCommandSupport($command)
+    {
+    	// Normalize command name
+    	$command = strtolower($command);
+    	$availableCommands = DeviceDriverContract::AVAILABLE_COMMANDS;
+
+    	$reflector = new \ReflectionClass($this);
+    	try {
+    		$check = $reflector->getMethod($command);
+    	} catch(\ReflectionException $e) {
+    		throw new CommandTypeNotSupported($command);
+    	}
+
+    	if ($check->class == get_class()) {
+    	    throw new ExperimentCommandNotAvailable(
+    	        $this->experiment,
+    	        Str::ucfirst($command)
+    	    );
+    	}
     }
 
     public function availableCommands()
@@ -182,16 +206,16 @@ abstract class AbstractDevice
     protected function beforeInit(Command $command)
     {
     }
-    protected function init($input)
+    protected function init(Command $command)
     {
     }
 
-    protected function afterInit()
+    protected function afterInit(Command $command)
     {
     }
 
 
-    protected function beforeChange($input)
+    protected function beforeChange(Command $command)
     {
     }
     /**
@@ -199,11 +223,11 @@ abstract class AbstractDevice
      * while experiment is running
      * @param  array $input User experiment input
      */
-    protected function change($input)
+    protected function change(Command $command)
     {
     }
 
-    protected function afterChange()
+    protected function afterChange(Command $command)
     {
     }
 
