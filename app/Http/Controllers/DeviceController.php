@@ -19,6 +19,7 @@ use App\Http\Requests\DeviceInitRequest;
 use App\Http\Requests\DeviceStopRequest;
 use App\Http\Requests\DeviceStartRequest;
 use App\Http\Requests\DeviceChangeRequest;
+use App\Http\Requests\DeviceCommandRequest;
 use App\Http\Requests\DevDeviceStartRequest;
 use App\Devices\Contracts\DeviceDriverContract;
 use App\Http\Requests\DeviceExperimentsRequest;
@@ -38,10 +39,115 @@ class DeviceController extends ApiController
 {
     protected $deviceRepository;
 
+    protected $device;
+    protected $experiment;
+
     public function __construct(Manager $fractal, DeviceDbRepository $deviceRepo)
     {
         parent::__construct($fractal);
         $this->deviceRepository = $deviceRepo;
+    }
+
+    public function executeCommand(DeviceCommandRequest $request, $id)
+    {
+        // Do we have this device in DB ?
+        try {
+            $this->device = $this->deviceRepository->getById($id);
+        } catch (ModelNotFoundException $e) {
+            return $this->errorNotFound("Device not found");
+        }
+
+        $software = Software::where('name', strtolower($request->input('software')))->first();
+        
+        $softwareName = !is_null($software) ? $software->name : null;        
+
+        // Is command implemented on this experiment ? (device + software)
+        $deviceDriver = $this->device->driver($softwareName);
+        $command = $request->input('command');
+        $deviceDriver->checkCommandSupport($command);
+
+        $this->experiment = $this->device->getCurrentOrRequestedExperiment($softwareName);
+        $this->experiment->validate($command, $request->input('input'));
+
+
+        if(method_exists($this, $command)) {
+            return $this->$command($deviceDriver, $request);
+        }
+
+        $commandMethod = strtolower($command) . "Command";
+
+        if (App::environment() == 'local') {
+            $output = $deviceDriver->$commandMethod($request->input("input"), 1);
+        } else {
+            $output = $deviceDriver->$commandMethod($request->input("input"), $request->input("requested_by"));
+        }
+
+        
+        if($driver->commandSuccessful()) {
+            return $this->respondWithSuccess("Command executed successfully");
+        }
+
+        return $this->respondWithError("Command execution ended with error!");
+    }
+
+    protected function read(DeviceDriverContract $driver, Request $request)
+    {
+        $output = $driver->readCommand();
+
+        return $this->respondWithItem($this->device, new ReadDeviceTransformer($output));
+    }
+
+    protected function start(DeviceDriverContract $driver, Request $request)
+    {
+        // We don't want to run multiple experiments
+        // at the same time, on once device
+        if (!is_null($this->device->currentExperiment)) {
+            throw new DeviceAlreadyRunningExperimentException;
+        }
+
+        if (App::environment() == 'local') {
+            $driver->startCommand($request->input("input"), 1);
+        } else {
+            $$driver->startCommand($request->input("input"), $request->input("requested_by"));
+        }
+
+        $this->device = $this->device->fresh();
+
+        $logger = $this->device->currentExperimentLogger;
+
+        if(is_null($logger)) {
+            return $this->setStatusCode(400)->respondWithError("Experiment was stopped!", 400);
+        }
+
+        $result = $logger->getResult();
+
+        $this->device->detachCurrentExperiment();
+
+        return $this->respondWithSuccess($result);
+    }
+
+    protected function status(DeviceDriverContract $driver, Request $request)
+    {
+        $status = $driver->statusCommand();
+
+        return $this->respondWithArray([
+                "status" => $status
+            ]);
+    }
+
+    protected function stop(DeviceDriverContract $driver, Request $request)
+    {
+        if (is_null($this->device->currentExperimentLogger)) {
+            throw new DeviceNotRunningExperimentException;
+        }
+
+        $didStop = $driver->stopCommand();
+
+        if (!$didStop) {
+            return $this->errorInternalError("Experiment did not stop");
+        }
+
+        return $this->respondWithSuccess("Experiment stopped successfully");
     }
 
     public function statusAll(DeviceRequest $request)
@@ -63,38 +169,6 @@ class DeviceController extends ApiController
         }
 
         return $this->respondWithArray($statuses);
-    }
-
-    public function statusOne(DeviceRequest $request, $id)
-    {
-        try {
-            $device = $this->deviceRepository->getById($id);
-        } catch (ModelNotFoundException $e) {
-            return $this->deviceNotFound();
-        }
-
-        $deviceDriver = $device->driver();
-
-        $status = $deviceDriver->statusCommand();
-
-        return $this->respondWithArray([
-                "status" => $status
-            ]);
-    }
-
-    public function readOne(DeviceRequest $request, $id)
-    {
-        try {
-            $device = $this->deviceRepository->getById($id);
-        } catch (ModelNotFoundException $e) {
-            return $this->deviceNotFound();
-        }
-
-        $deviceDriver = $device->driver();
-
-        $output = $deviceDriver->readCommand();
-
-        return $this->respondWithItem($device, new ReadDeviceTransformer($output));
     }
 
     /**
@@ -175,154 +249,4 @@ class DeviceController extends ApiController
         return $this->respondWithItem($log, new ExperimentLogTransformer($measurementsEvery));
     }
 
-    public function change(DeviceChangeRequest $request, $id)
-    {
-        try {
-            $device = $this->deviceRepository->getById($id);
-        } catch (ModelNotFoundException $e) {
-            return $this->errorNotFound("Device not found");
-        }
-
-        try {
-            $softwareName = strtolower($request->input('software'));
-            $software = Software::where('name', $softwareName)->firstOrFail();
-        } catch (ModelNotFoundException $e) {
-            return $this->errorForbidden("Experiment type: '" . $type . "'" . " does not exist");
-        }
-
-        $experiment = $device->getCurrentOrRequestedExperiment($software->name);
-
-        $experiment->validateChange($request->input('input'));
-
-        // When everything looks fine it is
-        // time to boot up classes for
-        // specific device
-        $deviceDriver = $device->driver($software->name);
-
-        $deviceDriver->changeCommand($request->input("input"));
-    }
-
-    public function listCommands(Request $request, $id)
-    {
-        try {
-            $device = $this->deviceRepository->getById($id);
-        } catch (ModelNotFoundException $e) {
-            return $this->errorNotFound("Device not found");
-        }
-
-        try {
-            $softwareName = strtolower($request->input('software'));
-            $software = Software::where('name', $softwareName)->firstOrFail();
-        } catch (ModelNotFoundException $e) {
-            return $this->errorForbidden("Experiment type: '" . $type . "'" . " does not exist");
-        }
-
-        $experiment = $device->getCurrentOrRequestedExperiment($software->name);
-
-        $deviceDriver = $device->driver($software->name);
-
-        return $this->respondWithArray([
-                "commands" => $deviceDriver->availableCommands()
-            ]);
-    }
-
-    public function init(DeviceInitRequest $request, $id)
-    {
-        try {
-            $device = $this->deviceRepository->getById($id);
-        } catch (ModelNotFoundException $e) {
-            return $this->errorNotFound("Device not found");
-        }
-
-        try {
-            $softwareName = strtolower($request->input('software'));
-            $software = Software::where('name', $softwareName)->firstOrFail();
-        } catch (ModelNotFoundException $e) {
-            return $this->errorForbidden("Experiment type: '" . $type . "'" . " does not exist");
-        }
-
-        $experiment = $device->getCurrentOrRequestedExperiment($software->name);
-
-        $experiment->validateInit($request->input('input'));
-
-        // When everything looks fine it is
-        // time to boot up classes for
-        // specific device
-        $deviceDriver = $device->driver($software->name);
-
-        $deviceDriver->initCommand($request->input("input"));
-    }
-
-    //@Todo change for App\Http\Requests\DeviceStartRequest
-    public function start(DevDeviceStartRequest $request, $id)
-    {
-        try {
-            $device = $this->deviceRepository->getById($id);
-        } catch (ModelNotFoundException $e) {
-            return $this->errorNotFound("Device not found");
-        }
-
-        try {
-            $softwareName = strtolower($request->input('software'));
-            $software = Software::where('name', $softwareName)->firstOrFail();
-        } catch (ModelNotFoundException $e) {
-            return $this->errorForbidden("Experiment type: '" . $type . "'" . " does not exist");
-        }
-
-        $experiment = $device->getCurrentOrRequestedExperiment($software->name);
-
-        $experiment->validateStart($request->input('input'));
-
-        // When everything looks fine it is
-        // time to boot up classes for
-        // specific device
-        $deviceDriver = $device->driver($software->name);
-
-        // We don't want to run multiple experiments
-        // at the same time, on once device
-        if ($deviceDriver->isRunningExperiment()) {
-            throw new DeviceAlreadyRunningExperimentException;
-        }
-
-        if (App::environment() == 'local') {
-            $deviceDriver->startCommand($request->input("input"), 1);
-        } else {
-            $$deviceDriver->startCommand($request->input("input"), $request->input("requested_by"));
-        }
-
-        $logger = $device->fresh()->currentExperimentLogger;
-
-        if(is_null($logger)) {
-            return $this->setStatusCode(400)->respondWithError("Experiment was stopped!", 400);
-        }
-
-        $result = $logger->getResult();
-
-        $device->detachCurrentExperiment();
-
-        return $this->respondWithSuccess($result);
-    }
-
-    public function stop(DeviceStopRequest $request, $id)
-    {
-        try {
-            $device = $this->deviceRepository->getById($id);
-        } catch (ModelNotFoundException $e) {
-            return $this->errorNotFound("Device not found");
-        }
-
-        if (is_null($device->currentExperimentLogger)) {
-            throw new DeviceNotRunningExperimentException;
-        }
-
-        $deviceDriver = $device->driver();
-
-        $didStop = $deviceDriver->stopCommand();
-
-        if (!$didStop) {
-            return $this->errorInternalError("Experiment did not stop");
-        }
-
-        return $this->respondWithSuccess("Experiment stopped successfully");
-    }
 }

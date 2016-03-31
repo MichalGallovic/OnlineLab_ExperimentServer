@@ -87,9 +87,9 @@ class AddDeviceCommand extends Command
         }
 
         $device->save();
-
+        $defaultExperiment = Experiment::where('device_id',$device->id)->where('software_id',$defaultSoftware->id)->first();
         // Set default experiment
-        $device->defaultExperiment()->associate($defaultSoftware)->save();
+        $device->defaultExperiment()->associate($defaultExperiment)->save();
 
         $server_scripts_path = base_path("server_scripts");
 
@@ -107,53 +107,74 @@ class AddDeviceCommand extends Command
             File::makeDirectory($device_path, 0755);
         }
 
-        $device_config_path = config_path('devices') . "/" . Str::lower($device->type->name) . ".php";
-        $config_template_path = app_path("Devices/Templates/ConfigTemplate.template");
+        $device_config_path = config_path('devices') . "/" . Str::lower($device->type->name);
+        $input_config_template_path = app_path("Devices/Templates/InputConfigTemplate.template");
+        $output_config_template_path = app_path("Devices/Templates/OutputConfigTemplate.template");
+        $input_config_contents = File::get($input_config_template_path);
+        $output_config_contents = File::get($output_config_template_path);
 
-        $config_contents = File::get($config_template_path);
-
-        $config_input = "";
+        if(!File::exists($device_config_path)) {
+            File::makeDirectory($device_config_path, 0755);
+        }
 
         foreach ($softwares as $software) {
-            $config_input .= "\"" . $software->name . "\"" . " => [],";
-        }
-
-        $config_contents = str_replace("$1", $config_input, $config_contents);
-
-        if(File::exists($device_config_path)) {
-            if($this->confirm("Config file: " . $device_config_path . " already exists. Do you want to overwrite it ?")) {
-                File::put($device_config_path, $config_contents);
+            $path = $device_config_path . "/" . $software->name;
+            if(!File::exists($path)) {
+                File::makeDirectory(
+                    $path,  
+                    0755,
+                    true      
+                );
             }
-        } else {
-            File::put($device_config_path, $config_contents);
         }
 
+        File::put(
+            $device_config_path . "/output.php",
+            $output_config_contents
+        );
 
         foreach ($softwares as $software) {
-            $software_path = $device_path . "/" . Str::ucfirst($software->name) . ".php";
-            $contents = File::get($template_path);
-            $contents = str_replace("$1",Str::upper($device->type->name), $contents);
-            $contents = str_replace("$2",Str::ucfirst($software->name), $contents);
-            if(File::exists($software_path)) {
-                if(!$this->confirm("File: " . $software_path . " already exists. Do you want to overwrite it ?")) continue;
-            }
-            $new_files[]=$software_path;
-            File::put($software_path,$contents);
+            $config_device_software_path = $device_config_path . "/" . $software->name . "/" . "input.php";
+            File::put(
+                $config_device_software_path,
+                $input_config_contents
+            );
         }
+
+        // if(File::exists($device_config_path)) {
+        //     if($this->confirm("Config file: " . $device_config_path . " already exists. Do you want to overwrite it ?")) {
+        //         File::put($device_config_path, $config_contents);
+        //     }
+        // } else {
+        //     File::put($device_config_path, $config_contents);
+        // }
+
+
+        // foreach ($softwares as $software) {
+        //     $software_path = $device_path . "/" . Str::ucfirst($software->name) . ".php";
+        //     $contents = File::get($template_path);
+        //     $contents = str_replace("$1",Str::upper($device->type->name), $contents);
+        //     $contents = str_replace("$2",Str::ucfirst($software->name), $contents);
+        //     if(File::exists($software_path)) {
+        //         if(!$this->confirm("File: " . $software_path . " already exists. Do you want to overwrite it ?")) continue;
+        //     }
+        //     $new_files[]=$software_path;
+        //     File::put($software_path,$contents);
+        // }
 
         $this->info("New device added successfully!");
         
         $this->comment("Added Files & Folders:");
         
-        foreach ($new_files as $new_file_path) {
-            $this->comment($new_file_path);
-        }
+        // foreach ($new_files as $new_file_path) {
+        //     $this->comment($new_file_path);
+        // }
 
-        $this->info("Do not forget to implement these files");
-        $manager_path = app_path("Devices/DeviceManager.php");
-        $config_path = config_path("devices.php");
-        $this->info("Also add new Driver method to " . $manager_path);
-        $this->info("And add input / output arguments to " . $config_path);
+        // $this->info("Do not forget to implement these files");
+        // $manager_path = app_path("Devices/DeviceManager.php");
+        // $config_path = config_path("devices.php");
+        // $this->info("Also add new Driver method to " . $manager_path);
+        // $this->info("And add input / output arguments to " . $config_path);
 
     }
 

@@ -25,16 +25,27 @@ class CommandFactory
 		$this->scriptPaths = $scriptPaths;
 	}
 
+	protected function createLogger(Experiment $experiment, $arguments)
+	{
+		return new Logger($experiment, $arguments[0], $arguments[1]);
+	}
+
+
 	public function startTOS1AOpenloop(Experiment $experiment, $arguments)
 	{
-		$logger = new Logger($experiment, $arguments[0], $arguments[1]);
+		$logger = $this->createLogger($experiment, $arguments);
 		$startScript = new \App\Devices\Scripts\StartScript(
 				$this->scriptPaths["start"], 
 				$experiment->device, 
 				$logger->getOutputFilePath(), 
 				$arguments[0]
 			);
-		$stopScript = new \App\Devices\Scripts\StopScript($this->scriptPaths["stop"], $experiment->device);
+
+		$stopScript = new \App\Devices\Scripts\StopScript(
+			$this->scriptPaths["stop"], 
+			$experiment->device
+			);
+
 	    $command = new \App\Devices\Commands\TOS1A\Openloop\StartCommand(
 	            $experiment,
 	            $startScript,
@@ -47,7 +58,7 @@ class CommandFactory
 
 	public function startTOS1AMatlab(Experiment $experiment, $arguments)
 	{
-		$logger = new Logger($experiment, $arguments[0], $arguments[1]);
+		$logger = $this->createLogger($experiment, $arguments);
 		$startScript = new \App\Devices\Scripts\StartScript(
 				$this->scriptPaths["start"], 
 				$experiment->device, 

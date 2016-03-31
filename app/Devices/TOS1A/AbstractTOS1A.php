@@ -33,6 +33,7 @@ abstract class AbstractTOS1A extends AbstractDevice
     	$command->execute();
     }
 
+
     protected function start(StartCommand $command)
     {
         $command->execute();
@@ -43,4 +44,5 @@ abstract class AbstractTOS1A extends AbstractDevice
     {
     	$command->execute();
     }
+
 }

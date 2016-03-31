@@ -132,7 +132,7 @@ var vm = new Vue({
 
 			$.ajax({
 				type: "POST",
-				url: "api/devices/" + this.activeDevice.id + "/run",
+				url: "api/devices/" + this.activeDevice.id + "/start",
 				data: formData
 			});
 
@@ -196,7 +196,7 @@ var vm = new Vue({
 			var experiment_input = {};
 
 			for(var i = 0; i < inputValues.length; i++) {
-				experiment_input[this.activeSoftware.input[i].name] = inputValues[i];
+				experiment_input[this.activeSoftware.input.start[i].name] = inputValues[i];
 			}
 
 			return {

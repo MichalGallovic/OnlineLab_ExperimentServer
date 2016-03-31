@@ -55,10 +55,6 @@ class StartCommand extends Command
 		$this->startScript = $startScript;
 		$this->stopScript = $stopScript;
 		$this->logger = $logger;
-
-		$input = $this->startScript->getInput();
-		$this->setMeasuringRate($input);
-		$this->setSimulationTime($input);
 	}
 
 
@@ -77,8 +73,9 @@ class StartCommand extends Command
 
 		$this->stopScript->run();
 		
-		$this->device->detachPids();
 		$this->saveLog();
+		$this->device->detachPids();
+		$this->device->detachCurrentExperiment();
 	}
 
 	public function wait()
@@ -89,16 +86,6 @@ class StartCommand extends Command
 	protected function saveLog()
 	{
 		$this->logger->saveScript($this->startScript);
-	}
-
-	protected function getMeasuringRate($input)
-	{
-		return $input["s_rate"];
-	}
-
-	protected function getSimulationTime($input)
-	{
-		return $input["t_sim"];
 	}
 
 	protected function setMeasuringRate($input)

@@ -72,7 +72,7 @@
 					</div>
 					<div class="row" style="margin-top:20px">
 						<form v-on:submit.prevent="runExperiment">
-							<div class="form-group" v-for="argument in activeSoftware.input">
+							<div class="form-group" v-for="argument in activeSoftware.input.start">
 								<label class="col-xs-9">@{{ argument.title }}</label>
 								<input class="col-xs-3" type="text" v-bind:name="argument.name" v-bind:value="argument.placeholder">
 							</div>

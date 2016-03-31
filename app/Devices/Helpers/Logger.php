@@ -83,8 +83,8 @@ class Logger
 
 	public function createLogFile()
 	{
-		$this->experimentLogger->save();
 		$this->createOutputFile($this->experimentLogger->requested_by);
+		$this->experimentLogger->save();
 	}
 
 	public function save()

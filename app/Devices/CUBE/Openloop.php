@@ -1,14 +1,15 @@
 <?php
 
-namespace App\Devices\$1;
+namespace App\Devices\CUBE;
 
 use App\Device;
 use App\Experiment;
 use App\Devices\AbstractDevice;
+use App\Devices\Commands\Command;
 use App\Devices\Traits\AsyncRunnable;
 use App\Devices\Contracts\DeviceDriverContract;
 
-class $2 extends AbstractDevice implements DeviceDriverContract {
+class Openloop extends AbstractDevice implements DeviceDriverContract {
 
 	//use AsyncRunnable;
 
@@ -34,6 +35,11 @@ class $2 extends AbstractDevice implements DeviceDriverContract {
 	public function __construct(Device $device, Experiment $experiment)
 	{
 		parent::__construct($device,$experiment);
+	}
+
+	protected function status(Command $command)
+	{
+		
 	}
 
 }

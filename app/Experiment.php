@@ -99,23 +99,24 @@ class Experiment extends Model
 
     public function __call($method, $arguments) 
     {
-        $availableCommands = DeviceDriverContract::AVAILABLE_COMMANDS;
-        $command = str_replace("validate", "", $method);
-        $command = Str::lower($command);
-        if(in_array($command, $availableCommands)) {
-            return $this->validate($arguments[0], $command);
-        }
+        // $availableCommands = DeviceDriverContract::AVAILABLE_COMMANDS;
+        // $command = str_replace("validate", "", $method);
+        // $command = Str::lower($command);
+        // if(in_array($command, $availableCommands)) {
+        //     return $this->validate($arguments[0], $command);
+        // }
 
         return parent::__call($method, $arguments);
     }
 
-    public function validate($input, $command) {
-        if (!is_array($input)) {
-            $arguments = array_keys($input);
-            $arguments = implode(" ,", $arguments);
-            throw new ParametersInvalidException("Wrong input arguments, expected: [" . $arguments . "]");
-        }
+    public function validate($command, $input) {
+        // if (!is_array($input)) {
+        //     $arguments = array_keys($this->getInputArgumentsNames($command));
+        //     $arguments = implode(" ,", $arguments);
+        //     throw new ParametersInvalidException("Wrong input arguments, expected: [" . $arguments . "]");
+        // }
 
+        $input = !is_array($input) ? [] : $input;
         $rules = $this->getInputRules($command);
         $rules = is_null($rules) ? [] : $rules;
 
