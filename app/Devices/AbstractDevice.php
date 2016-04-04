@@ -62,23 +62,22 @@ abstract class AbstractDevice
         $softwareType = $this->experiment->software->name;
 
         $commandFactory = new CommandFactory($deviceType, $softwareType, $commandType, $this->scriptPaths);
-        $method = $commandType . Str::upper($deviceType) . Str::ucfirst($softwareType);
         
         switch ($commandType) {
             case 'start':
-            	$command = $commandFactory->$method($this->experiment, $arguments);
+            	$command = $commandFactory->startCommand($this->experiment, $arguments);
                 break;
             case 'stop':
-            	$command = $commandFactory->$method($this->experiment, $this->device);
+            	$command = $commandFactory->stopCommand($this->experiment, $arguments);
                 break;
             case 'read':
-				$command = $commandFactory->$method($this->experiment, $this->device);
+				$command = $commandFactory->readCommand($this->experiment, $arguments);
                 break;
             case 'status':
-                $command = $commandFactory->$method($this->experiment, $this->device);
+                $command = $commandFactory->statusCommand($this->experiment, $arguments);
                 break;
             case 'init':
-            	$command = $commandFactory->$method($this->experiment, $this->device);
+            	$command = $commandFactory->initCommand($this->experiment, $arguments);
             	break;
         }
 

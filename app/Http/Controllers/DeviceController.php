@@ -114,14 +114,13 @@ class DeviceController extends ApiController
         $this->device = $this->device->fresh();
 
         $logger = $this->device->currentExperimentLogger;
+        $result = is_null($logger) ? null : $logger->getResult();
+        $this->device->detachCurrentExperiment();
 
-        if(is_null($logger)) {
+        //@Todo set proper status codes
+        if(is_null($result)) {
             return $this->setStatusCode(400)->respondWithError("Experiment was stopped!", 400);
         }
-
-        $result = $logger->getResult();
-
-        $this->device->detachCurrentExperiment();
 
         return $this->respondWithSuccess($result);
     }

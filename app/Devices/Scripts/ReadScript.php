@@ -2,7 +2,7 @@
 
 namespace App\Devices\Scripts;
 
-use App\Device;
+use App\Experiment;
 use App\Devices\Scripts\Script;
 
 /**
@@ -22,10 +22,10 @@ class ReadScript extends Script
      */
     protected $output;
 
-    public function __construct($path, Device $device)
+    public function __construct($path, Experiment $experiment)
     {
-        parent::__construct($path, [], $device);
-        $this->port = $device->port;
+        parent::__construct($path, [], $experiment);
+        $this->port = $this->device->port;
     }
 
     public function run()

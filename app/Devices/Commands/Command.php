@@ -19,6 +19,4 @@ abstract class Command
 	abstract public function execute();
 	abstract public function stop();
 
-	//@Todo someday todo, maybe this could also serve as a factory
-	//that can produce specific commands upon ::create ?
 }
