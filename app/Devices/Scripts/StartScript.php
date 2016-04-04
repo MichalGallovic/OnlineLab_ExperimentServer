@@ -4,6 +4,7 @@ namespace App\Devices\Scripts;
 
 use App\Device;
 use Carbon\Carbon;
+use App\Experiment;
 use App\Devices\Scripts\Script;
 
 /**
@@ -30,10 +31,10 @@ class StartScript extends Script
      */
     protected $runningTime;
 
-    public function __construct($path, Device $device, $outputFile, $input)
+    public function __construct($path, Experiment $experiment, $outputFile, $input)
     {
-        parent::__construct($path, $input, $device);
-        $this->port = $device->port;
+        parent::__construct($path, $input, $experiment);
+        $this->port = $this->device->port;
         $this->outputFile = $outputFile;
     }
 

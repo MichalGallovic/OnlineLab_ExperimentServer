@@ -3,6 +3,7 @@
 namespace App\Devices\Scripts;
 
 use App\Device;
+use App\Experiment;
 use App\Events\ProcessWasRan;
 use Illuminate\Support\Facades\File;
 use Symfony\Component\Process\Process;
@@ -63,13 +64,13 @@ abstract class Script
      */
     protected $device;
 
-    public function __construct($path, $input, Device $device)
+    public function __construct($path, $input, Experiment $experiment)
     {
     	$this->checkPathCombinations($path);
     	$this->didTimeOut = false;
     	$this->input = $input;
     	$this->executionTime = 20;
-    	$this->device = $device;
+    	$this->device = $experiment->device;
     }
 
     // abstract protected function prepareArguments($arguments);

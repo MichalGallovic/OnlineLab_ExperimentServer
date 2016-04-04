@@ -4,6 +4,7 @@ namespace App\Devices\Commands;
 
 use App\Device;
 use Carbon\Carbon;
+use App\Experiment;
 use App\Devices\Commands\Command;
 use App\Devices\Scripts\StopScript;
 use App\Devices\Contracts\DeviceDriverContract;
@@ -29,9 +30,9 @@ class StopCommand extends Command
 	protected $device;
 	protected $logger;
 
-	public function __construct(Device $device, StopScript $script)
+	public function __construct(Experiment $experiment, StopScript $script)
 	{
-		$this->device = $device;
+		$this->device = $experiment->device;
 		$this->stopScript = $script;
 
 		$this->logger = null;
