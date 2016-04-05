@@ -75,6 +75,7 @@ class StartCommand extends Command
 		
 		$this->saveLog();
 		$this->device->detachPids();
+
 	}
 
 	public function wait()
