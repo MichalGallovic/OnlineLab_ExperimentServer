@@ -25,7 +25,7 @@ class StopScript extends Script
      */
     protected $port;
 
-    public function __construct($path, Experiment $experiment)
+    public function __construct(Experiment $experiment, $path)
     {
         parent::__construct($path, [], $experiment);
         $this->port = $this->device->port;
