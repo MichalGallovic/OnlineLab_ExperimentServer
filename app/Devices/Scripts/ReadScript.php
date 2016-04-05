@@ -2,6 +2,7 @@
 
 namespace App\Devices\Scripts;
 
+use App\Device;
 use App\Experiment;
 use App\Devices\Scripts\Script;
 
@@ -10,22 +11,15 @@ use App\Devices\Scripts\Script;
  */
 class ReadScript extends Script
 {
-	 /**
-     * Device port
-     * @var string
-     */
-    protected $port;
-
     /**
      * Script output
      * @var array
      */
     protected $output;
 
-    public function __construct($path, Experiment $experiment)
+    public function __construct($path, Device $device)
     {
-        parent::__construct($path, [], $experiment);
-        $this->port = $this->device->port;
+        parent::__construct($path, [], $device);
     }
 
     public function run()
@@ -35,10 +29,15 @@ class ReadScript extends Script
         $this->output = $this->parseOutput($this->process->getOutput());
     }
 
-    protected function prepareArguments()
+    public function getOutput()
+    {
+        return $this->output;
+    }
+
+    protected function prepareArguments($arguments = null)
     {
         return [
-            $this->port
+            $this->device->port
         ];
     }
 
@@ -51,15 +50,5 @@ class ReadScript extends Script
     {
         $output = array_map('floatval', explode(',', $output));
         return $output;
-    }
-
-    /**
-     * Gets the Script output.
-     *
-     * @return array
-     */
-    public function getOutput()
-    {
-        return $this->output;
     }
 }

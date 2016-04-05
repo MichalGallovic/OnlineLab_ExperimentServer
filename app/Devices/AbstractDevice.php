@@ -3,6 +3,7 @@
 namespace App\Devices;
 
 use App\Device;
+use Carbon\Carbon;
 use App\Experiment;
 use Illuminate\Support\Str;
 use App\Devices\CommandFactory;
@@ -43,6 +44,11 @@ abstract class AbstractDevice
     protected $experiment;
 
     /**
+     * Experiment log model (from DB)
+     * @var App\ExperimentLog
+     */
+    protected $experimentLog;
+    /**
      * Available commands per Experiment
      * @var array
      */
@@ -52,6 +58,8 @@ abstract class AbstractDevice
     {
         $this->device = $device;
         $this->experiment = $experiment;
+        // Can be null, when experiment is nut running
+        $this->experimentLog = $device->currentExperimentLogger;
         $this->commands = [];
     }
 
@@ -113,17 +121,27 @@ abstract class AbstractDevice
                     Str::ucfirst($method)
                 );
             }
+            $arguments = empty($arguments) ? [[]] : $arguments;
             //@Todo if it is not command method, error normally
-            $this->initCommand($method, $arguments);
+            // $this->initCommand($method, $arguments);
             // Call first base class before method
             $beforeMethod = "before" . Str::ucfirst($method);
-            $this->$beforeMethod($this->commands[$method]);
+            $resultBefore = call_user_func_array([$this, $beforeMethod], $arguments);
+
+            if(!is_null($resultBefore)) {
+                $arguments []= $resultBefore;
+            }
             // Then call its public concrete implementation
-            call_user_func_array([$this, $method], [$this->commands[$method]]);
+            $result = call_user_func_array([$this, $method], $arguments);
+
+            if(!is_null($result)) {
+                $arguments []= $result;
+            }
             // We do it like this, so developers don't have to call parent
             // methods manually, they will be called for them automatically
+            $this->device = $this->device->fresh();
             $afterMethod = "after" . Str::ucfirst($method);
-            return $this->$afterMethod($this->commands[$method]);
+            return call_user_func_array([$this, $afterMethod], $arguments);
         }
     }
 
@@ -164,57 +182,90 @@ abstract class AbstractDevice
         return $availableCommands;
     }
 
-    protected function beforeRead(ReadCommand $command)
+    protected function beforeRead($input)
     {
     }
 
-    protected function read(ReadCommand $command)
+    protected function read($input)
     {
     }
 
-    protected function afterRead(ReadCommand $command)
+    protected function afterRead($input, $output)
     {
-        return $command->getOutput();
+        $arguments = $this->experiment->getOutputArguments();
+
+        try {
+            $combinedOutput = array_combine($arguments, $output);
+        } catch (\Exception $e) {
+
+        }
+
+        return $combinedOutput;
     }
 
-    protected function beforeStart(StartCommand $command)
+    protected function beforeStart($input, $requestedBy)
     {
-        $command->logToFile();
+        // Before start command, we want to create log file
+        // where experiment can write its output
+        // and set up App\ExperimentLog - model of
+        // experiment_logs table
+        $logger = new Logger($this->experiment, $input, $requestedBy);
+        $duration = $this->parseDuration($input);
+        if(is_null($duration)) {
+            throw new \Exception('Please implement parseDuration($input) method, if you use start command.');
+        }
+        $rate = $this->parseSamplingRate($input);
+        if(is_null($rate)) {
+            throw new \Exception('Please implement parseSamplingRate($input) method, if you use start command.');
+        }
+
+        $logger->setSimulationTime($duration);
+        $logger->setMeasuringRate($rate);
+        $logger->createLogFile();
+        $this->device = $this->device->fresh();
+        $this->experimentLog = $this->device->currentExperimentLogger;
     }
 
-    protected function start(StartCommand $command)
+    protected function start($input)
+    {
+
+    }
+
+    protected function afterStart($input)
+    {
+        $script = new StopScript(
+                $this->scriptPaths["stop"],
+                $this->device
+            );
+
+        $script->run();
+    }
+
+    protected function beforeStop($input)
+    {
+    }
+    protected function stop($input)
+    {
+    }
+    protected function afterStop($input)
+    {
+        $this->experimentLog->stopped_at = Carbon::now();
+        $this->experimentLog->save();
+    }
+
+    protected function beforeInit($input)
+    {
+    }
+    protected function init($input)
     {
     }
 
-    protected function afterStart(StartCommand $command)
-    {
-        $command->stop();
-    }
-
-    protected function beforeStop(StopCommand $command)
-    {
-    }
-    protected function stop(StopCommand $command)
-    {
-    }
-    protected function afterStop(StopCommand $command)
-    {
-        return $command->stoppedSuccessfully();
-    }
-
-    protected function beforeInit(Command $command)
-    {
-    }
-    protected function init(Command $command)
-    {
-    }
-
-    protected function afterInit(Command $command)
+    protected function afterInit($input)
     {
     }
 
 
-    protected function beforeChange(Command $command)
+    protected function beforeChange($input)
     {
     }
     /**
@@ -222,24 +273,24 @@ abstract class AbstractDevice
      * while experiment is running
      * @param  array $input User experiment input
      */
-    protected function change(Command $command)
+    protected function change($input)
     {
     }
 
-    protected function afterChange(Command $command)
+    protected function afterChange($input)
     {
     }
 
-    protected function beforeStatus(Command $command)
+    protected function beforeStatus($input)
     {
     }
 
-    protected function status(Command $command)
+    protected function status($input)
     {
     }
 
-    protected function afterStatus(Command $command)
+    protected function afterStatus($input)
     {
-        return $command->getStatus();
+        // return $command->getStatus();
     }
 }

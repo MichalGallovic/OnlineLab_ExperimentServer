@@ -12,57 +12,25 @@ use App\Devices\Scripts\Script;
 */
 class StartScript extends Script
 {
-
-    /**
-     * Device port
-     * @var string
-     */
-    protected $port;
-
     /**
      * Path to output file
      * @var string
      */
     protected $outputFile;
 
-    /**
-     * Expected script running time
-     * @var int
-     */
-    protected $runningTime;
 
-    public function __construct(Experiment $experiment, $path, $outputFile, $input)
+    public function __construct($path, $input, Device $device, $outputFile)
     {
-        parent::__construct($path, $input, $experiment);
-        $this->port = $this->device->port;
+        parent::__construct($path, $input, $device);
         $this->outputFile = $outputFile;
     }
 
     public function run()
     {        
         $arguments = $this->prepareArguments($this->input);
-
-        $this->runProcessAsync($this->path,$arguments,$this->executionTime);
-        $this->startedAt = Carbon::now();
+        $this->runProcess($this->path, $arguments);
     }
 
-    public function waitOrTimeout()
-    {
-        $started = time();
-
-        while ($this->process->isRunning()) {
-            $now = time();
-
-            if ($now - $started > $this->executionTime) {
-                $this->didTimeOut = true;
-                break;
-            }
-            
-            usleep(1000000);
-        }
-
-        $this->endedAt = Carbon::now();
-    }
 
     protected function prepareArguments($arguments)
     {
@@ -74,7 +42,7 @@ class StartScript extends Script
         $input = substr($input, 0, strlen($input) - 1);
 
         return [
-            "--port=" . $this->port,
+            "--port=" . $this->device->port,
             "--output=" . $this->outputFile,
             "--input=" . $input
         ];
