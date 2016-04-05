@@ -16,7 +16,7 @@ class ScriptDoesNotExistException extends \Exception
 			if($path != $last) {
 				$message .= "\"" . $path . "\"\n or \n";
 			} else {
-				$message .= "\"" . $path . "\"\n";
+				$message .= "\"/" . $path . "\"\n";
 			}
 
 		}

@@ -101,8 +101,11 @@ class DeviceController extends ApiController
     {
         // We don't want to run multiple experiments
         // at the same time, on once device
-        if (!is_null($this->device->currentExperiment)) {
-            throw new DeviceAlreadyRunningExperimentException;
+        // @Todo do not forget about this :D
+        if(App::environment() != "local") {
+            if (!is_null($this->device->currentExperiment)) {
+                throw new DeviceAlreadyRunningExperimentException;
+            }
         }
 
         if (App::environment() == 'local') {
@@ -115,13 +118,16 @@ class DeviceController extends ApiController
 
         $logger = $this->device->currentExperimentLogger;
         $result = is_null($logger) ? null : $logger->getResult();
+
         $this->device->detachCurrentExperiment();
+        $this->device->detachPids();
 
         //@Todo set proper status codes
-        if(is_null($result)) {
-            return $this->setStatusCode(400)->respondWithError("Experiment was stopped!", 400);
-        }
+        // if(is_null($result)) {
+        //     return $this->setStatusCode(400)->respondWithError("Experiment was stopped!", 400);
+        // }
 
+        $result = "Experiment ended";
         return $this->respondWithSuccess($result);
     }
 
@@ -140,11 +146,11 @@ class DeviceController extends ApiController
             throw new DeviceNotRunningExperimentException;
         }
 
-        $didStop = $driver->stopCommand();
+        $driver->stopCommand();
 
-        if (!$didStop) {
-            return $this->errorInternalError("Experiment did not stop");
-        }
+        // if (!$didStop) {
+        //     return $this->errorInternalError("Experiment did not stop");
+        // }
 
         return $this->respondWithSuccess("Experiment stopped successfully");
     }
