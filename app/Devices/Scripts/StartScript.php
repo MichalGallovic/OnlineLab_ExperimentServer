@@ -31,7 +31,7 @@ class StartScript extends Script
      */
     protected $runningTime;
 
-    public function __construct($path, Experiment $experiment, $outputFile, $input)
+    public function __construct(Experiment $experiment, $path, $outputFile, $input)
     {
         parent::__construct($path, $input, $experiment);
         $this->port = $this->device->port;

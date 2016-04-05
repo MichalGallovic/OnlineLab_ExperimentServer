@@ -28,6 +28,11 @@ class CommandFactory
 		$this->scriptPaths = $scriptPaths;
 	}
 
+	protected function createLogger(Experiment $experiment, $arguments)
+	{
+		return new Logger($experiment, $arguments[0], $arguments[1]);
+	}
+
 	public function __call($method, $arguments)
 	{
 		$deviceType = Str::upper($this->deviceType);
@@ -50,11 +55,10 @@ class CommandFactory
 		} else if (!$this->commandClassExists() && $this->scriptClassExists()) {
 			$arguments []= $this->commandClassNamespace();
 			$arguments []= $this->scriptClassNamespace($deviceType . "\\" . $softwareType . "\\");
-		} else {
-			// throw expcetion
+		} else if(!$this->commandClassExists() && !$this->scriptClassExists()) {
+			$arguments []= $this->commandClassNamespace();
+			$arguments []= $this->scriptClassNamespace();
 		}
-
-		
 
 		return call_user_func_array([$this, $method],$arguments);
 
@@ -62,7 +66,7 @@ class CommandFactory
 
 	protected function commandClassNamespace($concrete = "")
 	{
-		return $this->commandNamespace . "\\" . $concrete;
+		return $this->commandsNamespace . "\\" . $concrete;
 	}
 
 	protected function scriptClassNamespace($concrete = "")
@@ -72,13 +76,14 @@ class CommandFactory
 
 	protected function commandClassExists()
 	{
-		$commandClassName = "App\\Devices\\Commands\\" . Str::upper($this->deviceType) . "\\" . Str::ucfirst($this->softwareType);
+		$commandClassName = "App\\Devices\\Commands\\" . Str::upper($this->deviceType) . "\\" . Str::ucfirst($this->softwareType) . "\\" . Str::ucfirst($this->commandType) . "Command";
+
 		return class_exists($commandClassName);
 	}
 
 	protected function scriptClassExists()
 	{
-		$scriptClassName = "App\\Devices\\Scripts\\" . Str::upper($this->deviceType) . "\\" . Str::ucfirst($this->softwareType);
+		$scriptClassName = "App\\Devices\\Scripts\\" . Str::upper($this->deviceType) . "\\" . Str::ucfirst($this->softwareType) . "\\" . Str::ucfirst($this->commandType) . "Script";
 		return class_exists($scriptClassName);
 	}
 
@@ -107,17 +112,42 @@ class CommandFactory
 	            $stopScript,
 	            $logger
 	        );
-		
+
 		return $command;
 	}
 
-	protected function stopCommand(Experiment $experiment, $arguments)
+	protected function stopCommand(Experiment $experiment, $arguments, $commandPrefix, $scriptPrefix)
 	{
+		$stopScriptClass = $scriptPrefix . "StopScript";
+		$stopScript = new \App\Devices\Scripts\StopScript(
+    		$experiment,
+    		$this->scriptPaths[$this->commandType] 
+    		);
+
+		$commandClass = $commandPrefix . "StopCommand";
+        $command = new \App\Devices\Commands\StopCommand(
+                $experiment,
+                $stopScript
+            );
+
+        return $command;
 	}
 
-	protected function readCommand(Experiment $experiment, $arguments)
+	protected function readCommand(Experiment $experiment, $arguments, $commandPrefix, $scriptPrefix)
 	{
+		$readScriptClass = $scriptPrefix . "ReadScript";
+		$readScript = new $readScriptClass(
+		    $this->scriptPaths[$this->commandType],
+		    $experiment
+		    );
 
+		$commandClass = $commandPrefix . "ReadCommand";
+		$command = new $commandClass(
+		    $experiment,
+		    $readScript
+		    );
+
+		return $command;
 	}
 
 	protected function initCommand(Experiment $experiment, $arguments)
@@ -133,13 +163,13 @@ class CommandFactory
 	protected function statusCommand(Experiment $experiment, $arguments,  $commandPrefix, $scriptPrefix)
 	{
 		$readScriptClass = $scriptPrefix . "ReadScript"; 
-
 		$readScript = new $readScriptClass(
 		    $this->scriptPaths["read"],
 		    $experiment
 		    );
+
 		$commandClass = $commandPrefix . "StatusCommand";
-		$command = new $commandClasss(
+		$command = new $commandClass(
 		    $experiment,
 		    $readScript
 		    );
@@ -148,123 +178,5 @@ class CommandFactory
 	}
 
 
-	protected function createLogger(Experiment $experiment, $arguments)
-	{
-		return new Logger($experiment, $arguments[0], $arguments[1]);
-	}
-
-	protected function createStartScript(Experiment $experiment, $scriptPath, $outputFilePath, $input)
-	{
-		// Check first certain file if exists
-		return new \App\Devices\Scripts\StartScript($scriptPath, $experiment, $outputFilePath, $input);
-	}
-
-	protected function createStopScript(Experiment $experiment, $scriptPath)
-	{
-		return new \App\Devices\Scripts\StopScript($scriptPath, $experiment);	
-	}
-
-	// public function startTOS1AOpenloop(Experiment $experiment, $arguments)
-	// {
-	// 	$logger = $this->createLogger($experiment, $arguments);
-
-	// 	$startScript = $this->createStartScript( 
-	// 			$experiment,
-	// 			$this->scriptPaths["start"],
-	// 			$logger->getOutputFilePath(), 
-	// 			$arguments[0]
-	// 		);
-
-	// 	$stopScript = $this->createStopScript(
-	// 		$experiment,
-	// 		$this->scriptPaths["stop"]
-	// 		);
-
-	//     $command = new \App\Devices\Commands\TOS1A\Openloop\StartCommand(
-	//             $experiment,
-	//             $startScript,
-	//             $stopScript,
-	//             $logger
-	//         );
-		
-	// 	return $command;
-	// }
-
-	public function startTOS1AMatlab(Experiment $experiment, $arguments)
-	{
-		$logger = $this->createLogger($experiment, $arguments);
-		$startScript = $this->createStartScript( 
-				$experiment,
-				$this->scriptPaths["start"],
-				$logger->getOutputFilePath(), 
-				$arguments[0]
-			);
-		$stopScript = new \App\Devices\Scripts\StopScript($this->scriptPaths["stop"], $experiment);
-	    $command = new \App\Devices\Commands\TOS1A\Matlab\StartCommand(
-	            $experiment,
-	            $startScript,
-	            $stopScript,
-	            $logger
-	        );
-		
-		return $command;
-	}
-
-	protected function readTOS1A(Experiment $experiment)
-	{
-		$readScript = new \App\Devices\Scripts\ReadScript(
-		    $this->scriptPaths[$this->commandType],
-		    $experiment
-		    );
-		$command = new \App\Devices\Commands\ReadCommand(
-		    $experiment,
-		    $readScript
-		    );
-
-		return $command;
-	}
-
-	// protected function statusTOS1A(Experiment $experiment)
-	// {
-	// 	$readScript = new \App\Devices\Scripts\ReadScript(
-	// 	    $this->scriptPaths["read"],
-	// 	    $experiment
-	// 	    );
-	// 	$command = new \App\Devices\Commands\StatusCommand(
-	// 	    $experiment,
-	// 	    $readScript
-	// 	    );
-
-	// 	return $command;
-	// }
-
-	protected function stopTOS1A(Experiment $experiment)
-	{
-    	$stopScript = new \App\Devices\Scripts\StopScript(
-    		$this->scriptPaths[$this->commandType], 
-    		$experiment
-    		);
-        $command = new \App\Devices\Commands\StopCommand(
-                $experiment,
-                $stopScript
-            );
-
-        return $command;
-	}
-
-	protected function stopTOS1AOpenloop(Experiment $experiment)
-	{
-		return $this->stopTOS1A($experiment);
-	}
-
-	// public function statusTOS1AOpenloop(Experiment $experiment)
-	// {
-	// 	return $this->statusTOS1A($experiment);
-	// }
-
-	public function readTOS1AOpenloop(Experiment $experiment)
-	{
-		return $this->readTOS1A($experiment);
-	}
 
 }
