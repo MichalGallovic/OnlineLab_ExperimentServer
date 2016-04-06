@@ -38,7 +38,7 @@ class ClearExperimentLogs extends Command
      */
     public function handle()
     {
-        $files = File::allFiles(storage_path("logs/experiments"));
+        $files = File::allFiles(storage_path("logs/devices"));
 
         File::delete($files);
     }
