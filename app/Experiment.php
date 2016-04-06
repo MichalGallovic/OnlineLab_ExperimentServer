@@ -164,4 +164,13 @@ class Experiment extends Model
     		'.output'
     	);
     }
+
+    public function getImplementedCommands()
+    {
+        $device = $this->device;
+        $softwareName = $this->software->name;
+        $deviceDriver = $device->driver($softwareName);
+
+        return $deviceDriver->availableCommands();
+    }
 }

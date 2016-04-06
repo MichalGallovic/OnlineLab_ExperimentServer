@@ -10,7 +10,6 @@ use App\Devices\Contracts\DeviceDriverContract;
 
 class $2 extends AbstractDevice implements DeviceDriverContract {
 
-	//use AsyncRunnable;
 
 	/**
      * Paths to read/stop/run scripts relative to

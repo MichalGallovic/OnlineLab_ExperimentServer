@@ -18,7 +18,7 @@ class AddDeviceCommand extends Command
      *
      * @var string
      */
-    protected $signature = 'server:devices:add {deviceName : The name of the new device type }';
+    protected $signature = 'server:devices:add';
 
     /**
      * The console command description.
@@ -44,7 +44,15 @@ class AddDeviceCommand extends Command
      */
     public function handle()
     {
-        $deviceName = $this->argument('deviceName');
+        $devices = Device::all();
+        $softwares = Software::all();
+        $devicesNames = "";
+        foreach ($devices as $device) {
+            $devicesNames .= $device->name . " ";
+        }
+
+        $this->info("Current system devices: " . $devicesNames);
+
 
         if(!$this->isUnique($deviceName)) {
             return $this->error("Device " . $deviceName . " already exists in the system.");
