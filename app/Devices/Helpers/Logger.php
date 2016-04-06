@@ -131,7 +131,7 @@ class Logger
         $deviceTypeFolder = strtolower($this->device->type->name);
         $softwareTypeFolder = strtolower($this->software->name);
 
-        $path = storage_path() . "/logs/experiments/" . $deviceTypeFolder . "/" . $softwareTypeFolder;
+        $path = storage_path() . "/logs/devices/" . $deviceTypeFolder . "/" . $softwareTypeFolder;
         
         if (!File::exists($path)) {
             File::makeDirectory($path, 0775, true);

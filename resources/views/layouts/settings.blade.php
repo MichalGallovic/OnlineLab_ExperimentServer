@@ -8,8 +8,20 @@
 </head>
 <body>
 	<div class="container">
-		@include('partials.settingsHeader')
-		@yield('content')
+		<div class="row">
+			<ul class="nav nav-tabs">
+				<li><a href="/">Back to dashboard</a></li>
+				<li role="presentation" class="active"><a href="{{ url('settings') }}">Settings</a></li>
+			</ul>
+		</div>
+		<div class="row" style="margin-top:20px">
+			<div class="col-lg-3">
+				@include('partials.settingsHeader')
+			</div>
+			<div class="col-lg-9">
+				@yield('content')
+			</div>
+		</div>
 	</div>
 	<script src="{{ asset('assets/js/jquery-1.12.1.js') }}"></script>
 	<script src="{{ asset('assets/js/bootstrap.min.js') }}"></script>
