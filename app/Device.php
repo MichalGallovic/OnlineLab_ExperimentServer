@@ -15,7 +15,7 @@ use App\Devices\Exceptions\DeviceNotConnectedException;
 
 class Device extends Model
 {
-
+    protected $fillable = ["device_type_id","port"];
     public function driver($softwareName = null)
     {
         // if ($this->isOffline()) {
@@ -85,6 +85,11 @@ class Device extends Model
     public function defaultExperiment()
     {
         return $this->belongsTo(Experiment::class, "default_experiment_id");
+    }
+
+    public function getDefaultSoftwareAttribute()
+    {
+        return $this->defaultExperiment->software->name;
     }
 
     public function currentExperiment()

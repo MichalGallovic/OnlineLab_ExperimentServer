@@ -10,6 +10,7 @@ use App\Devices\Exceptions\ParametersInvalidException;
 
 class Experiment extends Model
 {
+    protected $fillable = ["device_id", "software_id"];
     public function device() {
     	return $this->belongsTo(Device::class);
     }

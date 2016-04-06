@@ -13,13 +13,13 @@
 			<li class="{{ active('software') }}">
 				<a href="{{ url('software') }}">Softwares</a>
 			</li>
-			<li class="{{ active('settings/physical-devices') }}">
-				<a href="{{ url('settings/physical-devices') }}">Physical devices</a>
+			<li class="{{ active('device') }}">
+				<a href="{{ url('device') }}">Physical devices</a>
 			</li>
-			<li class="{{ active('settings/experiments') }}">
-				<a href="{{ url('settings/experiments') }}">Experiments</a>
+			<li class="{{ active('experiment') }}">
+				<a href="{{ url('experiment') }}">Experiments</a>
 			</li>
-			<li class="{{ active('settings/reset') }}">
+			<li class="{{ active('reset') }}">
 				<a href="{{ url('settings/reset') }}">Resetting</a>
 			</li>
 		</ul>
