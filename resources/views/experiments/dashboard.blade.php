@@ -25,7 +25,13 @@
 						<a href="#Experiments">Experiments history</a>
 					</li>
 					<li
-					data-step="@{{ (index + 2) }}"
+					data-step="2"
+					data-intro="Here you can add new experiments or reset environment"
+					>
+					<a href="{{ url("settings") }}">Crud & Settings</a>
+					</li>
+					<li
+					data-step="@{{ (index + 3) }}"
 					data-intro="Run and see the results of experiments on device @{{ device.name }}" 
 					class="pull-right" 
 					v-bind:class="{ 'active' : (device.active &&  activeMenu == 'device') }" 
@@ -40,25 +46,36 @@
 			</div>
 
 			<div class="row" v-if="activeMenu == 'device'">
-				<div 
-				v-bind:class="{ 'col-lg-12' : fullWidth, 'col-lg-9' : !fullWidth }"
-				v-if="activeDevice && !waitingForData">
-					<olm-graph 
-						:description="experimentDescription"
-						:series="experimentData"
-					></olm-graph>
+				<div v-if="outputType == 'graph'">
+					<div 
+					v-bind:class="{ 'col-lg-12' : fullWidth, 'col-lg-9' : !fullWidth }"
+					v-if="activeDevice && !waitingForData">
+						<olm-graph 
+							:description="experimentDescription"
+							:series="experimentData"
+						></olm-graph>
+					</div>
+					<div 
+					v-bind:class="{ 'col-lg-12' : fullWidth, 'col-lg-9' : !fullWidth }" 
+					v-else>
+						<div class="spinner"></div>
+						<span 
+						style="display: inline-block;
+						 	width: 100%;
+						  	text-align:center; 
+						  	font-size:17px;">
+						  	Initializing @{{ activeSoftware.name }} experiment ...
+						</span>
+					</div>
 				</div>
-				<div 
-				v-bind:class="{ 'col-lg-12' : fullWidth, 'col-lg-9' : !fullWidth }" 
-				v-else>
-					<div class="spinner"></div>
-					<span 
-					style="display: inline-block;
-					 	width: 100%;
-					  	text-align:center; 
-					  	font-size:17px;">
-					  	Initializing @{{ activeSoftware.name }} experiment ...
-					</span>
+				<div v-else
+					v-bind:class="{ 'col-lg-12' : fullWidth, 'col-lg-9' : !fullWidth }"
+				>
+					<olm-debug
+					:output="commandOutput"
+					:description="commandDescription"
+					>
+					</olm-debug>
 				</div>
 
 				<div 
@@ -70,17 +87,20 @@
 						  <option v-bind:value="software.id" v-for="software in activeDevice.softwares">@{{ software.name }}</option>
 						</select>
 					</div>
+					<div class="row">
+						<h4>Select command:</h4>
+						<select class="form-control" v-model="selectedCommand">
+							<option v-bind:value="command" v-for="command in activeSoftware.commands">@{{ command }}</option>
+						</select>
+					</div>
 					<div class="row" style="margin-top:20px">
-						<form v-on:submit.prevent="runExperiment">
-							<div class="form-group" v-for="argument in activeSoftware.input.start">
+						<form v-on:submit.prevent="runCommand">
+							<div class="form-group" v-for="argument in activeSoftware.input[selectedCommand]">
 								<label class="col-xs-9">@{{ argument.title }}</label>
 								<input class="col-xs-3" type="text" v-bind:name="argument.name" v-bind:value="argument.placeholder">
 							</div>
 							<div class="form-group">
-								<div class="col-xs-12">
-									<button type="submit" class="btn-success">Run</button>
-									<button type="button" class="btn-danger" v-on:click="stopExperiment">Stop</button>
-								</div>
+								<button type="submit" class="btn-success" style="margin-top:20px;">Run Command</button>
 							</div>
 						</form>
 					</div>
@@ -126,6 +146,10 @@
 			</div>
 			<div class="olm-graph-placeholder" v-show="series.length <= 1">
 			</div>
+		</template>
+		<template id="debug-template">
+			<h4 style="margin:20px">@{{ description }}</h4>
+			<pre style="margin:20px">@{{ output | json }}</pre>
 		</template>
 	</div>
 	<script src="{{ asset('assets/js/jquery-1.12.1.js') }}"></script>

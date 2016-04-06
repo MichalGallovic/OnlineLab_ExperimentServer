@@ -51,7 +51,9 @@ class ServerController extends ApiController
         // api request it will be scheduled with a cron job
         // but we could call it when requested with a 
         // specific api_token ? user permissions ? Guard?
-        Artisan::call('server:devices:ping');
+        // Artisan::call('server:devices:ping');
+        
+        
 
         return $this->respondWithCollection($devices, new DeviceTransformer);
     }

@@ -33,4 +33,19 @@ Route::group(['prefix' => 'api'], function() {
 
 Route::group(['middleware' => ['web']], function () {
 	Route::get('/',['uses' => 'DevelopmentController@index']);
+	Route::get('/settings', ['uses'	=>	'DevelopmentController@settings']);
+	// Route::get('/settings/device_types', ['uses' => 'DeviceTypeController@index']);
+	Route::get('/settings/softwares', ['uses' => 'DevelopmentController@softwares']);
+	Route::get('/settings/physical-devices', ['uses' => 'DevelopmentController@physicalDevices']);
+	Route::get('/settings/experiments', ['uses' => 'DevelopmentController@experiments']);
+});
+
+Route::group(['middleware' => ['web']], function () {
+	Route::resource('devicetype', 'DeviceTypeController');
+});
+Route::group(['middleware' => ['web']], function () {
+	Route::resource('software', 'SoftwareController');
+});
+Route::group(['middleware' => ['web']], function () {
+	Route::resource('software', 'SoftwareController');
 });

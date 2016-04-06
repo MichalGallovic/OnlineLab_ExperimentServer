@@ -5,6 +5,14 @@ $(function () {
     });
 });
 
+Vue.component('olm-debug', {
+	template: "#debug-template",
+	props: {
+		output: null,
+		description: "Command description"
+	}
+});
+
 Vue.component('olm-graph', {
 	template: "#graph-template",
 	props: {
@@ -112,6 +120,9 @@ var vm = new Vue({
 		activeMenu: "info",
 		activeSoftware: null,
 		selectedExperiment: null,
+		selectedCommand: null,
+		commandOutput: null,
+		outputType: null,
 		experimentData: [{data:[]}],
 		experimentsHistory : [],
 
@@ -122,6 +133,33 @@ var vm = new Vue({
 		}
 	},
 	methods : {
+		runCommand: function(event) {
+			var me = this;
+			var inputFields = $(event.target).find('input');
+			var inputValues = inputFields.map(function() {
+				return $(this).val();
+			}).get();
+
+			var formData = this.makeRequestData(inputValues);
+
+			$.ajax({
+				type: "POST",
+				url: "api/devices/" + this.activeDevice.id ,
+				data: formData
+			}).done(function(response) {
+				me.commandOutput = response;
+			}).fail(function(response) {
+				me.commandOutput = response.responseJSON;
+			});
+
+			if(this.selectedCommand == "start") {
+				this.waitingForData = true;
+				this.startListening();
+			} else {
+
+			}
+
+		},
 		runExperiment: function(event) {
 			var inputFields = $(event.target).find('input');
 			var inputValues = inputFields.map(function() {
@@ -193,15 +231,16 @@ var vm = new Vue({
 			});
 		},
 		makeRequestData: function(inputValues) {
-			var experiment_input = {};
+			var command_input = {};
 
 			for(var i = 0; i < inputValues.length; i++) {
-				experiment_input[this.activeSoftware.input.start[i].name] = inputValues[i];
+				command_input[this.activeSoftware.input[this.selectedCommand][i].name] = inputValues[i];
 			}
 
 			return {
 				"software" : this.activeSoftware.name,
-				"input": experiment_input
+				"command" : this.selectedCommand,
+				"input": command_input
 			};
 		},
 		formatGraphInput: function(data, rate, output_arguments) {
@@ -251,9 +290,10 @@ var vm = new Vue({
 			var softwares = this.activeDevice.softwares;
 			
 			if(softwares.length > 0) {
-				$.each(softwares, function(index, experiment){
-					if(experiment.id == id) {
-						me.activeSoftware = experiment;
+				$.each(softwares, function(index, software){
+					if(software.id == id) {
+						me.activeSoftware = software;
+						me.selectedCommand = software.commands[0];
 					}
 				});
 			}
@@ -313,12 +353,27 @@ var vm = new Vue({
 	computed : {
 		experimentDescription: function() {
 			return this.activeDevice.name + " running " + this.activeSoftware.name + " experiment"
+		},
+		commandDescription: function() {
+			return this.selectedCommand + " command" + " on" + this.activeDevice.name + " software " + this.activeSoftware.name;
 		}
 	}
 });
 
 vm.$watch('selectedExperiment', function(id) {
 	this.selectExperiment(id);
+});
+
+vm.$watch('selectedCommand', function(name) {
+	switch(name) {
+		case "start" : {
+			this.outputType = "graph";
+			break;
+		}
+		default : {
+			this.outputType = "debug";
+		}
+	}
 });
 
 vm.$watch('activeSoftware', function() {
