@@ -42,10 +42,7 @@ Route::group(['middleware' => ['web']], function () {
 
 Route::group(['middleware' => ['web']], function () {
 	Route::resource('devicetype', 'DeviceTypeController');
-});
-Route::group(['middleware' => ['web']], function () {
 	Route::resource('software', 'SoftwareController');
-});
-Route::group(['middleware' => ['web']], function () {
-	Route::resource('software', 'SoftwareController');
+	Route::resource('device','CrudDeviceController');
+	Route::resource('experiment', 'CrudExperimentController');
 });
