@@ -8,6 +8,7 @@ use App\DeviceType;
 use App\Experiment;
 use App\Http\Requests;
 use Illuminate\Http\Request;
+use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Session;
 use Illuminate\Support\Facades\Validator;
@@ -45,16 +46,10 @@ class CrudDeviceController extends Controller
      */
     public function store(Request $request)
     {
-    	$validator = Validator::make($request->all(), [
-    		'device_type'	=>	'required',
-    		'port'	=>	'required',
-    		'softwares'	=>	'required',
-    		'default_software'	=>	"default_experiment:" . implode(",",$request->input('softwares'))
-    		]);
+    	$redirect = $this->validateDevice($request);
 
-    	if($validator->fails()) {
-    		return redirect()->back()->withErrors($validator)->withInput();
-    	}
+    	if(isset($redirect)) return $redirect;
+
         $input = $request->all();
         
 
@@ -119,13 +114,39 @@ class CrudDeviceController extends Controller
      */
     public function update($id, Request $request)
     {
-        
-        $devicetype = DeviceType::findOrFail($id);
-        $devicetype->update($request->all());
+    	$redirect = $this->validateDevice($request);
 
-        Session::flash('flash_message', 'DeviceType updated!');
+    	if(isset($redirect)) return $redirect;
 
-        return redirect('devicetype');
+        $device = Device::findOrFail($id);
+        $updateFields = [
+        	"port"	=>	$request->only("port")
+        ];
+        $device->update($request->only("port"));
+
+        $input = $request->all();
+
+        $softwares = $device->softwares->lists('id')->toArray();
+
+		DB::statement('SET FOREIGN_KEY_CHECKS=0');
+        Experiment::where("device_id",$device->id)->whereIn("software_id",$softwares)->delete();
+        DB::statement('SET FOREIGN_KEY_CHECKS=1');
+
+
+        foreach ($input["softwares"] as $software) {
+        	Experiment::create([
+        		"device_id"	=>	$device->id,
+        		"software_id"	=>	$software
+        	]);
+        }
+
+        $defaultSoftware = Software::find($input["default_software"]);
+        $defaultExperiment = Experiment::where("device_id",$device->id)->where("software_id",$defaultSoftware->id)->first();
+        $device->defaultExperiment()->associate($defaultExperiment)->save();
+
+        Session::flash('flash_message', 'Device updated!');
+
+        return redirect('device');
     }
 
     /**
@@ -145,5 +166,19 @@ class CrudDeviceController extends Controller
         Session::flash('flash_message', 'Device deleted!');
 
         return redirect('device');
+    }
+
+    protected function validateDevice(Request $request)
+    {
+    	$validator = Validator::make($request->all(), [
+    		'device_type'	=>	'required',
+    		'port'	=>	'required',
+    		'softwares'	=>	'required',
+    		'default_software'	=>	"default_experiment:" . implode(",",$request->input('softwares'))
+    		]);
+
+    	if($validator->fails()) {
+    		return redirect()->back()->withErrors($validator)->withInput();
+    	}
     }
 }

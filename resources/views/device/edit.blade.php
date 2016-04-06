@@ -14,7 +14,8 @@
     <div class="form-group {{ $errors->has('device_type') ? 'has-error' : ''}}">
         {!! Form::label('device_type', 'Device type: ', ['class' => 'col-sm-3 control-label']) !!}
         <div class="col-sm-6">
-            {!! Form::select('device_type', $devicetypes, null, ['class' => 'form-control']) !!}
+            <input type="hidden" name="device_type" value="{{ $device->type->name }}">
+            <input type="text" name="device_type" class="form-control" disabled value="{{ $device->type->name }}">
             {!! $errors->first('name', '<p class="help-block">:message</p>') !!}
         </div>
     </div>

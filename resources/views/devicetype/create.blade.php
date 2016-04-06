@@ -2,7 +2,7 @@
 
 @section('content')
 
-    <h1>Create New Devicetype</h1>
+    <h1>Create New Device type</h1>
     <hr/>
 
     {!! Form::open(['url' => 'devicetype', 'class' => 'form-horizontal']) !!}

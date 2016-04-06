@@ -1,8 +1,13 @@
 @extends('layouts.settings')
-
+@inject('deviceType','App\DeviceType')
+@inject('software','App\Software')
 @section('content')
 
-    <h1>Physical device <a href="{{ url('device/create') }}" class="btn btn-primary pull-right btn-sm">Add New Device</a></h1>
+    @if($deviceType->count() > 0 && $software->count() > 0)
+        <h1>Physical device <a href="{{ url('device/create') }}" class="btn btn-primary pull-right btn-sm">Add New Device</a></h1>
+    @else
+        <h1>Physical device - Please add Device type and Softwares first</h1>
+    @endif
     <div class="table">
         <table class="table table-bordered table-striped table-hover">
             <thead>
