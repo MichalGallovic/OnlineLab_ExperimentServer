@@ -151,8 +151,8 @@ class Experiment extends Model
 
     	return config(
     		'devices.'  . 
-    		"$deviceName." .
-    		"$softwareName." .
+    		Str::lower($deviceName) . "." .
+    		Str::lower($softwareName) . "." .
             'input' .
             $command
     	);
@@ -162,7 +162,7 @@ class Experiment extends Model
     {
     	return config(
     		'devices.'  . 
-    		$deviceName . 
+    		Str::lower($deviceName) . 
     		'.output'
     	);
     }
