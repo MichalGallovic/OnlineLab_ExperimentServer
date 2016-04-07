@@ -32,5 +32,13 @@ return [
 			"title"	=>	"Vzorkovací čas",
 			"placeholder"	=>	200
 		]
+	],
+	"init"	=>	[
+		[
+			"name"	=>	"init_temp",
+			"rules"	=>	"",
+			"title"	=>	"Initial temperature",
+			"placeholder"	=>	"25"
+		]
 	]
 ];
