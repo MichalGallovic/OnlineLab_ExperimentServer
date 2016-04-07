@@ -119,7 +119,6 @@ var vm = new Vue({
 		activeDevice: null,
 		activeMenu: "info",
 		activeSoftware: null,
-		selectedExperiment: null,
 		selectedCommand: null,
 		commandOutput: null,
 		outputType: null,
@@ -223,13 +222,6 @@ var vm = new Vue({
 				});
 			});
 		},
-		stopExperiment: function() {
-			clearInterval(this.experimentIntervalId);
-			$.ajax({
-				type: "GET",
-				url: "api/devices/" + this.activeDevice.id + "/stop"
-			});
-		},
 		makeRequestData: function(inputValues) {
 			var command_input = {};
 
@@ -270,40 +262,35 @@ var vm = new Vue({
 			this.activeMenu = "experiments";
 			this.getDevicesPromise()
 				.done(function(response) {
+					if(response.data.length == 0 ){
+						me.hideExperimentsSpinner();
+					}
 					$.each(response.data, function(index, device) {
 						me.getExperimentsHistoryForDevice(device.id);
 					});
 				});
 		},
+		hideExperimentsSpinner: function() {
+			var spinner = $('.spinner');
+			spinner.text("You didn't run any experiments yet!");
+			spinner.removeClass('spinner');
+		},
 		pickDevice: function(device) {
 			this.activeMenu = "device";
 			this.activeDevice = device;
-			device.active = true;
-			
-			if(!this.selectedExperiment) {
-				this.selectedExperiment = 1;
-			}
-
+			this.activeDevice.active = true;
+			this.activeSoftware = device.softwares[0];
+			this.selectedCommand = this.activeSoftware.commands[0];
 		},
-		selectExperiment: function(id) {
-			var me = this;
-			var softwares = this.activeDevice.softwares;
-			
-			if(softwares.length > 0) {
-				$.each(softwares, function(index, software){
-					if(software.id == id) {
-						me.activeSoftware = software;
-						me.selectedCommand = software.commands[0];
-					}
-				});
-			}
-
-		},
+		
 		getExperimentsHistoryForDevice: function(id) {
 			var me = this;
 
 			$.getJSON('api/devices/' + id + "/experiments")
 			 .done(function(response) {
+			 	if(response.data.length == 0) {
+			 		me.hideExperimentsSpinner();
+			 	}
 			 	me.experimentsHistory = response.data;
 			 });
 		},
@@ -355,13 +342,9 @@ var vm = new Vue({
 			return this.activeDevice.name + " running " + this.activeSoftware.name + " experiment"
 		},
 		commandDescription: function() {
-			return this.selectedCommand + " command" + " on" + this.activeDevice.name + " software " + this.activeSoftware.name;
+			return this.selectedCommand + " command" + " on " + this.activeDevice.name + " software " + this.activeSoftware.name;
 		}
 	}
-});
-
-vm.$watch('selectedExperiment', function(id) {
-	this.selectExperiment(id);
 });
 
 vm.$watch('selectedCommand', function(name) {
@@ -376,10 +359,7 @@ vm.$watch('selectedCommand', function(name) {
 	}
 });
 
-vm.$watch('activeSoftware', function() {
-	
-});
 
-vm.$watch('devices', function() {
-	this.isRunningExperiment();
-});
+// vm.$watch('devices', function() {
+// 	this.isRunningExperiment();
+// });

@@ -12,6 +12,11 @@
         </div>
     @endif
 
+    @if(session('flash_message'))
+    <div class="alert alert-info">
+        <p>{{ session('flash_message') }}</p>
+    </div>
+    @endif
     @include('partials.alert_codegenerator')
     @include('partials.update_alert_codegenerator')
 

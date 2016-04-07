@@ -45,7 +45,7 @@ class DeviceTypeController extends Controller
         
         DeviceType::create($request->all());
 
-        Session::flash('flash_message', 'DeviceType added!');
+        Session::flash('flash_message', 'Device Type added!');
 
         return redirect('devicetype');
     }
@@ -91,7 +91,7 @@ class DeviceTypeController extends Controller
         $devicetype = DeviceType::findOrFail($id);
         $devicetype->update($request->all());
 
-        Session::flash('flash_message', 'DeviceType updated!');
+        Session::flash('flash_message', 'Device Type updated!');
 
         return redirect('devicetype');
     }
@@ -107,7 +107,7 @@ class DeviceTypeController extends Controller
     {
         DeviceType::destroy($id);
 
-        Session::flash('flash_message', 'DeviceType deleted!');
+        Session::flash('flash_message', 'Device Type deleted!');
 
         return redirect('devicetype');
     }

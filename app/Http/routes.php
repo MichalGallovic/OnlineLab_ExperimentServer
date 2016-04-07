@@ -14,7 +14,6 @@
 Route::group(['prefix' => 'api'], function() {
 	
 	Route::get('devices',['uses' => 'DeviceController@statusAll']);
-	Route::get('devices/{id}',['uses' => 'DeviceController@statusOne']);
 
 	Route::get('devices/{id}/readexperiment',['uses' => 'DeviceController@readExperiment']);
 	Route::get('devices/{id}/experiments',['uses' => 'DeviceController@previousExperiments']);

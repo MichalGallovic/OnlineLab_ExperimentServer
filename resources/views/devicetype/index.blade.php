@@ -2,7 +2,12 @@
 
 @section('content')
 
-    <h1>Devicetype <a href="{{ url('devicetype/create') }}" class="btn btn-primary pull-right btn-sm">Add New Devicetype</a></h1>
+    <h1>Device Type <a href="{{ url('devicetype/create') }}" class="btn btn-primary pull-right btn-sm">Add New Devicetype</a></h1>
+    @if(session('flash_message'))
+    <div class="alert alert-info">
+        <p>{{ session('flash_message') }}</p>
+    </div>
+    @endif
     <div class="table">
         <table class="table table-bordered table-striped table-hover">
             <thead>
