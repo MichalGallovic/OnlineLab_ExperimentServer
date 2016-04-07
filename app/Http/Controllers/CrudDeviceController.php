@@ -10,6 +10,7 @@ use App\Http\Requests;
 use Illuminate\Http\Request;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\DB;
+use App\Devices\Helpers\CodeGenerator;
 use Illuminate\Support\Facades\Session;
 use Illuminate\Support\Facades\Validator;
 
@@ -60,8 +61,10 @@ class CrudDeviceController extends Controller
 
         $softwares = Software::find($input["softwares"]);
 
+        $experiments = [];
+
         foreach ($softwares as $software) {
-        	Experiment::create([
+        	$experiments[]=Experiment::create([
         		"device_id"	=>	$device->id,
         		"software_id"	=>	$software->id
         	]);
@@ -71,9 +74,18 @@ class CrudDeviceController extends Controller
 
         $device->defaultExperiment()->associate($defaultExperiment)->save();
 
-        Session::flash('flash_message', 'Device added!');
+        $messageBags = [];
+        foreach ($experiments as $experiment) {
+        	$generator = new CodeGenerator($experiment);
+			$messageBags []= $generator->generateCode();
+        }
 
-        return redirect('device');
+        $messages = [];
+        foreach ($messageBags as $messageBag) {
+        	$messages = array_merge_recursive($messageBag->getMessages(), $messages);
+        }
+
+		return redirect('device')->with("messages", $messages);
     }
 
     /**
@@ -174,7 +186,7 @@ class CrudDeviceController extends Controller
     		'device_type'	=>	'required',
     		'port'	=>	'required',
     		'softwares'	=>	'required',
-    		'default_software'	=>	"default_experiment:" . implode(",",$request->input('softwares'))
+    		'default_software'	=>	"default_experiment :" . implode(",",$request->input('softwares'))
     		]);
 
     	if($validator->fails()) {
