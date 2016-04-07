@@ -144,6 +144,8 @@ var vm = new Vue({
 
 			var formData = this.makeRequestData(inputValues);
 
+			this.clearCommandOutput();
+
 			if(this.selectedCommand == "start") {
 				this.waitingForData = true;
 				this.startListening();
