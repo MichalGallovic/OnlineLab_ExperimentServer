@@ -82,10 +82,12 @@ class DeviceController extends ApiController
             $output = $deviceDriver->$commandMethod($request->input("input"), $request->input("requested_by"));
         }
 
+        return $output;
         
-        if($driver->commandSuccessful()) {
-            return $this->respondWithSuccess("Command executed successfully");
-        }
+        //@Todo check success
+        // if($deviceDriver->commandSuccessful()) {
+        //     return $this->respondWithSuccess("Command executed successfully");
+        // }
 
         return $this->respondWithError("Command execution ended with error!");
     }

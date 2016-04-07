@@ -8,6 +8,7 @@ use App\Http\Requests;
 use App\Http\Controllers\Controller;
 use App\Http\Controllers\ApiController;
 use App\ExperimentLog;
+use App\Device;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
 use App\Classes\Transformers\ExperimentLogTransformer;
 use App\Http\Requests\ExperimentLogRequest;
@@ -35,6 +36,23 @@ class ExperimentController extends ApiController
 
 		return $this->respondWithItem($experiment, new ExperimentLogTransformer($measurementsEvery));
 
+    }
+
+    public function destroy(Request $request)
+    {
+        $experimentLogs = ExperimentLog::all();
+
+        $devices = Device::all();
+
+        foreach ($devices as $device) {
+            $device->detachCurrentExperiment();
+        }
+
+        foreach ($experimentLogs as $experimentLog) {
+            $experimentLog->delete();
+        }
+
+        return redirect()->back();
     }
 
     public function latest(Request $request)

@@ -137,6 +137,7 @@ abstract class AbstractDevice
             if(!is_null($result)) {
                 $arguments []= $result;
             }
+
             // We do it like this, so developers don't have to call parent
             // methods manually, they will be called for them automatically
             $this->device = $this->device->fresh();
@@ -209,7 +210,6 @@ abstract class AbstractDevice
         // where experiment can write its output
         // and set up App\ExperimentLog - model of
         // experiment_logs table
-        $logger = new Logger($this->experiment, $input, $requestedBy);
         $duration = $this->parseDuration($input);
         if(is_null($duration)) {
             throw new \Exception('Please implement parseDuration($input) method, if you use start command.');
@@ -219,6 +219,7 @@ abstract class AbstractDevice
             throw new \Exception('Please implement parseSamplingRate($input) method, if you use start command.');
         }
 
+        $logger = new Logger($this->experiment, $input, $requestedBy);
         $logger->setSimulationTime($duration);
         $logger->setMeasuringRate($rate);
         $logger->createLogFile();
@@ -260,8 +261,9 @@ abstract class AbstractDevice
     {
     }
 
-    protected function afterInit($input)
+    protected function afterInit($input, $requestedBy, $output)
     {
+        return $output;
     }
 
 
@@ -277,8 +279,9 @@ abstract class AbstractDevice
     {
     }
 
-    protected function afterChange($input)
+    protected function afterChange($input, $requestedBy, $output)
     {
+        return $output;
     }
 
     protected function beforeStatus($input)
