@@ -6,8 +6,15 @@
     @if($deviceType->count() > 0 && $software->count() > 0)
         <h1>Physical device <a href="{{ url('device/create') }}" class="btn btn-primary pull-right btn-sm">Add New Device</a></h1>
     @else
-        <h1>Physical device - Please add Device type and Softwares first</h1>
+        <h1>Physical device</h1>
+        <div class="alert alert-danger">
+            <p><strong>Please add Device type and Softwares first</strong></p>
+        </div>
     @endif
+
+    @include('partials.alert_codegenerator')
+    @include('partials.update_alert_codegenerator')
+
     <div class="table">
         <table class="table table-bordered table-striped table-hover">
             <thead>

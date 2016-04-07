@@ -2,24 +2,8 @@
 
 @section("content")
 	<h1>Generate code for experiment development</h1>
-	@if(session('messages'))
-		@if(isset(session('messages')["error"]))
-		<div class="alert alert-warning">
-			<p><strong>Warnings & errors</strong></p>
-			@foreach(session('messages')["error"] as $error)
-				<p>{{ $error }}</p>
-			@endforeach
-		</div>
-		@endif
-		@if(isset(session('messages')["new"]))
-		<div class="alert alert-success">
-			<p><strong>Generated folders & files</strong></p>
-			@foreach(session('messages')["new"] as $message)
-				<p>{{ $message }}</p>
-			@endforeach
-		</div>
-		@endif
-	@endif
+	<p>Once your files were generated, they will not be overwritten.</p>
+	@include('partials.alert_codegenerator')
 	<div class="table">
 	    <table class="table table-bordered table-striped table-hover">
 	        <thead>
