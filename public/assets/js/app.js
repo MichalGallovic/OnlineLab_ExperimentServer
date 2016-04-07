@@ -120,8 +120,11 @@ var vm = new Vue({
 		activeMenu: "info",
 		activeSoftware: null,
 		selectedCommand: null,
-		commandOutput: null,
-		outputType: null,
+		commandOutput: {
+			json : null,
+			text : null,
+			error : false
+		},
 		experimentData: [{data:[]}],
 		experimentsHistory : [],
 
@@ -141,22 +144,27 @@ var vm = new Vue({
 
 			var formData = this.makeRequestData(inputValues);
 
+			if(this.selectedCommand == "start") {
+				this.waitingForData = true;
+				this.startListening();
+			}
+
 			$.ajax({
 				type: "POST",
 				url: "api/devices/" + this.activeDevice.id ,
 				data: formData
 			}).done(function(response) {
-				me.commandOutput = response;
+				me.commandOutput = {};
+				me.commandOutput.json = response;
+				me.commandOutput.text = response;
 			}).fail(function(response) {
-				me.commandOutput = response.responseJSON;
+				me.stopListening();
+				me.waitingForData = false;
+				me.commandOutput = {};
+				me.commandOutput.json = response.responseJSON;
+				me.commandOutput.error = true;
+				me.commandOutput.text = response.responseText.replace(/<style>(.|\n)*<\/style>/g,'');
 			});
-
-			if(this.selectedCommand == "start") {
-				this.waitingForData = true;
-				this.startListening();
-			} else {
-
-			}
 
 		},
 		runExperiment: function(event) {
@@ -183,6 +191,9 @@ var vm = new Vue({
 		startListening: function() {
 			this.experimentIntervalId = setInterval(this.readExperimentData, 500);
 		},
+		stopListening: function() {
+			clearInterval(this.experimentIntervalId);
+		},
 		readExperimentData: function() {
 			var me = this;
 			$.getJSON('api/devices/' + this.activeDevice.id + '/readexperiment')
@@ -196,7 +207,7 @@ var vm = new Vue({
 			 })
 			 .fail(function(response) {
 			 	if(!me.waitingForData) {
-			 		clearInterval(me.experimentIntervalId);
+			 		me.stopListening();
 			 	}
 			 });
 		},
@@ -281,8 +292,27 @@ var vm = new Vue({
 			this.activeDevice.active = true;
 			this.activeSoftware = device.softwares[0];
 			this.selectedCommand = this.activeSoftware.commands[0];
+			this.experimentRea
+			this.clearCommandOutput();
+			this.clearExperimentData();
 		},
-		
+		deleteExperimentLogs: function() {
+			var me = this;
+			$.getJSON('api/experiments/delete');
+			$.each(this.devices,function(index, device) {
+				me.getExperimentsHistoryForDevice(device.id);
+			});
+		},
+		clearCommandOutput: function() {
+			this.commandOutput = {
+				json : null,
+				text : null,
+				error: false
+			}
+		},
+		clearExperimentData: function() {
+			this.experimentData = [{data:[]}];
+		},
 		getExperimentsHistoryForDevice: function(id) {
 			var me = this;
 
@@ -347,18 +377,13 @@ var vm = new Vue({
 	}
 });
 
-vm.$watch('selectedCommand', function(name) {
-	switch(name) {
-		case "start" : {
-			this.outputType = "graph";
-			break;
-		}
-		default : {
-			this.outputType = "debug";
-		}
-	}
+vm.$watch('selectedCommand', function() {
+	this.clearCommandOutput();
 });
 
+vm.$watch('activeSoftware', function(newActiveSoftware) {
+	this.selectedCommand = newActiveSoftware.commands[0];
+});
 
 // vm.$watch('devices', function() {
 // 	this.isRunningExperiment();

@@ -19,7 +19,6 @@ class ReadDeviceTransformer extends TransformerAbstract
 	{
 		return [
 			"device" => $device->type->name,
-			"software"   => $device->currentSoftwareName(),
 			"output" => $this->deviceOutput
 		];
 	}

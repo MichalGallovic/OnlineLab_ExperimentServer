@@ -48,54 +48,57 @@
 			</div>
 
 			<div class="row" v-if="activeMenu == 'device'">
-				<div v-if="selectedCommand">
-					<div v-if="outputType == 'graph'">
-						<div 
-						v-bind:class="{ 'col-lg-12' : fullWidth, 'col-lg-9' : !fullWidth }"
-						v-if="activeDevice && !waitingForData">
+				<div
+				v-bind:class="{ 'col-lg-12' : fullWidth, 'col-lg-9' : !fullWidth }"
+				>
+					<div class="row" v-if="activeMenu == 'device'">
+						<div
+						class="col-lg-12" 
+						v-show="selectedCommand && !commandOutput.error">
 							<olm-graph 
+							v-if="selectedCommand == 'start'"
 								:description="experimentDescription"
 								:series="experimentData"
 							></olm-graph>
 						</div>
-						<div 
-						v-bind:class="{ 'col-lg-12' : fullWidth, 'col-lg-9' : !fullWidth }" 
-						v-else>
-							<div class="spinner"></div>
-							<span 
-							style="display: inline-block;
-							 	width: 100%;
-							  	text-align:center; 
-							  	font-size:17px;">
-							  	Initializing @{{ activeSoftware.name }} experiment ...
-							</span>
-						</div>
-					</div>
-					<div v-else
-						v-bind:class="{ 'col-lg-12' : fullWidth, 'col-lg-9' : !fullWidth }"
-					>
-						<olm-debug
-						:output="commandOutput"
-						:description="commandDescription"
+						<div
+						style="margin-top:40px;" 
+						class="col-lg-12" 
+						v-show="selectedCommand"
 						>
-						</olm-debug>
-					</div>
-				</div>
-				<div v-else>
-					<div 
-					v-bind:class="{ 'col-lg-12' : fullWidth, 'col-lg-9' : !fullWidth }"
-					style="margin-top:60px;"
-					v-if="activeDevice && !waitingForData">
-						<div style="text-align: center">
-							<i class="fa fa-4x fa-flask" style="font-size:6em"></i>
-						</div>
-						<div style="padding:50px; font-size: 18px; text-align: center">
-							<span>
-								Once you implement a command, you can see its output here. Graph for <strong>start</strong> command and API response for <strong>other</strong> commands.
-							</span>
+							<olm-debug
+							:output="commandOutput"
+							:description="commandDescription"
+							>
+							</olm-debug>
 						</div>
 					</div>
 				</div>
+				<div
+				style="margin-top:60px" 
+				v-bind:class="{ 'col-lg-12' : fullWidth, 'col-lg-9' : !fullWidth }"
+				v-if="activeSoftware.commands.length == 0">
+					<div style="text-align: center">
+						<i class="fa fa-4x fa-flask" style="font-size:6em"></i>
+					</div>
+					<div style="padding:50px; font-size: 18px; text-align: center">
+						<span>
+							Once you implement a command, you can see its output here. Graph for <strong>start</strong> command and API response for <strong>other</strong> commands.
+						</span>
+					</div>
+				</div>
+				<!-- <div 
+				v-bind:class="{ 'col-lg-12' : fullWidth, 'col-lg-9' : !fullWidth }" 
+				v-else>
+					<div class="spinner"></div>
+					<span 
+					style="display: inline-block;
+					 	width: 100%;
+					  	text-align:center; 
+					  	font-size:17px;">
+					  	Initializing @{{ activeSoftware.name }} experiment ...
+					</span>
+				</div> -->
 
 				<div 
 				v-bind:class="{ 'col-lg-12' : fullWidth, 'col-lg-3' : !fullWidth }" 
@@ -125,9 +128,9 @@
 						</form>
 					</div>
 				</div>
+
 			</div>
 
-		
 			<div class="row" v-if="activeMenu == 'experiments'">
 				<div 
 				v-bind:class="{ 'col-lg-12' : fullWidth, 'col-lg-9' : !fullWidth }" 
@@ -143,7 +146,7 @@
 					<h4>Previous experiments</h4>
 					<ul 
 					class="list-group" 
-					style="max-height: 500px; overflow: auto;"
+					style="max-height: 435px; overflow: auto;"
 					v-if="experimentsHistory.length > 0">
 					  <li 
 					  v-bind:class="{'active' : pastExperiment.id == experiment.id}" 
@@ -155,6 +158,7 @@
 					  @{{ experiment.device }} - @{{ experiment.software }} | @{{ experiment.started_at }}
 					  </li>
 					</ul>
+					<button v-on:click="deleteExperimentLogs" v-if="experimentsHistory.length > 0" class="btn btn-xs btn-danger">Delete experiment logs</button>
 					<div class="spinner" v-else></div>
 				</div>
 			</div>
@@ -168,8 +172,16 @@
 			</div>
 		</template>
 		<template id="debug-template">
+			<strong>Debug console</strong>
 			<h4 style="margin:20px">@{{ description }}</h4>
-			<pre style="margin:20px">@{{ output | json }}</pre>
+			<strong>JSON</strong>
+			<pre style="margin:20px">@{{ output.json | json }}</pre>
+			<strong>Text or HTML</strong>
+			<div class="panel panel-default" style="margin:20px; background: rgb(245, 245, 245)">
+				<div class="panel-body">
+					@{{{ output.text }}}
+				</div>
+			</div>
 		</template>
 	</div>
 	<script src="{{ asset('assets/js/jquery-1.12.1.js') }}"></script>
