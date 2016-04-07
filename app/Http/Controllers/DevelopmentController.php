@@ -50,6 +50,6 @@ class DevelopmentController extends Controller
 	public function resetDatabase(Request $request)
 	{
 		Artisan::call('server:reset');
-		return redirect()->back();
+		return redirect()->back()->with('flash_message','App server database was reset!');
 	}
 }

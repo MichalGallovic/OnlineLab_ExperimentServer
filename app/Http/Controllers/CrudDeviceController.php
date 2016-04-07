@@ -85,6 +85,8 @@ class CrudDeviceController extends Controller
         	$messages = array_merge_recursive($messageBag->getMessages(), $messages);
         }
 
+        Session::flash('flash_message', 'Device added - Code has been automatically generated for you!');
+
 		return redirect('device')->with("messages", $messages);
     }
 
@@ -156,7 +158,7 @@ class CrudDeviceController extends Controller
         $defaultExperiment = Experiment::where("device_id",$device->id)->where("software_id",$defaultSoftware->id)->first();
         $device->defaultExperiment()->associate($defaultExperiment)->save();
 
-        Session::flash('flash_message', 'Device updated!');
+        Session::flash('flash_message_update', 'Device updated!');
 
         return redirect('device');
     }
@@ -186,7 +188,7 @@ class CrudDeviceController extends Controller
     		'device_type'	=>	'required',
     		'port'	=>	'required',
     		'softwares'	=>	'required',
-    		'default_software'	=>	"default_experiment :" . implode(",",$request->input('softwares'))
+    		'default_software'	=>	"required|default_experiment :" . implode(",",$request->input('softwares'))
     		]);
 
     	if($validator->fails()) {

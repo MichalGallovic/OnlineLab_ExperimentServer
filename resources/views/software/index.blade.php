@@ -3,6 +3,11 @@
 @section('content')
 
     <h1>Software <a href="{{ url('software/create') }}" class="btn btn-primary pull-right btn-sm">Add New Software</a></h1>
+    @if(session('flash_message'))
+    <div class="alert alert-info">
+        <p>{{ session('flash_message') }}</p>
+    </div>
+    @endif
     <div class="table">
         <table class="table table-bordered table-striped table-hover">
             <thead>

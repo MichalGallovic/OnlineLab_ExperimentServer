@@ -7,6 +7,7 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Validator;
 use App\Devices\Contracts\DeviceDriverContract;
 use App\Devices\Exceptions\ParametersInvalidException;
+use App\Devices\Exceptions\DriverDoesNotExistException;
 
 class Experiment extends Model
 {
@@ -170,8 +171,12 @@ class Experiment extends Model
     {
         $device = $this->device;
         $softwareName = $this->software->name;
-        $deviceDriver = $device->driver($softwareName);
-
-        return $deviceDriver->availableCommands();
+        
+        try {
+            $deviceDriver = $device->driver($softwareName);
+            return $deviceDriver->availableCommands();
+        }catch(DriverDoesNotExistException $e) {
+            return [];
+        }
     }
 }
