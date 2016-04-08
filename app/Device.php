@@ -18,9 +18,11 @@ class Device extends Model
     protected $fillable = ["device_type_id","port"];
     public function driver($softwareName = null)
     {
-        // if ($this->isOffline()) {
-        //     throw new DeviceNotConnectedException;
-        // }
+        if(\App::environment() != 'local') {
+            if ($this->isOffline()) {
+                throw new DeviceNotConnectedException($this->type->name);
+            }
+        }
 
         $experiment = $this->getCurrentOrRequestedExperiment($softwareName);
 
