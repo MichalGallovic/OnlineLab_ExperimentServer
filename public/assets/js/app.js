@@ -5,6 +5,53 @@ $(function () {
     });
 });
 
+Vue.component('olm-input',{
+	template: "#input-template",
+	props: {
+		label:null,
+		type : {
+			default : function() {
+				return "text";
+			}
+		},
+		placeholder: {
+			default : function() {
+				return "This is placeholder";
+			}
+		},
+		values: [],
+		name : null,
+	},
+	data: function() {
+		return {
+			input : ""
+		}
+	},
+	ready: function() {
+		if(this.type == "checkbox") {
+			this.input = [];
+		}
+		if(this.type == "select") {
+			this.input = this.values[0];
+		}
+
+		if(this.type == "radio") {
+			this.input = this.values[0];
+		}
+	},
+	methods : {
+		getInputValues: function() {
+			// var inputFields = $(this.$els.input).find(':input');
+			// var inputValues = inputFields.map(function() {
+			// 	return $(this).val();
+			// }).get();
+
+			// return inputValues;
+			return this.input;
+		}
+	}
+});
+
 Vue.component('olm-debug', {
 	template: "#debug-template",
 	props: {
@@ -137,10 +184,16 @@ var vm = new Vue({
 	methods : {
 		runCommand: function(event) {
 			var me = this;
-			var inputFields = $(event.target).find('input');
-			var inputValues = inputFields.map(function() {
-				return $(this).val();
-			}).get();
+
+			var inputValues = [];
+
+			$.each(this.$children, function(index, component) {
+				if($.isFunction(component.getInputValues)) {
+					inputValues.push(component.getInputValues());
+				}
+			});
+
+			console.log(inputValues);
 
 			var formData = this.makeRequestData(inputValues);
 
