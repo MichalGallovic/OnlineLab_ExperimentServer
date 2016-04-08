@@ -117,7 +117,7 @@
 						<span v-else>No commands implemented yet!</span>
 					</div>
 					<div class="row" style="margin-top:20px" v-show="selectedCommand">
-						<form class="form-horizontal" v-on:submit.prevent="runCommand">
+						<form v-on:submit.prevent="runCommand">
 							<olm-input
 							v-for="argument in activeSoftware.input[selectedCommand]"
 							:label="argument.title"
@@ -127,10 +127,8 @@
 							:placeholder="argument.placeholder"
 							>
 							</olm-input>
-							<div class="form-group">
-								<div class="col-xs-12">
-									<button type="submit" class="btn btn-sm btn-success pull-right" >Run Command</button>
-								</div>
+							<div class="form-group" style="margin-top:20px">
+								<button type="submit" class="btn btn-sm btn-success" >Run Command</button>
 							</div>
 						</form>
 					</div>
@@ -191,11 +189,12 @@
 			</div>
 		</template>
 		<template id="input-template">
-			<div v-el:input class="form-group">
+			<div class="row" style="margin-top:10px">
+				<div v-el:input class="form-group">
 				<label 
 				v-bind:class="{
 					'col-xs-6' : (type == 'text' || type == 'select'),
-					'col-xs-6' : (type != 'text')
+					'col-xs-12' : (type != 'text')
 				}" 
 				class="control-label"
 				>@{{ label }}</label>
@@ -224,6 +223,7 @@
 					  <option v-for="value in values">@{{ value }}</option>
 					</select>
 				</div>
+			</div>
 			</div>
 		</template>
 	</div>

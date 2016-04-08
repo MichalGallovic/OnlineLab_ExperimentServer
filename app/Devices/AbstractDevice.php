@@ -134,10 +134,8 @@ abstract class AbstractDevice
             // Then call its public concrete implementation
             $result = call_user_func_array([$this, $method], $arguments);
 
-            if(!is_null($result)) {
-                $arguments []= $result;
-            }
-
+            $arguments []= $result;
+            
             // We do it like this, so developers don't have to call parent
             // methods manually, they will be called for them automatically
             $this->device = $this->device->fresh();

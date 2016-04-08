@@ -37,38 +37,5 @@ return [
 			"placeholder"	=>	200,
 			"type"	=>	"text"
 		]
-	],
-	"init"	=>	[
-		[
-			"name"	=>	"raz",
-			"rules"	=>	"",
-			"title"	=>	"Initial temperature",
-			"placeholder"	=>	"25",
-			"type"	=>	"radio",
-			"values"	=>	["PID","Vlastny","Normalka"]
-		],
-		[
-			"name"	=>	"dva",
-			"rules"	=>	"",
-			"title"	=>	"regulatoris",
-			"placeholder"	=>	"",
-			"type"	=>	"checkbox",
-			"values"	=>	["prvy","druhy","treti"]
-		],
-		[
-			"name"	=>	"tri",
-			"rules"	=>	"",
-			"title"	=>	"regulatoris",
-			"placeholder"	=>	"",
-			"type"	=>	"select",
-			"values"	=>	["muz","zena"]
-		],
-		[
-			"name"	=>	"styri",
-			"rules"	=>	"",
-			"title"	=>	"Initial textarea",
-			"placeholder"	=>	"",
-			"type"	=>	"textarea"
-		]
 	]
 ];

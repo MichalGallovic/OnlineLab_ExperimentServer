@@ -24,7 +24,7 @@ Vue.component('olm-input',{
 	},
 	data: function() {
 		return {
-			input : ""
+			input : null
 		}
 	},
 	ready: function() {
@@ -193,8 +193,6 @@ var vm = new Vue({
 				}
 			});
 
-			console.log(inputValues);
-
 			var formData = this.makeRequestData(inputValues);
 
 			this.clearCommandOutput();
@@ -302,7 +300,7 @@ var vm = new Vue({
 			};
 		},
 		formatGraphInput: function(data, rate, output_arguments) {
-			console.log(output_arguments);
+
 			var me = this;
 			var series = [];
 			$.each(data, function(index, measurement) {
@@ -411,6 +409,15 @@ var vm = new Vue({
 			 	//@todo remove this - only for auto switching to
 			 	//the first device
 			 	// me.pickDevice(devices[0]);
+			 })
+			 .fail(function(response) {
+			 	noty ({
+			 		text : response.responseJSON.error.message,
+			 		theme: "relax",
+			 		layout: "topRight",
+			 		timeout : 5000,
+			 		type: 'error'
+			 	});
 			 });
 		},
 		//@Todo wrap every request to promises
