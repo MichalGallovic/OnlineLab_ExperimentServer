@@ -117,13 +117,20 @@
 						<span v-else>No commands implemented yet!</span>
 					</div>
 					<div class="row" style="margin-top:20px" v-show="selectedCommand">
-						<form v-on:submit.prevent="runCommand">
-							<div class="form-group" v-for="argument in activeSoftware.input[selectedCommand]">
-								<label class="col-xs-9">@{{ argument.title }}</label>
-								<input class="col-xs-3" type="text" v-bind:name="argument.name" v-bind:value="argument.placeholder">
-							</div>
+						<form class="form-horizontal" v-on:submit.prevent="runCommand">
+							<olm-input
+							v-for="argument in activeSoftware.input[selectedCommand]"
+							:label="argument.title"
+							:name="argument.name"
+							:type="argument.type"
+							:values="argument.values"
+							:placeholder="argument.placeholder"
+							>
+							</olm-input>
 							<div class="form-group">
-								<button type="submit" class="btn-success" style="margin-top:20px;">Run Command</button>
+								<div class="col-xs-12">
+									<button type="submit" class="btn btn-sm btn-success pull-right" >Run Command</button>
+								</div>
 							</div>
 						</form>
 					</div>
@@ -180,6 +187,42 @@
 			<div class="panel panel-default" style="margin:20px; background: rgb(245, 245, 245)">
 				<div class="panel-body">
 					@{{{ output.text }}}
+				</div>
+			</div>
+		</template>
+		<template id="input-template">
+			<div v-el:input class="form-group">
+				<label 
+				v-bind:class="{
+					'col-xs-6' : (type == 'text' || type == 'select'),
+					'col-xs-6' : (type != 'text')
+				}" 
+				class="control-label"
+				>@{{ label }}</label>
+				<div class="col-xs-6" v-if="type == 'text'">
+					<input v-model="input" class="form-control" type="text" name="@{{ name }}" placeholder="@{{ placeholder }}" value="@{{ placeholder }}">
+				</div>
+				<div class="col-xs-12" v-if="type == 'radio'">
+					<span v-for="(index, value) in values" >
+						<label class="radio-inline">
+						  <input v-model="input" type="radio" name="@{{ name }}[]" value="@{{ value }}"> @{{ value }}
+						</label>
+					</span>
+				</div>
+				<div class="col-xs-12" v-if="type == 'checkbox'">
+					<span v-for="(index, value) in values" >
+						<label class="checkbox-inline" for="@{{ name}}@{{index}}">
+						  <input id="@{{ name}}@{{index}}" v-model="input" type="checkbox" name="@{{ name }}[]" value="@{{ value }}"> @{{ value }}
+						</label>
+					</span>
+				</div>
+				<div class="col-xs-12" v-if="type == 'textarea'">
+					<textarea v-model="input" class="form-control" rows="3" placeholder="@{{ placeholder }}"></textarea>
+				</div>
+				<div class="col-xs-6" v-if="type == 'select'">
+					<select class="form-control" name="@{{ name }}" v-model="input">
+					  <option v-for="value in values">@{{ value }}</option>
+					</select>
 				</div>
 			</div>
 		</template>

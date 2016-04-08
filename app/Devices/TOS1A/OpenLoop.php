@@ -58,6 +58,11 @@ class Openloop extends AbstractDevice implements DeviceDriverContract
 		return $script->getOutput();
 	}
 
+	protected function init($input)
+	{
+		return $input;
+	}
+
 	// These methods have to be implemented
 	// only if you are implementing
 	// START command
