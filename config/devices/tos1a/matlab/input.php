@@ -54,7 +54,7 @@ return [
 		[
 			"name"	=>	"in_sw",
 			"rules"	=>	"required",
-			"title"	=>	"INSW - asi zbytocne ?",
+			"title"	=>	"INSW",
 			"placeholder"	=>	3,
 			"type"	=>	"text"
 		],

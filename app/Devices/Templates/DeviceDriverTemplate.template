@@ -16,7 +16,7 @@ class $2 extends AbstractDevice implements DeviceDriverContract {
      * $(app_root)/server_scripts folder
      * @var array
      */
-	protected $scriptNames = [
+	protected $scriptPaths = [
         "read"	=> "",
         "stop"  => "",
         "start"	=> "",
