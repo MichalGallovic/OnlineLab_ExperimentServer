@@ -30,7 +30,7 @@ class DeviceManager
 
     public function createDriver($device, $software)
     {
-    	$className = "App\Devices\\" .  Str::upper($device) . "\\" . Str::ucfirst($software);
+    	$className = "App\Devices\\" .  Str::lower($device) . "\\" . Str::ucfirst($software);
 
     	if (!class_exists($className)) {
             throw new DriverDoesNotExistException;
