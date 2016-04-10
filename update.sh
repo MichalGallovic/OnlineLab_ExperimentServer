@@ -36,7 +36,8 @@ php artisan key:generate
 fi
 
 echoyellow "Settings permisions"
-chmod -R 777 storage
-chmod -R 777 bootstrap/cache
+chmod -R 766 storage
+chmod -R 766 bootstrap/cache
+chmod -R 766 server_scripts
 
 rm rainbow.sh

@@ -101,7 +101,7 @@ class CodeGenerator
 	protected function createFolder($path, $messages)
 	{
 		try {
-			File::makeDirectory($path, 0775);
+			File::makeDirectory($path, 0766);
 			$messages->add("new",$path);
 		} catch(\ErrorException $e) {
 			$messages->add("error",$e->getMessage() . " - " . $path);
