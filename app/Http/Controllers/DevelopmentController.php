@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Device;
 use App\DeviceType;
 use App\Experiment;
 use App\Http\Requests;
@@ -27,17 +28,17 @@ class DevelopmentController extends Controller
 
 	public function showGenerate(Request $request)
 	{
-		$experiments = Experiment::all();
-		return view('generate', compact('experiments'));
+		$devices = Device::all();
+		return view('generate', compact('devices'));
 	}
 
 	public function generateCode(Request $request, $id)
 	{
-		$experiment = Experiment::find($id);
-		$generator = new CodeGenerator($experiment);
-		$messages = $generator->generateCode();
+		$device = Device::find($id);
+		$generator = new CodeGenerator($device);
+		$messageBag = $generator->generateCode();
 
-		return redirect()->back()->with("messages", $messages->getMessages());
+		return redirect()->back()->with("messages", $messageBag->getMessages());
 	}
 
 	

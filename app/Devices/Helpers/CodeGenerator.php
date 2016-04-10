@@ -2,7 +2,7 @@
 
 namespace App\Devices\Helpers;
 
-use App\Experiment;
+use App\Device;
 use Illuminate\Support\Str;
 use Illuminate\Support\MessageBag;
 use Illuminate\Support\Facades\File;
@@ -12,43 +12,73 @@ use Illuminate\Support\Facades\File;
 */
 class CodeGenerator
 {
-	protected $experiment;
+	protected $device;
 
-	public function __construct(Experiment $experiment)
+
+	public function __construct(Device $device)
 	{
 		
-		$this->experiment = $experiment;
+		$this->device = $device;
 	}
 
 	public function generateCode()
 	{
-		$experiment = $this->experiment;
-		$deviceName = Str::lower($experiment->device->type->name);
-		$softwareName = Str::lower($experiment->software->name);
 
-		$messages = new MessageBag();
+		$softwares = $this->device->softwares;
+		$messageBag = new MessageBag();
+
+		$this->createFolders($softwares, $messageBag);
+		$this->createFiles($softwares, $messageBag);
+
+		return $messageBag;
+	}
+
+	protected function createFolders($softwares, MessageBag $messageBag)
+	{
+		$deviceName = Str::lower($this->device->type->name);
 
 		// Generating server_scripts folders
-		$scriptsPath = base_path("server_scripts") . "/" . $deviceName . "/" . $softwareName;
-		$this->createFolder($scriptsPath, $messages);
+		$deviceScriptPath = base_path("server_scripts") . "/" . $deviceName;
+		$this->createFolder($deviceScriptPath, $messageBag);
 
-		// Generating config input/output files
-		$configPath = config_path("devices") . "/" . $deviceName;
+		// Generating config folders
+		$deviceConfigPath = config_path("devices") . "/" . $deviceName;
+		$this->createFolder($deviceConfigPath, $messageBag);
+
+		// Generating implementation folders
+		$deviceImplPath = devices_path($deviceName);
+		$this->createFolder($deviceImplPath, $messageBag);
+
+		foreach ($softwares as $software) {
+			$softwareScriptPath = $deviceScriptPath . "/" . Str::lower($software->name);
+			$this->createFolder($softwareScriptPath, $messageBag);
+
+			$softwareConfigPath = $deviceConfigPath . "/" . Str::lower($software->name);
+			$this->createFolder($softwareConfigPath, $messageBag);
+		}
+
+	}
+	
+	protected function createFiles($softwares, MessageBag $messageBag)
+	{
+		$deviceName = Str::lower($this->device->type->name);	
+
+		$deviceConfigPath = config_path("devices") . "/" . $deviceName;
 		$outputConfigContents = File::get(devices_path("Templates/OutputConfigTemplate.template"));
-		$this->createFile($configPath . "/output.php", $messages, $outputConfigContents);
+		$this->createFile($deviceConfigPath . "/output.php", $messageBag, $outputConfigContents);
 		$inputConfigContents = File::get(devices_path("Templates/InputConfigTemplate.template"));
-		$this->createFile($configPath . "/" . $softwareName . "/input.php", $messages, $inputConfigContents);
+		
+		$deviceImplPath = devices_path($deviceName);
+		$deviceImplContents = File::get(devices_path("Templates/DeviceDriverTemplate.template"));
 
-		// Generating implementation classes
-		$deviceName = Str::upper($deviceName);
-		$softwareName = Str::ucfirst($softwareName);
-		$deviceClassPath = devices_path($deviceName . "/" . $softwareName . ".php");
-		$deviceClassContents = File::get(devices_path("Templates/DeviceDriverTemplate.template"));
-		$deviceClassContents = str_replace("$1", $deviceName, $deviceClassContents);
-		$deviceClassContents = str_replace("$2", $softwareName, $deviceClassContents);
-		$this->createFile($deviceClassPath, $messages, $deviceClassContents);
+		foreach ($softwares as $software) {
+			$this->createFile($deviceConfigPath . "/" . Str::lower($software->name) . "/input.php", $messageBag, $inputConfigContents);
 
-		return $messages;
+			$softwareImplPath = $deviceImplPath . "/" . Str::ucfirst($software->name) . ".php";
+			$softwareImplContents = str_replace("$1", $deviceName, $deviceImplContents);
+			$softwareImplContents = str_replace("$2", Str::ucfirst($software->name), $softwareImplContents);
+			$this->createFile($softwareImplPath, $messageBag, $softwareImplContents);
+		}
 	}
 
 	protected function createFile($path, $messages, $contents = "")
@@ -71,7 +101,7 @@ class CodeGenerator
 	protected function createFolder($path, $messages)
 	{
 		try {
-			File::makeDirectory($path, 0775, true);
+			File::makeDirectory($path, 0775);
 			$messages->add("new",$path);
 		} catch(\ErrorException $e) {
 			$messages->add("error",$e->getMessage() . " - " . $path);

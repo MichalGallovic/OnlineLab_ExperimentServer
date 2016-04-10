@@ -74,20 +74,12 @@ class CrudDeviceController extends Controller
 
         $device->defaultExperiment()->associate($defaultExperiment)->save();
 
-        $messageBags = [];
-        foreach ($experiments as $experiment) {
-        	$generator = new CodeGenerator($experiment);
-			$messageBags []= $generator->generateCode();
-        }
-
-        $messages = [];
-        foreach ($messageBags as $messageBag) {
-        	$messages = array_merge_recursive($messageBag->getMessages(), $messages);
-        }
+        $generator = new CodeGenerator($device);
+        $messageBag = $generator->generateCode();
 
         Session::flash('flash_message', 'Device added - Code has been automatically generated for you!');
 
-		return redirect('device')->with("messages", $messages);
+		return redirect('device')->with("messages", $messageBag->getMessages());
     }
 
     /**

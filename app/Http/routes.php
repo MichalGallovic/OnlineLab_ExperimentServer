@@ -39,7 +39,7 @@ Route::group(['middleware' => ['web']], function () {
 	Route::resource('experiment', 'CrudExperimentController');
 	Route::get('settings', ['uses'	=>	'DevelopmentController@settings']);
 	Route::get('generate', ['uses'	=>	'DevelopmentController@showGenerate']);
-	Route::get("generate/experiment/{id}/code",['uses' => 'DevelopmentController@generateCode']);
+	Route::get("generate/device/{id}/code",['uses' => 'DevelopmentController@generateCode']);
 	Route::get("reset", ['uses'	=>	'DevelopmentController@showReset']);
 	Route::get("reset/database", ['uses' => 'DevelopmentController@resetDatabase']);
 });
