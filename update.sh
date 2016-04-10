@@ -28,7 +28,7 @@ echoyellow "Updating app dependencies"
 php composer.phar install
 
 if ! [ -f ".env" ]; then
-mv .env.example .env
+cp .env.example .env
 sed -i 's/DB_DATABASE.*/DB_DATABASE=olm_app_server/' .env
 sed -i 's/DB_USERNAME.*/DB_USERNAME=root/' .env
 sed -i 's/DB_PASSWORD.*/DB_PASSWORD=root/' .env
