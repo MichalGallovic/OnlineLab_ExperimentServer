@@ -3,6 +3,7 @@
 Homestead.yaml
 Homestead.json
 .env
+.env.example
 storage/logs
 # MacOS X specific
 .DS_Store
