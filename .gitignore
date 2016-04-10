@@ -7,3 +7,4 @@ storage/logs
 # MacOS X specific
 .DS_Store
 composer.phar
+.env.example
