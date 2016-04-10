@@ -4,6 +4,7 @@
 wget https://raw.githubusercontent.com/xr09/rainbow.sh/master/rainbow.sh
 source rainbow.sh
 
+ran_fromm=$(pwd)
 
 # Composer checks - php dependency manager
 echoyellow "Checking Composer installation"
@@ -27,7 +28,8 @@ echoyellow "Updating app dependencies"
 php composer.phar install
 
 echoyellow "Settings permisions"
-chmod -R 777 storage
-chmod -R 777 bootstrap/cache
+cd ..
+chmod -R 777 $ran_from
+cd $ran_from
 
 rm rainbow.sh

@@ -50,10 +50,21 @@ abstract class Script
     	$this->device = $device;
     }
 
+    /**
+     * Abstract run method, that every script has to implement
+     * It starts the script execution
+     */
     abstract public function run();
-    abstract protected function prepareArguments($arguments);
 
 
+    /**
+     * Encapsulates the shell_exec with Symphony Process class
+     * Finds the script, passes the arguments inside and
+     * waits till the end of execution
+     * @param  string  $path      to the script
+     * @param  array   $arguments script input arguments
+     * @param  integer $timeout   time the script takes to complete
+     */
     protected function runProcess($path, $arguments = [], $timeout = 30)
     {
         $builder = new ProcessBuilder();
@@ -71,13 +82,25 @@ abstract class Script
             // waiting for process to finish
         }
 
+        $this->logProcess($process);
+
     }
 
+
+    /**
+     * Path to "server_scripts" folder
+     * @return string path
+     */
     public function basePath()
     {
     	return base_path("server_scripts");
     }
 
+    /**
+     * Checks both "server_scripts" relative path to script
+     * Or takes $path as the absolute
+     * @param  sstrin path
+     */
     protected function checkPathCombinations($path)
     {
     	$absolutePath = $this->basePath() . "/" . $path;
@@ -113,7 +136,10 @@ abstract class Script
         return $this->path;
     }
 
-
+    /**
+     * Logs process to DB
+     * @param  Symfony\Component\Process\Process $process 
+     */
     protected function logProcess(Process $process)
     {
     	event(new ProcessWasRan($process, $this->device));
