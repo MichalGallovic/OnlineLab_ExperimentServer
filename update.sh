@@ -4,7 +4,7 @@
 wget https://raw.githubusercontent.com/xr09/rainbow.sh/master/rainbow.sh
 source rainbow.sh
 
-ran_fromm=$(pwd)
+ran_from=$(pwd)
 
 # Composer checks - php dependency manager
 echoyellow "Checking Composer installation"
@@ -27,9 +27,14 @@ git pull
 echoyellow "Updating app dependencies"
 php composer.phar install
 
+if ! [ -f ".env" ]; then
+mv .env.example .env
+sed -i 's/DB_DATABASE.*/DB_DATABASE=olm_app_server/' .env
+sed -i 's/DB_USERNAME.*/DB_USERNAME=root/' .env
+sed -i 's/DB_PASSWORD.*/DB_PASSWORD=root/' .env
+fi
+
 echoyellow "Settings permisions"
-cd ..
 chmod -R 777 $ran_from
-cd $ran_from
 
 rm rainbow.sh
