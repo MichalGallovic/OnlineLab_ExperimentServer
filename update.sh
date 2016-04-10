@@ -32,9 +32,11 @@ mv .env.example .env
 sed -i 's/DB_DATABASE.*/DB_DATABASE=olm_app_server/' .env
 sed -i 's/DB_USERNAME.*/DB_USERNAME=root/' .env
 sed -i 's/DB_PASSWORD.*/DB_PASSWORD=root/' .env
+php artisan key:generate
 fi
 
 echoyellow "Settings permisions"
-chmod -R 777 $ran_from
+chmod -R 777 storage
+chmod -R 777 bootstrap/cache
 
 rm rainbow.sh

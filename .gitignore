@@ -3,6 +3,7 @@
 Homestead.yaml
 Homestead.json
 .env
-storage/logs
+# storage/logs
 # MacOS X specific
 .DS_Store
+composer.phar
