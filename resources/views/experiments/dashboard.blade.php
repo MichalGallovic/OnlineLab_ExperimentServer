@@ -60,6 +60,11 @@
 								:description="experimentDescription"
 								:series="experimentData"
 							></olm-graph>
+
+						</div>
+						<div class="col-lg-12" v-if="activeDevice.name == 'led_cube'">
+							<olm-webcam>
+							</olm-webcam>
 						</div>
 						<div
 						style="margin-top:40px;" 
@@ -226,6 +231,11 @@
 			</div>
 			</div>
 		</template>
+		<template id="webcam-template">
+			<div id="narrow">
+	           <img id="mjpeg_dest" />
+	       </div>
+		</template>
 	</div>
 	<script src="{{ asset('assets/js/jquery-1.12.1.js') }}"></script>
 	<script src="{{ asset('assets/js/bootstrap.min.js') }}"></script>
@@ -235,6 +245,7 @@
 	<script src="{{ asset('assets/js/noty/jquery.noty.packaged.min.js') }}"></script>
 	<script src="{{ asset('assets/js/noty/relax.js') }}"></script>
 	<script src="{{ asset('assets/js/noty/topRight.js') }}"></script>
+	<script src="{{ asset('script_min.js') }}"></script>
 	<script src="{{ asset('assets/js/app.js') }}"></script>
 </body>
 </html>

@@ -4,6 +4,9 @@ $(function () {
         headers: { 'X-CSRF-TOKEN': $('meta[name="_token"]').attr('content') }
     });
 });
+Vue.component('olm-webcam', {
+	template: "#webcam-template"
+});
 
 Vue.component('olm-input',{
 	template: "#input-template",
