@@ -231,13 +231,13 @@ abstract class AbstractDevice
     }
 
     protected function afterStart($input)
-    {
+    {/*
         $script = new StopScript(
                 $this->scriptPaths["stop"],
                 $this->device
             );
 
-        $script->run();
+        $script->run();*/
     }
 
     protected function beforeStop($input)
