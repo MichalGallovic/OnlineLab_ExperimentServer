@@ -1,0 +1,45 @@
+#!/bin/sh
+
+exec 2>/var/www/olm_app_server/storage/logs/devices/tos1a/scilab/Error.txt
+
+echo $1 > /var/www/olm_app_server/storage/logs/devices/tos1a/scilab/testText.txt
+echo $2 >> /var/www/olm_app_server/storage/logs/devices/tos1a/scilab/testText.txt
+echo $3 >> /var/www/olm_app_server/storage/logs/devices/tos1a/scilab/testText.txt
+
+port=$(echo $1 | awk '{ print substr( $1, 8, length($1) ) }')
+port="port=\"$port\";"
+echo $port >> /var/www/olm_app_server/storage/logs/devices/tos1a/scilab/testText.txt
+
+output=$(echo $2 | awk '{ print substr( $1, 10, length($1) ) }')
+output="output=\"$output\";"
+echo $output >> /var/www/olm_app_server/storage/logs/devices/tos1a/scilab/testText.txt
+
+userFcn=$(echo $3  | grep -o "user_function.*")
+n=${#userFcn}
+input=$(echo $3 | sed "s/\(.*\).\{$n\}/\1/")
+input=$(echo $input | awk '{ print substr( $1, 9, length($1) ) }' | tr : = | tr , ";")
+
+userFcn=$(echo $userFcn  | awk '{ print substr( $userFcn, 15, length($userFcn) ) }')
+userFcn='function y1=user_reg_func(u1,u2,u3,u4), '$userFcn'; endfunction;'
+
+echo $userFcn >> /var/www/olm_app_server/storage/logs/devices/tos1a/scilab/testText.txt
+#input=$(echo $input | awk '{print $input";"}')
+echo $input >> /var/www/olm_app_server/storage/logs/devices/tos1a/scilab/testText.txt
+
+scilabRunFile="exec /var/www/olm_app_server/server_scripts/tos1a/scilab/RunFile.sce;exit;"
+
+shmComm="get_shm_command='cat /var/www/olm_app_server/storage/logs/devices/tos1a/scilab/shm/change_input';"
+
+echo $port$output$input$userFcn$shmComm$scilabRunFile >> /var/www/olm_app_server/storage/logs/devices/tos1a/scilab/testText.txt
+
+
+export SCIHOME="/home/andrej/.Scilab/scilab-5.5.2"
+export DISPLAY=:1
+#xhost +
+#xterm -display :1 -e exit #'gnome-terminal -e \"scilab -d unix:0.0 -e "exec /var/www/udaq/model/runner.sce;"\"'
+#scilab -d unix:0.0 -nw -e "$1"
+#xterm -e exit
+
+scilab -d unix:1 -nw -e "$port$output$input$userFcn$shmComm$scilabRunFile"
+
+

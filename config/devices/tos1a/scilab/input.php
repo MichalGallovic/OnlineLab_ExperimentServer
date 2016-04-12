@@ -1,27 +1,112 @@
 <?php
 
 return [
-	// "command_name"	=>	[
-	// 	[
-	// 		"name"	=>	"form_name",
-	// 		"rules"	=>	"required",
-	// 		"title"	=>	"Form title",
-	// 		"placeholder"	=>	0.8 //Default form value,
-	// 		"type"	=>	"text"
-	// 	],
-	// 	[
-	// 		"name"	=>	"form_name2",
-	// 		"rules"	=>	"required",
-	// 		"title"	=>	"Form title2",
-	// 		"placeholder"	=>	0.8 //Default form value,
-	// 		"type"	=>	"textarea"
-	// 	],
-	// 		"name"	=>	"form_name3",
-	// 		"rules"	=>	"required",
-	// 		"title"	=>	"Form title2",
-	// 		"placeholder"	=>	0.8 //Default form value,
-	// 		"type"	=>	"checkbox",
-	// 		"values"	=>	["Prva","Druha","Tretia"]
-	// 	]
-	// ]
+	"start"  =>  [
+		[
+			"name"	=>	"required_value",
+			"rules"	=>	"required",
+			"title"	=>	"Required value  °C/lx/RPM",
+			"placeholder"	=>	30,
+			"type"	=>	"text"
+		],
+	 	[
+	 		"name"	=>	"out_sw",
+	 		"rules"	=>	"required",
+	 		"title"	=>	"Controlled variable",
+	 		"placeholder"	=>	0, 
+	 		"type"	=>	"select",
+	 		"values"	=>	["Temperature","Light Intensity","Fan RPM"]
+	 	],	
+	 	[
+	 		"name"	=>	"in_sw",
+	 		"rules"	=>	"required",
+	 		"title"	=>	"Control variable",
+	 		"placeholder"	=>	0, 
+	 		"type"	=>	"select",
+	 		"values"	=>	["Bulb","Led","Fan"]
+	 	],		
+		[
+			"name"	=>	"c_lamp",
+			"rules"	=>	"required",
+			"title"	=>	"Voltage of Bulb (0-100%)",
+			"placeholder"	=>	0,
+			"type"	=>	"text"
+		],
+		[
+			"name"	=>	"c_led",
+			"rules"	=>	"required",
+			"title"	=>	"Voltage of Led (0-100%)",
+			"placeholder"	=>	0,
+			"type"	=>	"text"
+		],
+		[
+			"name"	=>	"c_fan",
+			"rules"	=>	"required",
+			"title"	=>	"Voltage of Fan (0-100%)",
+			"placeholder"	=>	0,
+			"type"	=>	"text"
+		],		
+		[
+			"name"	=>	"time",
+			"rules"	=>	"required",
+			"title"	=>	"Simulation duration in s",
+			"placeholder"	=>	10,
+			"type"	=>	"text"
+		],
+		[
+			"name"	=>	"ts",
+			"rules"	=>	"required",
+			"title"	=>	"Sampling rate in ms",
+			"placeholder"	=>	200,
+			"type"	=>	"text"
+		],
+		[
+	 		"name"	=>	"own_ctrl",
+	 		"rules"	=>	"required",
+	 		"title"	=>	"Type of regulator",
+	 		"placeholder"	=>	0, 
+	 		"type"	=>	"radio",
+	 		"values"	=>	["PID","Own function"]
+	 	],
+	 	[
+			"name"	=>	"P",
+			"rules"	=>	"required",
+			"title"	=>	"P",
+			"placeholder"	=>	0.1,
+			"type"	=>	"text"
+		],
+		[
+			"name"	=>	"I",
+			"rules"	=>	"required",
+			"title"	=>	"I",
+			"placeholder"	=>	1.5,
+			"type"	=>	"text"
+		],
+		[
+			"name"	=>	"D",
+			"rules"	=>	"required",
+			"title"	=>	"D",
+			"placeholder"	=>	0,
+			"type"	=>	"text"
+		],
+		[
+	 		"name"	=>	"user_function",
+			"rules"	=>	"required",
+	 		"title"	=>	"Own function - in format y1=(something of four inputs u1,u2,u3,u4)",
+	 		"placeholder"	=>	"y1=u1", 
+	 		"type"	=>	"textarea"
+	 	]
+
+	],
+
+	"change"  =>  [
+		[
+			"name"	=>	"required_value",
+			"rules"	=>	"required",
+			"title"	=>	"Required value  °C/lx/RPM",
+			"placeholder"	=>	0,
+			"type"	=>	"text"
+		]
+	]
+
 ];

@@ -72,6 +72,7 @@ abstract class Script
         $builder->setArguments($arguments);
         
         $process = $builder->getProcess();
+        dd($timeout);
         $process->setTimeout($timeout);
         $process->start();
         $this->process = $process;
