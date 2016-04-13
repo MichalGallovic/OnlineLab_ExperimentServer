@@ -69,7 +69,6 @@ class DeviceController extends ApiController
         $this->experiment = $this->device->getCurrentOrRequestedExperiment($softwareName);
         $this->experiment->validate($command, $request->input('input'));
 
-
         if(method_exists($this, $command)) {
             return $this->$command($deviceDriver, $request);
         }
