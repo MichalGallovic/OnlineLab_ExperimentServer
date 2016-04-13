@@ -27,29 +27,45 @@ return [
 
 		"change"	=>	[
 		[
-			"name"	=>	"c_raw",
-			"rules"	=>	"required",
-			"title"	=>	"Arduino program v C",
-			"placeholder"	=>	'void setup() {                
-    pinMode(13, OUTPUT);     
-}
-
-void loop() {
-    digitalWrite(13, HIGH);   // set the LED on
-    delay(1000);              // wait for a second
-    digitalWrite(13, LOW);    // set the LED off
-    delay(1000);              // wait for a second
-} 
-				',
-			"type"	=>	"textarea"
-		],
-		[
 			"name"	=>	"type",
 			"rules"	=>	"required",
 			"title"	=>	"Jazyk vstupu",
 			"placeholder"	=>	'',
 			"type"	=>	"radio",
 			"values"	=>	["C","JavaScript"]
+		],
+		[
+			"name"	=>	"c_raw",
+			"rules"	=>	"required",
+			"title"	=>	"Arduino program v C",
+			"placeholder"	=>	'
+// Set a single voxel to ON
+void setvoxel(int x, int y, int z)
+{
+ if (inrange(x,y,z))
+   cube[z][y] |= (1 << x);
+}
+
+
+// Set a single voxel to OFF
+void clrvoxel(int x, int y, int z)
+{
+ if (inrange(x,y,z))
+   cube[z][y] &= ~(1 << x);
+}
+				',
+			"type"	=>	"textarea"
+		],
+		[
+			"name"	=>	"js_raw",
+			"rules"	=>	"required",
+			"title"	=>	"Arduino program v JS",
+			"placeholder"	=>	'
+on(1,1,1);
+on([2,4,8],8,1);
+off(1:5,1:5,1,2);
+				',
+			"type"	=>	"textarea"
 		]
 	]
 ];

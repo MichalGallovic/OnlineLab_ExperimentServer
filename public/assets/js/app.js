@@ -31,6 +31,7 @@ Vue.component('olm-input',{
 		}
 	},
 	ready: function() {
+		var me = this;
 		if(this.type == "checkbox") {
 			this.input = [];
 		}
@@ -41,16 +42,63 @@ Vue.component('olm-input',{
 		if(this.type == "radio") {
 			this.input = this.values[0];
 		}
+
+		if(this.type == "textarea") {
+			// Resize textareas to content height
+			setTimeout(function() {
+				me.resizeTextarea();
+			}, 1);
+		}
+
+		this.$on("change:input", function(type, value) {
+			if(type == "lang_type") {
+				if(me.name == "c_raw") {
+					if(value.toLowerCase() != "c") {
+						me.hide();
+					} else {
+						me.show();
+					}
+				} else if(me.name == "js_raw") {
+					if(value.toLowerCase() != "javascript") {
+						me.hide();
+					} else {
+						me.show();
+					}
+				}
+			}
+
+			me.postRender();
+		});
 	},
 	methods : {
 		getInputValues: function() {
-			// var inputFields = $(this.$els.input).find(':input');
-			// var inputValues = inputFields.map(function() {
-			// 	return $(this).val();
-			// }).get();
-
-			// return inputValues;
 			return this.input;
+		},
+		show : function() {
+			$(this.$el).show();
+		},
+		hide : function() {
+			$(this.$el).hide();
+		},
+		resizeTextarea: function() {
+			$textarea = $(this.$els.input);
+			$textarea.height($textarea[0].scrollHeight);
+		},
+		postRender: function() {
+			if(this.type == "textarea") {
+				this.resizeTextarea();
+			}
+		}
+	},
+	watch : {
+		input : function(newVal, oldVal) {
+			if(this.type == "radio") {
+				if(this.name == "type") {
+					if(newVal) {
+						this.$dispatch("change:input","lang_type",newVal);
+					}
+				}
+			}
 		}
 	}
 });
@@ -158,9 +206,14 @@ var vm = new Vue({
 	experimentIntervalId: null,
 	experimentMeasuringRate: null,
 	ready : function() {
+		var me = this;
 		$(this.$el).show();
 		this.getDevices();
-		this.showExperiments();		
+		this.showExperiments();
+
+		this.$on("change:input", function(type, value) {
+			me.$broadcast("change:input", type, value);
+		});	
 	},
 	data : {
 		fullWidth: false,
