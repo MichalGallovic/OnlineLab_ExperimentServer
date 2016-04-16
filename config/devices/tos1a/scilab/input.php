@@ -90,12 +90,20 @@ return [
 			"type"	=>	"text"
 		],
 		[
+			"name"	=>	"uploaded_file",
+			"rules"	=>	"",
+			"title"	=>	"File to upload",
+			"placeholder"	=>	"", 
+			"type"	=>	"file"
+		],
+		[
 	 		"name"	=>	"user_function",
-			"rules"	=>	"required",
+			"rules"	=>	"",
 	 		"title"	=>	"Own function - in format y1=(something of four inputs u1,u2,u3,u4)",
 	 		"placeholder"	=>	"y1=u1", 
 	 		"type"	=>	"textarea"
 	 	]
+
 
 	],
 

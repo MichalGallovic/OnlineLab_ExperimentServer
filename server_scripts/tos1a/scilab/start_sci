@@ -42,4 +42,3 @@ export DISPLAY=:1
 
 scilab -d unix:1 -nw -e "$port$output$input$userFcn$shmComm$scilabRunFile"
 
-
