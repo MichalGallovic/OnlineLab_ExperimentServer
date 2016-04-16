@@ -37,6 +37,7 @@ class Scilab extends AbstractDevice implements DeviceDriverContract {
 
     protected function start($input)
     {
+        //var_dump($input);
         // regulovana velicina vychadzajuca zo sustavy
         switch ($input["out_sw"]) {
         case "Temperature":
@@ -73,12 +74,15 @@ class Scilab extends AbstractDevice implements DeviceDriverContract {
         // prisposobenie vlastnej funkcie pre citatelnost v scilabe  
         
         $input["ts"] = ($input["ts"]) * (0.001); 
-        
+        $input["uploaded_file"] = "'".$input["uploaded_file"] ."'";
+        if($input["uploaded_file"]  != '') $input["own_ctrl"] = "2";
+
+        //var_dump($input);
+
         // reset required value on 0 in file, it is then loaded in scilab scheme, required value could be changed in change function
         $fileChange = "/var/www/olm_app_server/storage/logs/devices/tos1a/scilab/shm/change_input";
         file_put_contents("$fileChange", "0");
 
-        //dd($input);
         $script = new StartScriptScilab(
             $this->scriptPaths["start"],
             $input,
