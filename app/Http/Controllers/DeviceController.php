@@ -67,8 +67,20 @@ class DeviceController extends ApiController
         $deviceDriver->checkCommandSupport($command);
 
         $this->experiment = $this->device->getCurrentOrRequestedExperiment($softwareName);
+
         $this->experiment->validate($command, $request->input('input'));
 
+        $inputs = $request->input('input');
+
+        $normalizedInputs = $inputs;
+        // Normalize file inputs
+        foreach ($inputs as $name => $value) {
+            if($this->experiment->getInputType($command,$name) == "file") {
+                $filePath = storage_path("uploads/dev") . "/" . $value;
+                $path = $filePath;
+                $normalizedInputs[$name] = $path;
+            }
+        }
 
         if(method_exists($this, $command)) {
             return $this->$command($deviceDriver, $request);
@@ -77,9 +89,9 @@ class DeviceController extends ApiController
         $commandMethod = strtolower($command) . "Command";
 
         if (App::environment() == 'local') {
-            $output = $deviceDriver->$commandMethod($request->input("input"), 1);
+            $output = $deviceDriver->$commandMethod($normalizedInputs, 1);
         } else {
-            $output = $deviceDriver->$commandMethod($request->input("input"), $request->input("requested_by"));
+            $output = $deviceDriver->$commandMethod($normalizedInputs, $request->input("requested_by"));
         }
 
         return $output;
