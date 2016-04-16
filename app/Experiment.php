@@ -3,6 +3,7 @@
 namespace App;
 
 use Illuminate\Support\Str;
+use Illuminate\Support\Collection;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Validator;
 use App\Devices\Contracts\DeviceDriverContract;
@@ -48,6 +49,18 @@ class Experiment extends Model
         }
 
         return $inputNames;
+    }
+
+    public function getInputType($command, $name)
+    {
+        if(!isset($command) || !isset($name)) return null;
+
+        $input = new Collection($this->getInputArguments($command));
+        $input = $input->where('name',$name);
+
+        if($input->isEmpty()) return [];
+
+        return $input->first()["type"];
     }
 
     public function getInputRules($command = null)

@@ -28,8 +28,7 @@ class DeviceCommandRequest extends Request
     {
         return [
             "command" => "required|string",
-            "software" => "string",
-            "input" =>  "array"
+            "software" => "string"
         ];
     }
 
