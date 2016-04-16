@@ -83,7 +83,7 @@ class DeviceController extends ApiController
         }
 
         if(method_exists($this, $command)) {
-            return $this->$command($deviceDriver, $request);
+            return $this->$command($deviceDriver, $normalizedInputs);
         }
 
         $commandMethod = strtolower($command) . "Command";
@@ -104,14 +104,14 @@ class DeviceController extends ApiController
         return $this->respondWithError("Command execution ended with error!");
     }
 
-    protected function read(DeviceDriverContract $driver, Request $request)
+    protected function read(DeviceDriverContract $driver, $input)
     {
         $output = $driver->readCommand();
 
         return $this->respondWithItem($this->device, new ReadDeviceTransformer($output));
     }
 
-    protected function start(DeviceDriverContract $driver, Request $request)
+    protected function start(DeviceDriverContract $driver, $input)
     {
         // We don't want to run multiple experiments
         // at the same time, on once device
@@ -123,9 +123,9 @@ class DeviceController extends ApiController
         }
 
         if (App::environment() == 'local') {
-            $driver->startCommand($request->input("input"), 1);
+            $driver->startCommand($input, 1);
         } else {
-            $$driver->startCommand($request->input("input"), $request->input("requested_by"));
+            $$driver->startCommand($input, $request->input("requested_by"));
         }
 
         $this->device = $this->device->fresh();
@@ -145,7 +145,7 @@ class DeviceController extends ApiController
         return $this->respondWithSuccess($result);
     }
 
-    protected function status(DeviceDriverContract $driver, Request $request)
+    protected function status(DeviceDriverContract $driver, $input)
     {
         $status = $driver->statusCommand();
 
@@ -154,7 +154,7 @@ class DeviceController extends ApiController
             ]);
     }
 
-    protected function stop(DeviceDriverContract $driver, Request $request)
+    protected function stop(DeviceDriverContract $driver, $input)
     {
         if (is_null($this->device->currentExperimentLogger)) {
             throw new DeviceNotRunningExperimentException;
