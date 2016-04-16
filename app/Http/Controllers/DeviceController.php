@@ -71,8 +71,10 @@ class DeviceController extends ApiController
         $this->experiment->validate($command, $request->input('input'));
 
         $inputs = $request->input('input');
+        $inputs = isset($inputs) ? $inputs : [];
 
         $normalizedInputs = $inputs;
+
         // Normalize file inputs
         foreach ($inputs as $name => $value) {
             if($this->experiment->getInputType($command,$name) == "file") {
@@ -137,8 +139,8 @@ class DeviceController extends ApiController
         $this->device->detachPids();
 
         // Delete uploaded files
-        foreach ($inputs as $name => $value) {
-            if($this->experiment->getInputType($command,$name) == "file") {
+        foreach ($input as $name => $value) {
+            if($this->experiment->getInputType("start",$name) == "file") {
                 File::delete($value);
             }
         }
