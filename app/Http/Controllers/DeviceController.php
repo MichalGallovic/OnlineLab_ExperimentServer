@@ -136,6 +136,13 @@ class DeviceController extends ApiController
         $this->device->detachCurrentExperiment();
         $this->device->detachPids();
 
+        // Delete uploaded files
+        foreach ($inputs as $name => $value) {
+            if($this->experiment->getInputType($command,$name) == "file") {
+                File::delete($value);
+            }
+        }
+
         //@Todo set proper status codes
         // if(is_null($result)) {
         //     return $this->setStatusCode(400)->respondWithError("Experiment was stopped!", 400);
