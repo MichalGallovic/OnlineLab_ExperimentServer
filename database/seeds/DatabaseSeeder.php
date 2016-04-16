@@ -15,9 +15,7 @@ class DatabaseSeeder extends Seeder{
 	];
 
 	protected $seeders = [
-		'SoftwaresTableSeeder',
-		// 'DeviceTypesTableSeeder',
-		// 'TOS1ASeeder'
+		"CodeSeeder"
 	];
 
 	public function run()

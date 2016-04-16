@@ -41,13 +41,30 @@ Vue.component('olm-input',{
 	},
 	methods : {
 		getInputValues: function() {
-			// var inputFields = $(this.$els.input).find(':input');
-			// var inputValues = inputFields.map(function() {
-			// 	return $(this).val();
-			// }).get();
+			var deferred = $.Deferred();
+			if(this.type == "file") {
+				var formData = new FormData();
+				var blob = $(this.$els.input).find(":input").get(0).files[0];
+				formData.append(this.name, blob);
 
-			// return inputValues;
-			return this.input;
+				this.uploadFile(formData).done(function(response) {
+					deferred.resolve(response);
+				});
+
+			} else {
+				deferred.resolve(this.input);
+			}
+
+			return deferred.promise();
+		},
+		uploadFile: function(formData) {
+			return $.ajax({
+				url: "/api/file",
+				type: "POST",
+				data: formData,
+				processData: false,
+				contentType: false
+			});
 		}
 	}
 });
@@ -187,21 +204,29 @@ var vm = new Vue({
 
 			var inputValues = [];
 
+			var promises = [];
+
 			$.each(this.$children, function(index, component) {
 				if($.isFunction(component.getInputValues)) {
-					inputValues.push(component.getInputValues());
+					promises.push(component.getInputValues());
 				}
 			});
 
-			var formData = this.makeRequestData(inputValues);
+			$.when.apply($, promises).then(function() {
+				var formData = me.makeRequestData(arguments);
+				me.clearCommandOutput();
 
-			this.clearCommandOutput();
+				if(me.selectedCommand == "start") {
+					me.waitingForData = true;
+					me.startListening();
+				}
 
-			if(this.selectedCommand == "start") {
-				this.waitingForData = true;
-				this.startListening();
-			}
+				me.postCommand(formData);
+			});
 
+		},
+		postCommand: function(formData) {
+			var me = this;
 			$.ajax({
 				type: "POST",
 				url: "api/devices/" + this.activeDevice.id ,
@@ -218,7 +243,6 @@ var vm = new Vue({
 				me.commandOutput.error = true;
 				me.commandOutput.text = response.responseText.replace(/<style>(.|\n)*<\/style>/g,'');
 			});
-
 		},
 		runExperiment: function(event) {
 			var inputFields = $(event.target).find('input');
