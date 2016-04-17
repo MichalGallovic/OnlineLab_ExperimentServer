@@ -24,7 +24,6 @@ class RunExperiment extends Job implements ShouldQueue
      */
     public function __construct($input)
     {
-        //
         $this->input = $input;
     }
 
@@ -38,13 +37,20 @@ class RunExperiment extends Job implements ShouldQueue
         $deviceName = $this->input['device'];
         $softwareName = $this->input['software'];
         $result = "";
-        try {
-            $experiment = new ExperimentService($this->input, $deviceName, $softwareName);
-            $result = $experiment->run();
-        } catch(ModelNotFoundException $e) {
-            // return $this->errorNotFound("Experiment not found");
-        } catch(ExperimentCommandsNotDefined $e) {
-            // return $this->setStatusCode(401)->respondWithError($e->getMessage(), 401);
-        }
+
+        $experiment = new ExperimentService($this->input, $deviceName, $softwareName);
+        $result = $experiment->run();
+
+        var_dump($experiment->getExperimentLog());
+    }
+
+    /**
+     * Gets the value of experimentLog.
+     *
+     * @return mixed
+     */
+    public function getExperimentLog()
+    {
+        return $this->experimentLog;
     }
 }

@@ -13,6 +13,7 @@ use App\Classes\Services\ExperimentService;
 use App\Http\Requests\ExperimentLogRequest;
 use App\Http\Requests\ExperimentRunRequest;
 use App\Classes\Transformers\ExperimentLogTransformer;
+use App\Classes\Validators\ExperimentServiceValidator;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
 use App\Classes\Services\Exceptions\ExperimentCommandsNotDefined;
 
@@ -29,7 +30,7 @@ class ExperimentController extends ApiController
     {
         $deviceName = $request->input('device');
         $softwareName = $request->input('software');
-        $result = "";
+        
         try {
             $experiment = new ExperimentService($request->input(), $deviceName, $softwareName);
             $result = $experiment->run();

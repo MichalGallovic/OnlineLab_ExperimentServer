@@ -43,6 +43,8 @@ class StopScript extends Script
             $allPids = array_merge($this->getAllChildProcesses($pid), $allPids);
         }
 
+        $allPids = array_merge($parentPids, $allPids);
+
         // Kill all processes created by script
         foreach ($allPids as $pid) {
             $arguments = [
