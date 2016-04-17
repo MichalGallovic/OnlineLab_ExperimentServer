@@ -23,6 +23,8 @@ Route::group(['prefix' => 'api'], function() {
 
 	Route::get('experiments/latest',['uses' => 'ExperimentController@latest']);
 	Route::get('experiments/delete',['uses' => 'ExperimentController@destroy']);
+	Route::post('experiments/run', ['uses' => 'ExperimentController@run']);
+	Route::post('experiments/queue', ['uses' => 'ExperimentController@queue']);
 	Route::get('experiments/{id}',['uses' => 'ExperimentController@show']);
 
 	Route::get('server/experiments',['uses' => 'ServerController@experiments']);
