@@ -1,6 +1,6 @@
 #!/bin/sh
 
-exec 2>/var/www/olm_app_server/storage/logs/devices/tos1a/scilab/Error.txt
+#exec 2>/var/www/olm_app_server/storage/logs/devices/tos1a/scilab/Error.txt
 
 echo $1 > /var/www/olm_app_server/storage/logs/devices/tos1a/scilab/testText.txt
 echo $2 >> /var/www/olm_app_server/storage/logs/devices/tos1a/scilab/testText.txt
@@ -26,9 +26,12 @@ echo $userFcn >> /var/www/olm_app_server/storage/logs/devices/tos1a/scilab/testT
 #input=$(echo $input | awk '{print $input";"}')
 echo $input >> /var/www/olm_app_server/storage/logs/devices/tos1a/scilab/testText.txt
 
-scilabRunFile="exec /var/www/olm_app_server/server_scripts/tos1a/scilab/RunFile.sce;exit;"
+ran_from=$(dirname "$0");
+echo $ran_from >> /var/www/olm_app_server/storage/logs/devices/tos1a/scilab/testText.txt
 
-shmComm="get_shm_command='cat /var/www/olm_app_server/storage/logs/devices/tos1a/scilab/shm/change_input';"
+scilabRunFile="exec $ran_from/RunFile.sce;exit;"
+
+shmComm="get_shm_command='cat $ran_from/shm/change_input';"
 
 echo $port$output$input$userFcn$shmComm$scilabRunFile >> /var/www/olm_app_server/storage/logs/devices/tos1a/scilab/testText.txt
 
@@ -41,4 +44,3 @@ export DISPLAY=:1
 #xterm -e exit
 
 scilab -d unix:1 -nw -e "$port$output$input$userFcn$shmComm$scilabRunFile"
-

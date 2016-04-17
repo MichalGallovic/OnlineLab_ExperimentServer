@@ -74,13 +74,13 @@ class Scilab extends AbstractDevice implements DeviceDriverContract {
         // prisposobenie vlastnej funkcie pre citatelnost v scilabe  
         
         $input["ts"] = ($input["ts"]) * (0.001); 
+
+        if( is_file($input["uploaded_file"]) && file_exists( $input["uploaded_file"]) ) $input["own_ctrl"] = "2";
         $input["uploaded_file"] = "'".$input["uploaded_file"] ."'";
-        if($input["uploaded_file"]  != '') $input["own_ctrl"] = "2";
-
-        //var_dump($input);
-
+        
         // reset required value on 0 in file, it is then loaded in scilab scheme, required value could be changed in change function
-        $fileChange = "/var/www/olm_app_server/storage/logs/devices/tos1a/scilab/shm/change_input";
+        $serverPath = str_replace("/public", "", $_SERVER["DOCUMENT_ROOT"]);
+        $fileChange = "$serverPath/server_scripts/tos1a/scilab/shm/change_input";
         file_put_contents("$fileChange", "0");
 
         $script = new StartScriptScilab(
@@ -96,7 +96,8 @@ class Scilab extends AbstractDevice implements DeviceDriverContract {
 
     protected function change($input)
     {
-        $fileChange = "/var/www/olm_app_server/storage/logs/devices/tos1a/scilab/shm/change_input";
+        $serverPath = str_replace("/public", "", $_SERVER["DOCUMENT_ROOT"]);
+        $fileChange = "$serverPath/server_scripts/tos1a/scilab/shm/change_input";
 
         file_put_contents("$fileChange", $input["required_value"]);
 
