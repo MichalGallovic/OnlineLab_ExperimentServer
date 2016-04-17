@@ -15,6 +15,7 @@ use App\Http\Requests\DeviceRequest;
 use Illuminate\Support\Facades\File;
 use App\Http\Controllers\ApiController;
 use Illuminate\Support\Facades\Artisan;
+use App\Classes\Services\CommandService;
 use App\Http\Requests\DeviceInitRequest;
 use App\Http\Requests\DeviceStopRequest;
 use App\Http\Requests\DeviceStartRequest;
@@ -40,7 +41,6 @@ class DeviceController extends ApiController
     protected $deviceRepository;
 
     protected $device;
-    protected $experiment;
 
     public function __construct(Manager $fractal, DeviceDbRepository $deviceRepo)
     {
@@ -50,127 +50,47 @@ class DeviceController extends ApiController
 
     public function executeCommand(DeviceCommandRequest $request, $id)
     {
-        // Do we have this device in DB ?
         try {
-            $this->device = $this->deviceRepository->getById($id);
+            $command = new CommandService($request->input(), $id);
+            $this->device = $command->getDevice();
+            $result = $command->execute();
         } catch (ModelNotFoundException $e) {
             return $this->errorNotFound("Device not found");
         }
 
-        $software = Software::where('name', strtolower($request->input('software')))->first();
-        
-        $softwareName = !is_null($software) ? $software->name : null;        
+        $commandName = $command->getName();
 
-        // Is command implemented on this experiment ? (device + software)
-        $deviceDriver = $this->device->driver($softwareName);
-        $command = $request->input('command');
-        $deviceDriver->checkCommandSupport($command);
-
-        $this->experiment = $this->device->getCurrentOrRequestedExperiment($softwareName);
-
-        $this->experiment->validate($command, $request->input('input'));
-
-        $inputs = $request->input('input');
-        $inputs = isset($inputs) ? $inputs : [];
-
-        $normalizedInputs = $inputs;
-
-        // Normalize file inputs
-        foreach ($inputs as $name => $value) {
-            if($this->experiment->getInputType($command,$name) == "file") {
-                $filePath = storage_path("uploads/dev") . "/" . $value;
-                $path = $filePath;
-                $normalizedInputs[$name] = $path;
-            }
+        if(method_exists($this, $commandName)) {
+            return $this->{$commandName}($result);
         }
 
-        if(method_exists($this, $command)) {
-            return $this->$command($deviceDriver, $normalizedInputs);
-        }
-
-        $commandMethod = strtolower($command) . "Command";
-
-        if (App::environment() == 'local') {
-            $output = $deviceDriver->$commandMethod($normalizedInputs, 1);
-        } else {
-            $output = $deviceDriver->$commandMethod($normalizedInputs, $request->input("requested_by"));
-        }
-
-        return $output;
-        
-        //@Todo check success
-        // if($deviceDriver->commandSuccessful()) {
-        //     return $this->respondWithSuccess("Command executed successfully");
-        // }
-
-        return $this->respondWithError("Command execution ended with error!");
+        return $result;
     }
 
-    protected function read(DeviceDriverContract $driver, $input)
+    protected function start($result)
     {
-        $output = $driver->readCommand();
-
-        return $this->respondWithItem($this->device, new ReadDeviceTransformer($output));
-    }
-
-    protected function start(DeviceDriverContract $driver, $input)
-    {
-        // We don't want to run multiple experiments
-        // at the same time, on once device
-        // @Todo do not forget about this :D
-        if(App::environment() != "local") {
-            if (!is_null($this->device->currentExperiment)) {
-                throw new DeviceAlreadyRunningExperimentException;
-            }
-        }
-
-        if (App::environment() == 'local') {
-            $driver->startCommand($input, 1);
-        } else {
-            $$driver->startCommand($input, $request->input("requested_by"));
-        }
-
-        $this->device = $this->device->fresh();
-
-        $logger = $this->device->currentExperimentLogger;
-        $result = is_null($logger) ? null : $logger->getResult();
-
-        $this->device->detachCurrentExperiment();
-        $this->device->detachPids();
-
-        // Delete uploaded files
-        foreach ($input as $name => $value) {
-            if($this->experiment->getInputType("start",$name) == "file") {
-                File::delete($value);
-            }
-        }
-
         //@Todo set proper status codes
         // if(is_null($result)) {
         //     return $this->setStatusCode(400)->respondWithError("Experiment was stopped!", 400);
         // }
 
-        $result = "Experiment ended";
         return $this->respondWithSuccess($result);
     }
 
-    protected function status(DeviceDriverContract $driver, $input)
+    protected function read($result)
     {
-        $status = $driver->statusCommand();
+        return $this->respondWithItem($this->device, new ReadDeviceTransformer($result));
+    }
 
+    protected function status($result)
+    {
         return $this->respondWithArray([
-                "status" => $status
+                "status" => $result
             ]);
     }
 
-    protected function stop(DeviceDriverContract $driver, $input)
+    protected function stop($result)
     {
-        if (is_null($this->device->currentExperimentLogger)) {
-            throw new DeviceNotRunningExperimentException;
-        }
-
-        $driver->stopCommand();
-
         // if (!$didStop) {
         //     return $this->errorInternalError("Experiment did not stop");
         // }
