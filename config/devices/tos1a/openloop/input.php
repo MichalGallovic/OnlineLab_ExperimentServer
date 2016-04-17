@@ -36,12 +36,6 @@ return [
 			"title"	=>	"Vzorkovací čas",
 			"placeholder"	=>	200,
 			"type"	=>	"text"
-		],
-		[
-			"name"	=>	"regulator",
-			"rules"	=>	"required",
-			"title"	=>	"Regulator",
-			"type"	=>	"file"
 		]
 	]
 ];
