@@ -28,6 +28,7 @@ Route::group(['prefix' => 'api'], function() {
 	Route::get('server/experiments',['uses' => 'ServerController@experiments']);
 	Route::get('server/experiments/{id}',['uses' => 'ServerController@showExperiment']);
 	Route::get('server/devices',['uses' => 'ServerController@devices']);
+	Route::get('server/status',['uses' => 'ServerController@status']);
 
 	// Development
 	Route::post('file',['uses' => 'DevelopmentController@upload']);
