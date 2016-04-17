@@ -2,6 +2,7 @@
 
 namespace App\Classes\Services;
 
+use App\ExperimentLog;
 use Illuminate\Support\Facades\DB;
 
 /**
@@ -50,7 +51,8 @@ class SystemStatusService
 	protected function checkDatabase()
 	{
 		try {
-			DB::connection()->getDatabaseName();
+			// Pingping whatever table to check connection
+			ExperimentLog::first();
 			$this->database = true;
 		} catch(\Exception $e) {
 			$this->database = false;
