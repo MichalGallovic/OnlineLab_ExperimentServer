@@ -51,7 +51,7 @@ class DeviceController extends ApiController
     public function executeCommand(DeviceCommandRequest $request, $id)
     {
         try {
-            $command = new CommandService($request->input('command'),$request->input(), $id);
+            $command = new CommandService($request->input(), $id);
             $this->device = $command->getDevice();
             $result = $command->execute();
         } catch (ModelNotFoundException $e) {

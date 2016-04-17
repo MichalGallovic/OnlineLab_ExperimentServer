@@ -42,7 +42,7 @@ class Openloop extends AbstractDevice implements DeviceDriverContract
 				$this->scriptPaths["stop"],
 				$this->device
 			);
-
+		
 		$script->run();
 	}
 

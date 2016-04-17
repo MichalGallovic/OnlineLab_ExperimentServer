@@ -53,6 +53,12 @@ class CommandService
 	 */
 	protected $commandInput;
 
+	/**
+	 * Experiment Log 
+	 * @var App\ExperimentLog
+	 */
+	protected $experimentLog;
+
 	public function __construct(array $input, $deviceId)
 	{
 		$this->comamnds = DeviceDriverContract::AVAILABLE_COMMANDS;
@@ -91,11 +97,9 @@ class CommandService
 
 	protected function start(DeviceDriverContract $driver, $input)
 	{
-		if(App::environment() != "local") {
-		    if (!is_null($this->device->currentExperiment)) {
-		        throw new DeviceAlreadyRunningExperimentException;
-		    }
-		}
+	    if (!is_null($this->device->currentExperiment)) {
+	        throw new DeviceAlreadyRunningExperimentException;
+	    }
 
 		// On local dev environment, we are faking
 		// who requested the command - user_id
@@ -107,8 +111,8 @@ class CommandService
 
 		$this->device = $this->device->fresh();
 
-		$logger = $this->device->currentExperimentLogger;
-		$result = is_null($logger) ? null : $logger->getResult();
+		$this->experimentLog = $this->device->currentExperimentLogger;
+		$result = is_null($this->experimentLog) ? null : $this->experimentLog->getResult();
 
 		$this->device->detachCurrentExperiment();
 		$this->device->detachPids();
@@ -140,6 +144,8 @@ class CommandService
         }
 
 		$driver->stopCommand();
+		$this->device->detachCurrentExperiment();
+		$this->device->detachPids();
 	}
 
 	protected function resolveDeviceDriver()
@@ -187,5 +193,15 @@ class CommandService
     public function getDevice()
     {
         return $this->device;
+    }
+
+    /**
+     * Gets the Experiment Log.
+     *
+     * @return App\ExperimentLog
+     */
+    public function getExperimentLog()
+    {
+        return $this->experimentLog;
     }
 }

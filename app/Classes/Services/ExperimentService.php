@@ -26,14 +26,21 @@ class ExperimentService
 	 * @var array
 	 */
 	protected $commandsToExecute;
+
+	/**
+	 * Experiment log
+	 * @var App\ExperimentLog
+	 */
+	protected $experimentLog;
+
 	public function __construct($input, $deviceName, $softwareName)
 	{
 		$this->input = $input;
 		$this->experiment = $this->getExperiment($deviceName, $softwareName);
 		$this->device = $this->experiment->device;
-		$this->commands = $this->getExperimentCommands($deviceName, $softwareName);
+		$this->commandsToExecute = $this->getExperimentCommands($deviceName, $softwareName);
 
-		if(is_null($this->commands) || !is_array($this->commands) || empty($this->commands)) {
+		if(is_null($this->commandsToExecute) || !is_array($this->commandsToExecute) || empty($this->commandsToExecute)) {
 			throw new ExperimentCommandsNotDefined($deviceName, $softwareName);
 		}
 	}
@@ -59,13 +66,26 @@ class ExperimentService
 	public function run()
 	{
 		$results = [];
-		foreach ($this->commands as $commandName) {
+		foreach ($this->commandsToExecute as $commandName) {
 			$input = $this->input;
 			$input["input"] = Arr::get($input,"input.".$commandName);
 			$input["command"] = $commandName;
 			$command = new CommandService($input, $this->device->id);
 			$results[$commandName] = $command->execute();
+			if(is_null($this->experimentLog)) {
+				$this->experimentLog = $command->getExperimentLog();
+			}
 		}
 		return $results;
 	}
+
+    /**
+     * Gets the Experiment log.
+     *
+     * @return App\ExperimentLog
+     */
+    public function getExperimentLog()
+    {
+        return $this->experimentLog;
+    }
 }
