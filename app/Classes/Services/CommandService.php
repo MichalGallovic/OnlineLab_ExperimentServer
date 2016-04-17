@@ -78,7 +78,8 @@ class CommandService
 		if (App::environment() == 'local') {
 		    $output = $deviceDriver->$commandMethod($input, 1);
 		} else {
-		}
+			$output = $deviceDriver->$commandMethod($input, $this->input("requested_by"));
+		}	
 
 		return $output;
 	}
@@ -101,6 +102,7 @@ class CommandService
 		if (App::environment() == 'local') {
 		    $driver->startCommand($input, 1);
 		} else {
+			$driver->startCommand($input, $this->input("requested_by"));
 		}
 
 		$this->device = $this->device->fresh();
