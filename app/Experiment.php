@@ -192,4 +192,13 @@ class Experiment extends Model
             return [];
         }
     }
+
+    public function getExperimentCommands()
+    {
+        $deviceName = Str::lower($this->device->type->name);
+        $softwareName = Str::lower($this->software->name);
+        $configKeys = "experiments." . $deviceName . "." . $softwareName;
+
+        return config($configKeys);
+    }
 }
