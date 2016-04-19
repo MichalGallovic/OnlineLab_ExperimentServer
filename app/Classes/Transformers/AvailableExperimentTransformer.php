@@ -21,7 +21,8 @@ class AvailableExperimentTransformer extends TransformerAbstract
 		return [
 			"id"	=>	$experiment->id,
 			"device" 		=>	$experiment->device->type->name,
-			"software"	=>	$experiment->software->name
+			"software"	=>	$experiment->software->name,
+			"connected" => $experiment->device->connected()
 		];
 	}
 

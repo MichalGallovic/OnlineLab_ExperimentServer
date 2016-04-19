@@ -11,7 +11,6 @@ class DeviceTransformer extends TransformerAbstract
 	public function transform(Device $device)
 	{
 		$experiments = $device->experiments;
-
 		$available_experiments = [];
 
 		foreach ($experiments as $experiment) {

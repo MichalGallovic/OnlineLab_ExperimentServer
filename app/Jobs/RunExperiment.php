@@ -8,6 +8,7 @@ use Illuminate\Queue\SerializesModels;
 use Illuminate\Queue\InteractsWithQueue;
 use App\Classes\Services\ExperimentService;
 use Illuminate\Contracts\Queue\ShouldQueue;
+use App\Devices\Exceptions\DeviceNotConnectedException;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
 use App\Classes\Services\Exceptions\ExperimentCommandsNotDefined;
 
@@ -38,10 +39,14 @@ class RunExperiment extends Job implements ShouldQueue
         $softwareName = $this->input['software'];
         $result = "";
 
-        $experiment = new ExperimentService($this->input, $deviceName, $softwareName);
-        $result = $experiment->run();
+        try {
+            $experiment = new ExperimentService($this->input, $deviceName, $softwareName);
+            $result = $experiment->run();
+        } catch(DeviceNotConnectedException $e) {
+            var_dump("Device is not connected :(");
+        }
 
-        var_dump($experiment->getExperimentLog());
+        // var_dump($experiment->getExperimentLog());
     }
 
     /**
