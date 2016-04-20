@@ -3,6 +3,7 @@
 namespace App\Classes\Services;
 
 use App\Experiment;
+use App\ExperimentLog;
 use Illuminate\Support\Arr;
 use App\Classes\WebServer\Server;
 use App\Classes\Services\Exceptions\ExperimentCommandsNotDefined;
@@ -88,6 +89,19 @@ class ExperimentService
 	{
 		$server = new Server(config("webserver.ip"));
 		$server->updateExperimentStatus($this->experiment, "ready");
+	}
+
+	public function updateReportWs(ExperimentLog $log, $reportId)
+	{
+		$outputData = $log->readExperiment();
+		$outputArguments = $log->experiment->getOutputArguments();
+		$output = [];
+		if(count(array_keys($outputData)) == count($outputArguments)) {
+			$output = array_combine($outputArguments, $outputData);
+		}
+
+		$server = new Server(config("webserver.ip"));
+		$server->updateExperimentReport($output, $reportId);
 	}
 
     /**

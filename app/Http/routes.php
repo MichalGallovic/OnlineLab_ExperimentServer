@@ -1,7 +1,9 @@
 <?php
 
 use App\Experiment;
+use App\ExperimentLog;
 use App\Classes\WebServer\Server;
+use App\Classes\Services\ExperimentService;
 
 /*
 |--------------------------------------------------------------------------
@@ -53,8 +55,5 @@ Route::group(['middleware' => ['web']], function () {
 });
 
 Route::get("testik", function() {
-	$server = new Server(config("webserver.ip"));
-	$experiment = Experiment::first();
-
-	dd($server->updateExperimentStatus($experiment, "offline"));
+	
 });
