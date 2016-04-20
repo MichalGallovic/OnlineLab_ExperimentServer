@@ -4,6 +4,7 @@ namespace App\Jobs;
 
 use App\Jobs\Job;
 use Illuminate\Http\Request;
+use App\Classes\WebServer\Server;
 use Illuminate\Queue\SerializesModels;
 use Illuminate\Queue\InteractsWithQueue;
 use App\Classes\Services\ExperimentService;
@@ -45,6 +46,8 @@ class RunExperiment extends Job implements ShouldQueue
         } catch(DeviceNotConnectedException $e) {
             var_dump("Device is not connected :(");
         }
+
+       $experiment->updateStatusWS("ready");
 
         // var_dump($experiment->getExperimentLog());
     }
