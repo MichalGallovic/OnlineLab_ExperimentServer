@@ -72,7 +72,7 @@ class Server
 
     public function updateExperimentReport($output, $reportId)
     {
-        return $this->postExperimentStatusUpdate($output, $reportId);   
+        return $this->postExperimentReport($output, $reportId);   
     }
 
     protected function postExperimentReport($output, $reportId)
@@ -82,6 +82,7 @@ class Server
         ];
 
         $body = $this->post("report/" . $reportId,$input);
+
         return $body;
     }
 

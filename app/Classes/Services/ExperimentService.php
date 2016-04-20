@@ -101,6 +101,7 @@ class ExperimentService
 		}
 
 		$server = new Server(config("webserver.ip"));
+
 		$server->updateExperimentReport($output, $reportId);
 	}
 
