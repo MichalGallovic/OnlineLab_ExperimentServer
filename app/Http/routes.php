@@ -1,5 +1,8 @@
 <?php
 
+use App\Experiment;
+use App\Classes\WebServer\Server;
+
 /*
 |--------------------------------------------------------------------------
 | Routes File
@@ -47,4 +50,11 @@ Route::group(['middleware' => ['web']], function () {
 	Route::get("generate/device/{id}/code",['uses' => 'DevelopmentController@generateCode']);
 	Route::get("reset", ['uses'	=>	'DevelopmentController@showReset']);
 	Route::get("reset/database", ['uses' => 'DevelopmentController@resetDatabase']);
+});
+
+Route::get("testik", function() {
+	$server = new Server(config("webserver.ip"));
+	$experiment = Experiment::first();
+
+	dd($server->updateExperimentStatus($experiment, "offline"));
 });

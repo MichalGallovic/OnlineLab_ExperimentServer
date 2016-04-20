@@ -4,6 +4,7 @@ namespace App\Classes\Services;
 
 use App\Experiment;
 use Illuminate\Support\Arr;
+use App\Classes\WebServer\Server;
 use App\Classes\Services\Exceptions\ExperimentCommandsNotDefined;
 
 /**
@@ -81,6 +82,12 @@ class ExperimentService
 			}
 		}
 		return $results;
+	}
+
+	public function updateStatusWS($status)
+	{
+		$server = new Server(config("webserver.ip"));
+		$server->updateExperimentStatus($this->experiment, "ready");
 	}
 
     /**
