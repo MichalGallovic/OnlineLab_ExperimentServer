@@ -22,7 +22,7 @@ class AvailableExperimentTransformer extends TransformerAbstract
 			"device" 		=>	$experiment->device->type->name,
 			"device_name"	=>	$experiment->device->name,
 			"software"	=>	$experiment->software->name,
-			"connected" => $experiment->device->connected()
+			"status" => $experiment->device->status()
 		];
 	}
 
