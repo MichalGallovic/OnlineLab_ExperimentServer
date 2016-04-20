@@ -48,8 +48,7 @@ class RunExperiment extends Job implements ShouldQueue
         }
 
        $experiment->updateStatusWS("ready");
-
-        // var_dump($experiment->getExperimentLog());
+       $experiment->updateReportWs($experiment->getExperimentLog(), $this->input["report_id"]);
     }
 
     /**

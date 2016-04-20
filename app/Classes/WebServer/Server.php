@@ -70,6 +70,21 @@ class Server
         return $this->postExperimentStatusUpdate($experiment, $status);
     }
 
+    public function updateExperimentReport($output, $reportId)
+    {
+        return $this->postExperimentStatusUpdate($output, $reportId);   
+    }
+
+    protected function postExperimentReport($output, $reportId)
+    {
+        $input = [
+            "report"  => $output
+        ];
+
+        $body = $this->post("report/" . $reportId,$input);
+        return $body;
+    }
+
     protected function postExperimentStatusUpdate($experiment, $status)
     {
         $input = [
@@ -80,7 +95,6 @@ class Server
         ];
 
         $body = $this->post("experiments/status",$input);
-
         return $body;
     }
 
