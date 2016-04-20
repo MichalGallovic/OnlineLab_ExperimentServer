@@ -24,7 +24,7 @@
         <table class="table table-bordered table-striped table-hover">
             <thead>
                 <tr>
-                    <th>S.No</th><th>Device Type</th><th>Port</th><th>Supported softwares</th><th>Default software</th><th>Actions</th>
+                    <th>Name</th><th>Type</th><th>Port</th><th>Supported softwares</th><th>Default software</th><th>Actions</th>
                 </tr>
             </thead>
             <tbody>
@@ -32,7 +32,7 @@
             @foreach($devices as $item)
                 {{-- */$x++;/* --}}
                 <tr>
-                    <td>{{ $x }}</td>
+                    <td><a href="{{ url('device', $item->id) }}">{{ $item->name }}</a></td>
                     <td><a href="{{ url('device', $item->id) }}">{{ $item->type->name }}</a></td>
                     <td><a href="{{ url('device', $item->id) }}">{{ $item->port }}</a></td>
                     <td><a href="{{ url('device', $item->id) }}">@foreach($item->softwares->lists('name') as $softwareName){{ $softwareName }} @endforeach</a></td>
@@ -40,7 +40,7 @@
                     <td>
                         <a href="{{ url('device/' . $item->id . '/edit') }}">
                         <button type="submit" class="btn btn-primary btn-xs">Update</button>
-                        </a> /
+                        </a> 
                         {!! Form::open([
                             'method'=>'DELETE',
                             'url' => ['device', $item->id],

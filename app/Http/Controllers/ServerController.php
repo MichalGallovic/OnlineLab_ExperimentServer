@@ -28,7 +28,7 @@ class ServerController extends ApiController
     public function experiments(Request $request)
     {
     	$experimnets = Experiment::all();
-
+        
     	return $this->respondWithCollection($experimnets, new AvailableExperimentTransformer);
     }
 

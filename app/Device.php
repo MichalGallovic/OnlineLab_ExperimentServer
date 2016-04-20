@@ -15,7 +15,7 @@ use App\Devices\Exceptions\DeviceNotConnectedException;
 
 class Device extends Model
 {
-    protected $fillable = ["device_type_id","port"];
+    protected $fillable = ["device_type_id","port","name"];
     public function driver($softwareName = null)
     {
         if ($this->isOffline()) {
