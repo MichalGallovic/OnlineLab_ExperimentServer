@@ -155,25 +155,19 @@ class Device extends Model
         return !File::exists($this->port);
     }
 
-    public function getStatus()
+    public function status()
     {
-        if ($this->isOffline()) {
-            $this->status = DeviceDriverContract::STATUS_OFFLINE;
-            $this->save();
-            return $this->status;
+        if($this->isOffline()) {
+            return DeviceDriverContract::STATUS_OFFLINE;
         }
 
-        // Database says the device if offline, but reality is,
-        // there is a something connected at port of this
-        // device, so we better check it out, if status
-        // is not outdated
-        if ($this->status == DeviceDriverContract::STATUS_OFFLINE) {
-            $driver = $this->driver();
-            $this->status = $driver->status();
-            $this->save();
+        $currentExperiment = $this->currentExperiment;
+
+        if(!is_null($currentExperiment)) {
+            return DeviceDriverContract::STATUS_EXPERIMENTING;
         }
 
-        return $this->status;
+        return DeviceDriverContract::STATUS_READY;
     }
 
     public function resetDevice()
