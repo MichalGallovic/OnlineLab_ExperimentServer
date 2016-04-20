@@ -80,7 +80,7 @@ class Server
         ];
 
         $body = $this->post("experiments/status",$input);
-        dd($body);
+
         return $body;
     }
 
