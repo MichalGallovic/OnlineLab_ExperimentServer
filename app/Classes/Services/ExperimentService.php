@@ -36,7 +36,8 @@ class ExperimentService
 	public function __construct($input, $deviceName, $softwareName)
 	{
 		$this->input = $input;
-		$this->experiment = $this->getExperiment($deviceName, $softwareName);
+		$instanceName = Arr::get($input,"instance");
+		$this->experiment = $this->getExperiment($deviceName, $softwareName, $instanceName);
 		$this->device = $this->experiment->device;
 		$this->commandsToExecute = $this->getExperimentCommands($deviceName, $softwareName);
 
@@ -45,9 +46,12 @@ class ExperimentService
 		}
 	}
 
-	protected function getExperiment($deviceName, $softwareName)
+	protected function getExperiment($deviceName, $softwareName, $instanceName)
 	{
-		return Experiment::whereHas('device', function($query) use ($deviceName) {
+		return Experiment::whereHas('device', function($query) use ($deviceName, $instanceName) {
+				if($instanceName) {
+					$query->where("name",$instanceName);
+				}
 				$query->whereHas('type', function($q) use ($deviceName) {
 					$q->where('name', $deviceName);
 				});
