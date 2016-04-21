@@ -3,6 +3,7 @@
 namespace App\Classes\WebServer;
 
 use App\Experiment;
+use App\ExperimentLog;
 use GuzzleHttp\Client;
 use Illuminate\Support\Collection;
 use GuzzleHttp\Exception\ClientException;
