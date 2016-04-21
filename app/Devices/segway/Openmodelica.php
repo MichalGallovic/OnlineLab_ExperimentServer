@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Devices\led_cube;
+namespace App\Devices\segway;
 
 use App\Device;
 use App\Experiment;
@@ -8,7 +8,7 @@ use App\Devices\AbstractDevice;
 use App\Devices\Traits\AsyncRunnable;
 use App\Devices\Contracts\DeviceDriverContract;
 
-class Scilab extends AbstractDevice implements DeviceDriverContract {
+class Openmodelica extends AbstractDevice implements DeviceDriverContract {
 
 
 	/**
