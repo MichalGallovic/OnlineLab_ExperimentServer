@@ -100,9 +100,10 @@ class ExperimentService
 			$output = array_combine($outputArguments, $outputData);
 		}
 
+
 		$server = new Server(config("webserver.ip"));
 
-		$server->updateExperimentReport($output, $reportId);
+		$server->updateExperimentReport($log, $output, $reportId);
 	}
 
     /**
