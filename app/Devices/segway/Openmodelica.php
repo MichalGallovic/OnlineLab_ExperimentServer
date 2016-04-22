@@ -47,4 +47,13 @@ class Openmodelica extends AbstractDevice implements DeviceDriverContract {
 		$script->run();
 
 	}
+	protected function stop($input)
+	{
+		$script = new StopScript(
+				$this->scriptPaths["stop"],
+				$this->device
+			);
+
+		$script->run();
+	}
 }
