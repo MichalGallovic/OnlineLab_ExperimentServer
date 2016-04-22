@@ -8,6 +8,14 @@ use App\Experiment;
 use App\Devices\AbstractDevice;
 use App\Devices\Traits\AsyncRunnable;
 use App\Devices\Contracts\DeviceDriverContract;
+use App\Devices\Helpers\WSocketServer;
+
+require_once('Exception.php');
+require_once('BadOpcodeException.php');
+require_once('BadUriException.php');
+require_once('ConnectionException.php');
+require_once('Base.php');
+require_once('Client.php');
 use WebSocket\Client;
         
        
@@ -34,18 +42,14 @@ class Openmodelica extends AbstractDevice implements DeviceDriverContract {
      */
     public function __construct(Device $device, Experiment $experiment) {
         
-        require_once('../Helpers/WSocketServer.php');
+        //require_once('../Helpers/WSocketServer.php');
         $this->client=new Client("ws://127.0.0.1:18000");
         parent::__construct($device, $experiment);
         
     }
 
     protected function init($input) {
-        $script = new StartScript(
-                $this->scriptPaths["start"], $input, $this->device, $this->experimentLog->output_path
-        );
-
-        $script->run();
+        
     }
 	protected function start($input)
 	{
@@ -86,7 +90,8 @@ class Openmodelica extends AbstractDevice implements DeviceDriverContract {
             } else {//no message received in timeout
             }
         }
-        if (strpos($mess, "Simulation is being stopped") === false) {
+        
+        if (strpos($response, "Simulation is being stopped") === false) {
             return "Try again please";
         } else {
             return $response;
