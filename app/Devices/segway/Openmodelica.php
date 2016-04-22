@@ -35,4 +35,16 @@ class Openmodelica extends AbstractDevice implements DeviceDriverContract {
 		parent::__construct($device,$experiment);
 	}
 
+	protected function init($input)
+	{
+		$script = new StartScript(
+			$this->scriptPaths["start"],
+			$input,
+			$this->device,
+			$this->experimentLog->output_path
+			);
+
+		$script->run();
+
+	}
 }
