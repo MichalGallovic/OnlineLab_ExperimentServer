@@ -5,7 +5,10 @@ Homestead.json
 .env
 .env.example
 storage/logs
+/nbproject
+
 # MacOS X specific
 .DS_Store
 composer.phar
 
+/nbproject/private/
