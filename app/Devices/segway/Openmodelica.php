@@ -1,5 +1,6 @@
 <?php
 
+
 namespace App\Devices\segway;
 
 use App\Device;
@@ -7,7 +8,9 @@ use App\Experiment;
 use App\Devices\AbstractDevice;
 use App\Devices\Traits\AsyncRunnable;
 use App\Devices\Contracts\DeviceDriverContract;
-
+use WebSocket\Client;
+        
+       
 class Openmodelica extends AbstractDevice implements DeviceDriverContract {
 
     /**
@@ -16,11 +19,11 @@ class Openmodelica extends AbstractDevice implements DeviceDriverContract {
      * @var array
      */
     protected $scriptPaths = [
-        "read" => "",
-        "stop" => "",
-        "start" => "",
-        "init" => "",
-        "change" => ""
+        "read" => "a",
+        "stop" => "a",
+        "start" => "a",
+        "init" => "a",
+        "change" => "a"
     ];
     protected $client;
 
@@ -31,7 +34,7 @@ class Openmodelica extends AbstractDevice implements DeviceDriverContract {
      */
     public function __construct(Device $device, Experiment $experiment) {
         
-        require_once('./Helpers/WSocketServer.php');
+        require_once('../Helpers/WSocketServer.php');
         $this->client=new Client("ws://127.0.0.1:18000");
         parent::__construct($device, $experiment);
         
