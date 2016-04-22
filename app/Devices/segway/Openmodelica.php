@@ -32,6 +32,7 @@ class Openmodelica extends AbstractDevice implements DeviceDriverContract {
      */
 	public function __construct(Device $device, Experiment $experiment)
 	{
+                
 		parent::__construct($device,$experiment);
 	}
 
