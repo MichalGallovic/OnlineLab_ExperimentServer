@@ -16,7 +16,7 @@ require_once('libWS/Client.php');
 //require_once('libWS/Server.php');
 
 //echo "caua"; die();
-use WebSocket\Client;
+
 
 
 
