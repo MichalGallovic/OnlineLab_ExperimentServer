@@ -1857,6 +1857,14 @@ void shift (char axis, int direction)
 // off(0,1,2);
 // on(7,7,7);
 
+// on(0:7,0:7,0:7);
+// delay_ms(4000);
+// off(0:7,0:7,0:7);
+// delay_ms(4000);
+// on(0:4,0:4,0:4);  
+// delay_ms(2000);
+
+
 
           //all
           // $pieces = ["on([2,4,8],5,3)", "on(1,2,[2,4,8])", "off(1,[2,4,8],3)", "on([2,4,8],7,[3,5])", "on([2,4,8],[3,5],7)", "on(1,[2,4,8],[3,5])", "off([2,4,8],[2,7],[3,5])"];
@@ -1876,141 +1884,146 @@ void shift (char axis, int direction)
         $stack =array();
 
         for($i=0; $i < sizeof($pieces); $i++) { 
-            // echo "|".$pieces[$i]."|<br>";            
-            $funcName = substr( $pieces[$i], strrpos($pieces[$i], '(', 0)-1, 1 );
-            // echo "||".$funcName."||<br>";
+            // echo "|".$pieces[$i]."|<br>";     
+            if (strpos($pieces[$i], '//') !== false) {
+              echo $pieces[$i]."<br>";
+              array_push($stack, '//'.$pieces[$i].";" );
+              echo '//'.$pieces[$i].";"."<br>";
+            } else {    
 
-          $org = $pieces[$i];
-          $do =strrpos($pieces[$i], ')', 0);
-          $a = substr($pieces[$i], strrpos($pieces[$i], '(', 0),  strrpos($pieces[$i], ')', 0) );
+              $funcName = substr( $pieces[$i], strrpos($pieces[$i], '(', 0)-1, 1 );
+              // echo "||".$funcName."||<br>";
 
-          $tmp = str_replace("[", "[", $a, $count);
-          // echo $a."\r\n";  
+            $org = $pieces[$i];
+            $do =strrpos($pieces[$i], ')', 0);
+            $a = substr($pieces[$i], strrpos($pieces[$i], '(', 0),  strrpos($pieces[$i], ')', 0) );
 
-          if (strpos($a, '[') !== FALSE){
-              if($count != 1){
-                   $tmp = str_replace("],[", "+", $a);
-                   $tmp1 = str_replace("],", "+", $tmp);
-                   $tmp2 = str_replace(",[", "+", $tmp1);
-                   $tmp3 = str_replace("([", "", $tmp2);
-                   $tmp4 = str_replace("])", "", $tmp3);
-                   $tmp4b = str_replace(")", "", $tmp4);
-                   $tmp4c = str_replace("(", "", $tmp4b);
-                   $tmp5 = str_replace("[", "", $tmp4c);
-                   $newstring = str_replace("]", "", $tmp5);
-                      $inside = explode("+", $newstring);
-                      
-                  //  tu mam polia
-                      $partA = explode(",", $inside[0]);
-                      $partB = explode(",", $inside[1]);
-                      $partC = explode(",", $inside[2]);
-                      // var_dump($partA);
-                      // var_dump($partB);
-                      // var_dump($partC);
-                      for($a = 0; $a<sizeof($partA); $a++){
-                          for($b = 0; $b<sizeof($partB); $b++){
-                            for($c = 0; $c<sizeof($partC); $c++){
-                              if($funcName == "n"){ $fname = "setvoxel"; } else { $fname = "clrvoxel"; }
-                                //echo $fname."(".$partA[$a].", ".$partB[$b].", ".$partC[$c].");"."<br>";
-                            array_push($stack, $fname."(".$partA[$a].", ".$partB[$b].", ".$partC[$c].");" );
+            $tmp = str_replace("[", "[", $a, $count);
+            // echo $a."\r\n";  
+
+            if (strpos($a, '[') !== FALSE){
+                if($count != 1){
+                     $tmp = str_replace("],[", "+", $a);
+                     $tmp1 = str_replace("],", "+", $tmp);
+                     $tmp2 = str_replace(",[", "+", $tmp1);
+                     $tmp3 = str_replace("([", "", $tmp2);
+                     $tmp4 = str_replace("])", "", $tmp3);
+                     $tmp4b = str_replace(")", "", $tmp4);
+                     $tmp4c = str_replace("(", "", $tmp4b);
+                     $tmp5 = str_replace("[", "", $tmp4c);
+                     $newstring = str_replace("]", "", $tmp5);
+                        $inside = explode("+", $newstring);
+                        
+                    //  tu mam polia
+                        $partA = explode(",", $inside[0]);
+                        $partB = explode(",", $inside[1]);
+                        $partC = explode(",", $inside[2]);
+                        // var_dump($partA);
+                        // var_dump($partB);
+                        // var_dump($partC);
+                        for($a = 0; $a<sizeof($partA); $a++){
+                            for($b = 0; $b<sizeof($partB); $b++){
+                              for($c = 0; $c<sizeof($partC); $c++){
+                                if($funcName == "n"){ $fname = "setvoxel"; } else { $fname = "clrvoxel"; }
+                                  //echo $fname."(".$partA[$a].", ".$partB[$b].", ".$partC[$c].");"."<br>";
+                              array_push($stack, $fname."(".$partA[$a].", ".$partB[$b].", ".$partC[$c].");" );
+                            }
                           }
                         }
-                      }
-              } else {
-                  // $count == 1
-                  $tmp = str_replace("(", "", $a);
-                  $tmp1 = str_replace(")", "", $tmp);
-                  $a = $tmp1;
-                  
-                  $indA = strrpos($a, '[', 0);
-                  $indB = strrpos($a, ']', 0);
-                  
-                  $before = substr( $a, 0, $indA );
-                  $elArr = substr( $a, $indA, $indB );
-                  $elArr = str_replace("],", "", $elArr);
-                  $elArr = str_replace("]", "", $elArr);
-                  $elArr = str_replace("[", "", $elArr);
-                  $after = substr( $a, $indB, strlen($a) );
-                  $after = str_replace("]", "", $after);
-                  $t = str_replace(",", "-", $elArr);
-                      
-                      $work = $before.$t.$after;
-                      $items = explode(",", $work);
+                } else {
+                    // $count == 1
+                    $tmp = str_replace("(", "", $a);
+                    $tmp1 = str_replace(")", "", $tmp);
+                    $a = $tmp1;
+                    
+                    $indA = strrpos($a, '[', 0);
+                    $indB = strrpos($a, ']', 0);
+                    
+                    $before = substr( $a, 0, $indA );
+                    $elArr = substr( $a, $indA, $indB );
+                    $elArr = str_replace("],", "", $elArr);
+                    $elArr = str_replace("]", "", $elArr);
+                    $elArr = str_replace("[", "", $elArr);
+                    $after = substr( $a, $indB, strlen($a) );
+                    $after = str_replace("]", "", $after);
+                    $t = str_replace(",", "-", $elArr);
+                        
+                        $work = $before.$t.$after;
+                        $items = explode(",", $work);
 
-                      $partA = explode("-", $items[0]);
-                      $partB = explode("-", $items[1]);
-                      $partC = explode("-", $items[2]);
+                        $partA = explode("-", $items[0]);
+                        $partB = explode("-", $items[1]);
+                        $partC = explode("-", $items[2]);
 
-              for($a = 0; $a<sizeof($partA); $a++){
-                for($b = 0; $b<sizeof($partB); $b++){
-                  for($c = 0; $c<sizeof($partC); $c++){
-                    if($funcName == "n"){ $fname = "setvoxel"; } else { $fname = "clrvoxel"; }
-                    //echo $fname."(".$partA[$a].", ".$partB[$b].", ".$partC[$c].");"."<br>";
-                    array_push($stack, $fname."(".$partA[$a].", ".$partB[$b].", ".$partC[$c].");" );
+                for($a = 0; $a<sizeof($partA); $a++){
+                  for($b = 0; $b<sizeof($partB); $b++){
+                    for($c = 0; $c<sizeof($partC); $c++){
+                      if($funcName == "n"){ $fname = "setvoxel"; } else { $fname = "clrvoxel"; }
+                      //echo $fname."(".$partA[$a].", ".$partB[$b].", ".$partC[$c].");"."<br>";
+                      array_push($stack, $fname."(".$partA[$a].", ".$partB[$b].", ".$partC[$c].");" );
+                    }
                   }
                 }
-              }
-                 
                    
-              } //END $count ==1
-          } //END [ part  
-              else 
-          
-          if (strpos($a, ':') !== FALSE){
-               $tmp = str_replace("(", "", $a);
-                  $tmp1 = str_replace(")", "", $tmp);
-                  $a = $tmp1;
-              
-              $items = explode(",", $a);
-              $partA = explode(":", $items[0]);
-              $partB = explode(":", $items[1]);
-              $partC = explode(":", $items[2]);
+                     
+                } //END $count ==1
+            } //END [ part  
+                else 
+            
+            if (strpos($a, ':') !== FALSE){
+                 $tmp = str_replace("(", "", $a);
+                    $tmp1 = str_replace(")", "", $tmp);
+                    $a = $tmp1;
+                
+                $items = explode(",", $a);
+                $partA = explode(":", $items[0]);
+                $partB = explode(":", $items[1]);
+                $partC = explode(":", $items[2]);
 
-              for($a = $partA[0], $aa = 0; $aa<=($partA[sizeof($partA)-1])-$partA[0]; $a++, $aa++){
-                for($b = $partB[0], $bb = 0; $bb<=($partB[sizeof($partB)-1])-$partB[0]; $b++, $bb++){
-                  for($c = $partC[0], $cc = 0; $cc<=($partC[sizeof($partC)-1])-$partC[0]; $c++, $cc++){
-                    if($funcName == "n"){ $fname = "setvoxel"; } else { $fname = "clrvoxel"; }
-                    // echo $funcName."<br>";
-              //      echo $fname."(".$a.", ".$b.", ".$c.");"."\r\n";
-                    array_push($stack, $fname."(".$a.", ".$b.", ".$c.");" );
+                for($a = $partA[0], $aa = 0; $aa<=($partA[sizeof($partA)-1])-$partA[0]; $a++, $aa++){
+                  for($b = $partB[0], $bb = 0; $bb<=($partB[sizeof($partB)-1])-$partB[0]; $b++, $bb++){
+                    for($c = $partC[0], $cc = 0; $cc<=($partC[sizeof($partC)-1])-$partC[0]; $c++, $cc++){
+                      if($funcName == "n"){ $fname = "setvoxel"; } else { $fname = "clrvoxel"; }
+                      // echo $funcName."<br>";
+                //      echo $fname."(".$a.", ".$b.", ".$c.");"."\r\n";
+                      array_push($stack, $fname."(".$a.", ".$b.", ".$c.");" );
+                    }
                   }
                 }
-              }
-              
-              
-          } // END : part 
-              else {
-                  //klasicke x1 y1 z1
-                  if($funcName == "n"){ 
-                      // echo str_replace("on","setvoxel", $org).";";
-                      array_push($stack, str_replace("on","setvoxel", $org).";" );
-                  } else { 
-                      // echo str_replace("off","clrvoxel", $org).";";
-                      array_push($stack, str_replace("off","clrvoxel", $org).";" );
-                  }
-              }
-        } //END BIG for() array of functions
+                
+                
+            } // END : part 
+                else {
+                    //klasicke x1 y1 z1
+                    if($funcName == "n"){ 
+                        // echo str_replace("on","setvoxel", $org).";";
+                        array_push($stack, str_replace("on","setvoxel", $org).";" );
+                    } else { 
+                        // echo str_replace("off","clrvoxel", $org).";";
+                        array_push($stack, str_replace("off","clrvoxel", $org).";" );
+                    }
+                }
+            } //END if not // coment
+          } //END BIG for() array of functions
                 // var_dump($stack);
                 // exit();
 
         if(!file_exists("source" . ".c")){
             $file = tmpfile();
         }
-//////////////////////////////////
+
         foreach ($stack as $item) {
-              //echo $item."<br>";
+              // echo $item."<br>";
               $stringo .= $item.' ';
             }
 
             $all = $code_init.$stringo.$code_end;
             // echo $stringo;
-             // exit();
-                   
 
         $file = fopen("source" . ".c","a+");
-
         file_put_contents("source" . ".c", $all);
-        fclose($file);            
+        fclose($file);      
+        // exit();      
         $outLog = "";
 
 
@@ -2018,7 +2031,6 @@ void shift (char axis, int direction)
         $output = "<pre>".shell_exec("/var/www/olm_app_server/public/./testrunfromphp.sh 2>/var/www/olm_app_server/public/outLog.txt")."</pre>";
         $outLog = shell_exec("cat /var/www/olm_app_server/public/outLog.txt");
         echo $outLog;
-        echo "Uploading done.";
  
     }
 

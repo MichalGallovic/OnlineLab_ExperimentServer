@@ -1868,7 +1868,6 @@ void shift (char axis, int direction)
         $output = "<pre>".shell_exec("/var/www/olm_app_server/public/./testrunfromphp.sh 2>/var/www/olm_app_server/public/outLog.txt")."</pre>";
         $outLog = shell_exec("cat /var/www/olm_app_server/public/outLog.txt");
         echo $outLog;
-        echo "Uploading done.";
     
 
     } //END function change
