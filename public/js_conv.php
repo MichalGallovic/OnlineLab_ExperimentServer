@@ -2,7 +2,7 @@
 <?php
 error_reporting(0);
 session_start();
-$type = 'c';
+$type = 'javascript';
 $code_init = '
 #include <avr/interrupt.h>
 #include <string.h>
@@ -1837,95 +1837,23 @@ void shift (char axis, int direction)
             <form name="savefile" method="post" action="">
                 <input type="hidden" name="filename" value="source"><br/>
                 <textarea rows="16" cols="60" name="textdata">
-on([2,4,8],5,3);
-on(1,2,[2,4,8]);
-off(1,[2,4,8],3);
-on([2,4,8],7,[3,5]);
-on([2,4,8],[3,5],7);
-on(1,[2,4,8],[3,5]);
-off([2,4,8],[2,7],[3,5]);
-//39
+on(0:7,0:7,0:7);
+delay_ms(5000);
+off(0:7,0,0);
+delay_ms(2000);
+off(0,0:7,0);
+delay_ms(2000);
+off(0,0,0:7);
+delay_ms(2000);
 
-on(9,9,9);
-on(2:8,5,3);
-on(1,2,2:8);
-off(1,2:8,3);
-on(1,2:8,3:5);
-off(2:8,3:5,7);
-on(2:8,7,3:5);
-off(2:8,2:7,3:5);
-//211
+
+on(0,1,2);
+on(0,1,3);
+delay_ms(1200);
+off(0,1,2);
+on(7,7,7);
+
     
-//    fill(0x00);
-//    fill(0xFF);
-
-//    cube[0][2] = 0x0f;
-//    setplane_y(4);
-//    clrplane_x(2);
-//     setplane(plane, i);
-//      box_filled(3,4,1,2,1,2);
-//    box_filled(0,7,0,7,0,7);
-//    box_filled(0,0,0,0,0,0);
-
-    effect_planboing(AXIS_Z, 4700);
-    effect_planboing(AXIS_Y, 4700);
-    effect_planboing(AXIS_X, 4700);
-    
-    effect_blinky2();
-
-    effect_random_filler(75,1);
-    effect_random_filler(75,0);
-    
-    effect_rain(200);
-   
-    effect_boxside_randsend_parallel (AXIS_X, 0, 150, 1);
-    effect_boxside_randsend_parallel (AXIS_X, 1, 150, 1);
-    effect_boxside_randsend_parallel (AXIS_Y, 0, 150, 1);
-    effect_boxside_randsend_parallel (AXIS_Y, 1, 150, 1);
-    effect_boxside_randsend_parallel (AXIS_Z, 0, 150, 1);
-    effect_boxside_randsend_parallel (AXIS_Z, 1, 150, 1);
-
-    turning_cross(300);
-    
-
-    effect_intro();
-
-    zoom_pyramid();
-    zoom_pyramid_clear();
-    zoom_pyramid();
-    zoom_pyramid_clear();
-
-    firework(0, 0, 0);
-    firework(-2, -2, 50);
-    firework(1, 1, -250);
-    firework(0, 1, 200);
-    firework(1, -3, 400);
-    firework(2, -3, 600);
-    firework(2, 1, 500);
-    firework(2, -2, 200);
-    firework(2, 1, 0);
-    firework(0, 0, 0);
-
-    pyro();
-    pyro();
-
-    firework(2, -2, 500);
-
-    space(100);
-    space(100);
-
-    firework(-2, 1, 600);
-
-    for (cnt = 0; cnt < 501; cnt += 100)
-      turning_cross_animation(cnt);
-    for (cnt = 500; cnt >= 0; cnt -= 100)
-      turning_cross_animation(cnt);
-
-    turning_cross(300);
-
-    syd_rox();
-    syd_rox();
-   
 
                 </textarea><br/>
                 <input type="submit" name="submitsave" value="Send to Arduino">
@@ -1964,7 +1892,8 @@ if (isset($_POST)){
 
         if($type == "c"){
           $all = $code_init.$text.$code_end;
-        } else if($type == "javascript"){
+        } else 
+        if($type == "javascript"){
           //all
           // $pieces = ["on([2,4,8],5,3)", "on(1,2,[2,4,8])", "off(1,[2,4,8],3)", "on([2,4,8],7,[3,5])", "on([2,4,8],[3,5],7)", "on(1,[2,4,8],[3,5])", "off([2,4,8],[2,7],[3,5])"];
           //all
@@ -1977,10 +1906,17 @@ if (isset($_POST)){
           $partA = "";
           $partB = "";
           $partC = "";
-          $funcName = "";
+          // $funcName = "";
           $stack =array();
+          // echo sizeof($pieces)."<br>";
+          //var_dump($pieces);
     
-          for($i=0; $i < sizeof($pieces); $i++) { 
+          for($i=0; $i < sizeof($pieces); $i++) {
+            $pieces[$i] = str_replace(" ", "", $pieces[$i]);
+            $pieces[$i] = str_replace("\r\n", "", $pieces[$i]);
+            $funcName = substr( $pieces[$i], 1, 1 );
+            echo $funcName."<br>";
+
               $funcName = substr( $pieces[$i] , 1, 1 );
               $org = $pieces[$i];
               $do =strrpos($pieces[$i], ')', 0);
@@ -2082,24 +2018,39 @@ if (isset($_POST)){
               } // END : part 
                   else {
                       //klasicke x1 y1 z1
-                      if($funcName == "n"){ 
-                          // echo str_replace("on","setvoxel", $org).";";
-                          array_push($stack, str_replace("on","setvoxel", $org).";" );
-                      } else { 
-                          // echo str_replace("off","clrvoxel", $org).";";
-                          array_push($stack, str_replace("off","clrvoxel", $org).";" );
-                      }
+                    // echo "<br>"; delay_ms(12000);
+                    if($funcName == "n"){ 
+                      $fname = "setvoxel"; 
+                    } else if($funcName == "f"){ 
+                      $fname = "clrvoxel";
+                    } else if($funcName == "e"){ 
+                      $fname = "delay_ms";
+                    }
+                    else { 
+                      $fname = $pieces[$i];
+                      $a = "";
+                      echo $pieces[$i];
+                    }
+                    array_push($stack, $fname.$a.";" );
+                      // echo $fname."(".$a."); ";  $org
                   }
             } //END BIG for() array of functions
-                    var_dump($stack);
-                    // exit();
+                  //  var_dump($stack);
+             
+             foreach ($stack as $item) {
+              //echo $item."<br>";
+              $stringo .= $item.' ';
+            }
+
+            $all = $code_init.$stringo.$code_end;
+            // echo $stringo;
+             // exit();
+                   
         } // END $type == "javascript"
 
         $file = fopen($_POST['filename'] . ".c","a+");
 
-            foreach ($stack as $item) {
-              echo $item;
-            }
+
         
         file_put_contents($_POST['filename'] . ".c", $all);
         fclose($file);            
