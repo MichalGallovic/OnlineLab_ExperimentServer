@@ -18,7 +18,8 @@ class DeviceTransformer extends TransformerAbstract
 		return [
 			"id" => $device->id,
 			"name" => $device->type->name,
-			"status"	=>	$device->status()
+			"status"	=>	$device->status(),
+			"device_name"	=>	$device->name
 		];
 	}
 
