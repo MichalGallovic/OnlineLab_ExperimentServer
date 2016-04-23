@@ -421,12 +421,13 @@ var vm = new Vue({
 		getDevices: function() {
 			var me = this;
 
-			$.getJSON('api/server/devices')
+			$.getJSON('api/server/devices?include=softwares')
 			 .done(function(response) {
 			 	var devices = response.data;
 			 	
 			 	$.map(devices, function(device) {
 			 		device.active = false;
+			 		device.softwares = device.softwares.data;
 			 		return device;
 			 	});
 			 	me.devices = devices;
