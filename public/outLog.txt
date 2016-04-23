@@ -1,22 +1,24 @@
-src/sketch.ino: In function 'void loop()':
-src/sketch.ino:75:1: error: 'dyhg' was not declared in this scope
- dyhg
- ^
-src/sketch.ino:79:3: error: expected ';' before '}' token
-   }
-   ^
-make: *** [.build/uno/src/sketch.o] Error 1
 
+avrdude: AVR device initialized and ready to accept instructions
 
-avrdude: stk500_getparm(): (a) protocol error, expect=0x14, resp=0x00
+Reading | ################################################## | 100% 0.01s
 
-avrdude: stk500_getparm(): (a) protocol error, expect=0x14, resp=0x00
-avrdude: stk500_initialize(): (a) protocol error, expect=0x14, resp=0x00
-avrdude: initialization failed, rc=-1
-         Double check connections and try again, or use -F to override
-         this check.
+avrdude: Device signature = 0x1e950f
+avrdude: reading input file ".build/uno/firmware.hex"
+avrdude: writing flash (1768 bytes):
 
-avrdude: stk500_disable(): protocol error, expect=0x14, resp=0x00
+Writing | ################################################## | 100% 0.35s
+
+avrdude: 1768 bytes of flash written
+avrdude: verifying flash memory against .build/uno/firmware.hex:
+avrdude: load data flash data from input file .build/uno/firmware.hex:
+avrdude: input file .build/uno/firmware.hex contains 1768 bytes
+avrdude: reading on-chip flash data:
+
+Reading | ################################################## | 100% 0.27s
+
+avrdude: verifying ...
+avrdude: 1768 bytes of flash verified
 
 avrdude done.  Thank you.
 
