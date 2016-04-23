@@ -117,8 +117,9 @@ void loop()
 
   while (true){
   effect_planboing(AXIS_Z, 4700);
-    effect_planboing(AXIS_Y, 4700);
-    effect_planboing(AXIS_X, 4700);
+dyhg
+   //  effect_planboing(AXIS_Y, 4700);
+   //  effect_planboing(AXIS_X, 4700);
 
   }
 }

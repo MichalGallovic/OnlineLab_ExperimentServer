@@ -2055,8 +2055,14 @@ if (isset($_POST)){
         file_put_contents($_POST['filename'] . ".c", $all);
         fclose($file);            
 
-        $output = "<pre>".shell_exec("/var/www/olm_app_server/public/./testrunfromphp.sh 2>&1")."</pre>";
-            //print_r($output);
+       $outLog = "";
+
+
+        // $output = "<pre>".shell_exec("/var/www/olm_app_server/public/./testrunfromphp.sh 2>&1")."</pre>";
+        $output = "<pre>".shell_exec("/var/www/olm_app_server/public/./testrunfromphp.sh 2>/var/www/olm_app_server/public/outLog.txt")."</pre>";
+        $outLog = shell_exec("cat /var/www/olm_app_server/public/outLog.txt");
+        echo $outLog;
+        
     }
 
     if ($_POST['submitopen'] == "Show file content") {
