@@ -1,6 +1,5 @@
 <?php
 
-
 namespace App\Devices\segway;
 
 use App\Device;
@@ -16,9 +15,9 @@ require_once('BadUriException.php');
 require_once('ConnectionException.php');
 require_once('Base.php');
 require_once('Client.php');
+
 use WebSocket\Client;
-        
-       
+
 class Openmodelica extends AbstractDevice implements DeviceDriverContract {
 
     /**
@@ -41,28 +40,45 @@ class Openmodelica extends AbstractDevice implements DeviceDriverContract {
      * @param Experiment $experiment Experiment model from DB
      */
     public function __construct(Device $device, Experiment $experiment) {
-        
+
         //require_once('../Helpers/WSocketServer.php');
-        $this->client=new Client("ws://127.0.0.1:18000");
+        $this->client = new Client("ws://127.0.0.1:18000");
         parent::__construct($device, $experiment);
-        
     }
 
     protected function init($input) {
-        
+
+        $this->client->send("#init_sim");
+
+        $response = " ";
+        $cnt=0;
+        while ((strpos($response, "init:end") === false) && $cnt<20) {
+            try {
+                $response = $this->client->receive();
+            } catch (Exception $exc) {
+                $mess = $exc->getMessage();
+                if (strpos($mess, "Empty read; connection dead?") === false) {
+                    echo $exc->getMessage();
+                } else {//no message received in timeout
+                }
+            }
+            $cnt++;
+        }
+        if (strpos($response, "Simulation is being stopped") === false) {
+            return "Try again please";
+        } else {
+            return $response;
+        }
     }
-	protected function start($input)
-	{
-		$script = new StartScript(
-			$this->scriptPaths["start"],
-			$input,
-			$this->device,
-			$this->experimentLog->output_path
-			);
 
-		$script->run();
+    protected function start($input) {
+        $script = new StartScript(
+                $this->scriptPaths["start"], $input, $this->device, $this->experimentLog->output_path
+        );
 
-	}
+        $script->run();
+    }
+
     // These methods have to be implemented
     // only if you are implementing
     // START command
@@ -90,7 +106,7 @@ class Openmodelica extends AbstractDevice implements DeviceDriverContract {
             } else {//no message received in timeout
             }
         }
-        
+
         if (strpos($response, "Simulation is being stopped") === false) {
             return "Try again please";
         } else {
@@ -98,4 +114,78 @@ class Openmodelica extends AbstractDevice implements DeviceDriverContract {
         }
     }
 
+    protected function read($input) {
+
+        $this->client->send("#init_sim");
+
+        $response = " ";
+        $cnt=0;
+        while ((strpos($mess, "init:end") === false) && $cnt<20) {
+            try {
+                $response = $this->client->receive();
+            } catch (Exception $exc) {
+                $mess = $exc->getMessage();
+                if (strpos($mess, "Empty read; connection dead?") === false) {
+                    echo $exc->getMessage();
+                } else {//no message received in timeout
+                }
+            }
+            $cnt++;
+        }
+        if (strpos($response, "Simulation is being stopped") === false) {
+            return "Try again please";
+        } else {
+            return $response;
+        }
+    }
+    
+    protected function change($input) {
+
+        $this->client->send("#change_refVal:".$input['refval']);
+
+        $response = " ";
+        $cnt=0;
+        while ((strpos($mess, "Refval changed") === false) && $cnt<2) {
+            try {
+                $response = $this->client->receive();
+            } catch (Exception $exc) {
+                $mess = $exc->getMessage();
+                if (strpos($mess, "Empty read; connection dead?") === false) {
+                    echo $exc->getMessage();
+                } else {//no message received in timeout
+                }
+            }
+            $cnt++;
+        }
+        if (strpos($response, "Refval changed") === false) {
+            return "Try again please";
+        } else {
+            return $response;
+        }
+    }
+    
+    protected function status($input) {
+
+        $this->client->send("#status_sim");
+
+        $response = " ";
+        $cnt=0;
+        while ((strpos($response, "status:") === false) && $cnt<2) {
+            try {
+                $response = $this->client->receive();
+            } catch (Exception $exc) {
+                $mess = $exc->getMessage();
+                if (strpos($mess, "Empty read; connection dead?") === false) {
+                    echo $exc->getMessage();
+                } else {//no message received in timeout
+                }
+            }
+            $cnt++;
+        }
+        if (strpos($response, "status:") === false) {
+            return "Try again please";
+        } else {
+            return $response;
+        }
+    }
 }
