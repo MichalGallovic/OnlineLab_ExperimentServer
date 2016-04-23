@@ -5,7 +5,8 @@ $(function () {
     });
 });
 Vue.component('olm-webcam', {
-	template: "#webcam-template"
+	template: "#webcam-template",
+	ready: function() { init(); }
 });
 
 Vue.component('olm-input',{

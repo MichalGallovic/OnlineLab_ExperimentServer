@@ -1,8 +1,42 @@
-<!DOCTYPE HTML>
 <?php
-error_reporting(0);
-session_start();
-$type = 'c';
+
+namespace App\Devices\led_cube;
+
+use App\Device;
+use App\Experiment;
+use App\Devices\AbstractDevice;
+use App\Devices\Traits\AsyncRunnable;
+use App\Devices\Contracts\DeviceDriverContract;
+
+class C extends AbstractDevice implements DeviceDriverContract {
+
+
+	/**
+     * Paths to read/stop/run scripts relative to
+     * $(app_root)/server_scripts folder
+     * @var array
+     */
+	protected $scriptPaths = [
+        "read"	=> "",
+        "stop"  => "",
+        "start"	=> "",
+        "init"  => "",
+        "change"=> "led_cube/c/runC.php"
+    ];
+
+
+    /**
+     * Construct base class (App\Devices\AbstractDevice)
+     * @param Device     $device     Device model from DB
+     * @param Experiment $experiment Experiment model from DB
+     */
+	public function __construct(Device $device, Experiment $experiment)
+	{
+		parent::__construct($device,$experiment);
+	}
+
+    protected function change($input){
+
 $code_init = '
 #include <avr/interrupt.h>
 #include <string.h>
@@ -1807,322 +1841,36 @@ void shift (char axis, int direction)
 }
 ';
 
-?>
+        // print_r($input);
+        // var_dump($input);
 
-<html>
-<head>
-    <title>Compile Arduino code and RPi Cam Preview</title>
-    <script src="script_min.js"></script>
-    <style>
-       #narrow {
-          float: right;
-          /*width: 200px;*/
-          /*background: lightblue;*/
-        }
-        #wide {
-          float: left;
-          /*width: calc(100% - 200px);*/
-          /*background: lightgreen;*/
-        } 
-    </style>
-</head>
+   // effect_planboing(AXIS_Z, 4700);
+   //  effect_planboing(AXIS_Y, 4700);
+   //  effect_planboing(AXIS_X, 4700);
 
-<button onclick="window.location.href='picam/index.php'">Pi Cam</button>
-
-<body style="background-color: rgb(225,225,225)" onload="setTimeout('init();', 100);">
-    <hr style="background-color: rgb(150,150,150); color: rgb(150,150,150); width: 100%; height: 4px;">
-    
-    <div id="parent">
-        <div id="wide">
-            <form name="savefile" method="post" action="">
-                <input type="hidden" name="filename" value="source"><br/>
-                <textarea rows="16" cols="60" name="textdata">
-on([2,4,8],5,3);
-on(1,2,[2,4,8]);
-off(1,[2,4,8],3);
-on([2,4,8],7,[3,5]);
-on([2,4,8],[3,5],7);
-on(1,[2,4,8],[3,5]);
-off([2,4,8],[2,7],[3,5]);
-//39
-
-on(9,9,9);
-on(2:8,5,3);
-on(1,2,2:8);
-off(1,2:8,3);
-on(1,2:8,3:5);
-off(2:8,3:5,7);
-on(2:8,7,3:5);
-off(2:8,2:7,3:5);
-//211
-    
-//    fill(0x00);
-//    fill(0xFF);
-
-//    cube[0][2] = 0x0f;
-//    setplane_y(4);
-//    clrplane_x(2);
-//     setplane(plane, i);
-//      box_filled(3,4,1,2,1,2);
-//    box_filled(0,7,0,7,0,7);
-//    box_filled(0,0,0,0,0,0);
-
-    effect_planboing(AXIS_Z, 4700);
-    effect_planboing(AXIS_Y, 4700);
-    effect_planboing(AXIS_X, 4700);
-    
-    effect_blinky2();
-
-    effect_random_filler(75,1);
-    effect_random_filler(75,0);
-    
-    effect_rain(200);
-   
-    effect_boxside_randsend_parallel (AXIS_X, 0, 150, 1);
-    effect_boxside_randsend_parallel (AXIS_X, 1, 150, 1);
-    effect_boxside_randsend_parallel (AXIS_Y, 0, 150, 1);
-    effect_boxside_randsend_parallel (AXIS_Y, 1, 150, 1);
-    effect_boxside_randsend_parallel (AXIS_Z, 0, 150, 1);
-    effect_boxside_randsend_parallel (AXIS_Z, 1, 150, 1);
-
-    turning_cross(300);
-    
-
-    effect_intro();
-
-    zoom_pyramid();
-    zoom_pyramid_clear();
-    zoom_pyramid();
-    zoom_pyramid_clear();
-
-    firework(0, 0, 0);
-    firework(-2, -2, 50);
-    firework(1, 1, -250);
-    firework(0, 1, 200);
-    firework(1, -3, 400);
-    firework(2, -3, 600);
-    firework(2, 1, 500);
-    firework(2, -2, 200);
-    firework(2, 1, 0);
-    firework(0, 0, 0);
-
-    pyro();
-    pyro();
-
-    firework(2, -2, 500);
-
-    space(100);
-    space(100);
-
-    firework(-2, 1, 600);
-
-    for (cnt = 0; cnt < 501; cnt += 100)
-      turning_cross_animation(cnt);
-    for (cnt = 500; cnt >= 0; cnt -= 100)
-      turning_cross_animation(cnt);
-
-    turning_cross(300);
-
-    syd_rox();
-    syd_rox();
-   
-
-                </textarea><br/>
-                <input type="submit" name="submitsave" value="Send to Arduino">
-            </form>
-        </div>
-
-        <div id="narrow" >
-            <img id="mjpeg_dest" />
-        </div>
-    </div>
-
-
-<br/><hr style="background-color: rgb(150,150,150); color: rgb(150,150,150); width: 100%; height: 4px;"><br/>
-
-<!-- <iframe style="height: 510px; width: 100%; margin: 10px 0 10px;" allowTransparency="true" src="https://codebender.cc/embed/sketch:265112" frameborder="0"></iframe>
-  <iframe style="height: 510px; width: 100%; margin: 10px 0 10px;" allowTransparency="true" src="https://codebender.cc/embed/serialmonitor" frameborder="0"></iframe>
- -->
-<form name="openfile" method="post" action="">
-    Open File: <input type="text" name="filename" value="source">
-    <input type="submit" name="submitopen" value="Show file content">
-</form>
-<br/><hr style="background-color: rgb(150,150,150); color: rgb(150,150,150); width: 100%; height: 4px;"><br/>
-File contents:<br/><br/>
-
-
-<?php
-
-
-if (isset($_POST)){
-    if ($_POST['submitsave'] == "Send to Arduino"  && !empty($_POST['filename'])) {
-        echo "commpiling done.";
-        if(!file_exists($_POST['filename'] . ".c")){
+        if(!file_exists("source" . ".c")){
             $file = tmpfile();
         }
-        $text = $_POST["textdata"];
+        $text = $input["c_raw"];
 
-        if($type == "c"){
-          $all = $code_init.$text.$code_end;
-        } else if($type == "javascript"){
-          //all
-          // $pieces = ["on([2,4,8],5,3)", "on(1,2,[2,4,8])", "off(1,[2,4,8],3)", "on([2,4,8],7,[3,5])", "on([2,4,8],[3,5],7)", "on(1,[2,4,8],[3,5])", "off([2,4,8],[2,7],[3,5])"];
-          //all
+        $all = $code_init.$text.$code_end;
+        // echo $all;
+        // exit();
 
-          $pieces = explode(";", $text);
-          $fruit = array_pop($pieces);
-          
-          //$pieces = ["on(9,9,9)", "on(2:8,5,3)", "on(1,2,2:8)", "off(1,2:8,3)", "on(1,2:8,3:5)", "off(2:8,3:5,7)", "on(2:8,7,3:5)", "off(2:8,2:7,3:5)"];
+        $file = fopen("source" . ".c","a+");
 
-          $partA = "";
-          $partB = "";
-          $partC = "";
-          $funcName = "";
-          $stack =array();
-    
-          for($i=0; $i < sizeof($pieces); $i++) { 
-              $funcName = substr( $pieces[$i] , 1, 1 );
-              $org = $pieces[$i];
-              $do =strrpos($pieces[$i], ')', 0);
-              $a = substr($pieces[$i], strrpos($pieces[$i], '(', 0),  strrpos($pieces[$i], ')', 0) );
-
-              $tmp = str_replace("[", "[", $a, $count);
-              // echo $a."\r\n";  
-  
-              if (strpos($a, '[') !== FALSE){
-                  if($count != 1){
-                       $tmp = str_replace("],[", "+", $a);
-                       $tmp1 = str_replace("],", "+", $tmp);
-                       $tmp2 = str_replace(",[", "+", $tmp1);
-                       $tmp3 = str_replace("([", "", $tmp2);
-                       $tmp4 = str_replace("])", "", $tmp3);
-                       $tmp4b = str_replace(")", "", $tmp4);
-                       $tmp4c = str_replace("(", "", $tmp4b);
-                       $tmp5 = str_replace("[", "", $tmp4c);
-                       $newstring = str_replace("]", "", $tmp5);
-                          $inside = explode("+", $newstring);
-                          
-                      //  tu mam polia
-                          $partA = explode(",", $inside[0]);
-                          $partB = explode(",", $inside[1]);
-                          $partC = explode(",", $inside[2]);
-                          // var_dump($partA);
-                          // var_dump($partB);
-                          // var_dump($partC);
-                          for($a = 0; $a<sizeof($partA); $a++){
-                              for($b = 0; $b<sizeof($partB); $b++){
-                                for($c = 0; $c<sizeof($partC); $c++){
-                                  if($funcName == "n"){ $fname = "setvoxel"; } else { $fname = "clrvoxel"; }
-                                    //echo $fname."(".$partA[$a].", ".$partB[$b].", ".$partC[$c].");"."<br>";
-                                array_push($stack, $fname."(".$partA[$a].", ".$partB[$b].", ".$partC[$c].");" );
-                              }
-                            }
-                          }
-                  } else {
-                      // $count == 1
-                      $tmp = str_replace("(", "", $a);
-                      $tmp1 = str_replace(")", "", $tmp);
-                      $a = $tmp1;
-                      
-                      $indA = strrpos($a, '[', 0);
-                      $indB = strrpos($a, ']', 0);
-                      
-                      $before = substr( $a, 0, $indA );
-                      $elArr = substr( $a, $indA, $indB );
-                      $elArr = str_replace("],", "", $elArr);
-                      $elArr = str_replace("]", "", $elArr);
-                      $elArr = str_replace("[", "", $elArr);
-                      $after = substr( $a, $indB, strlen($a) );
-                      $after = str_replace("]", "", $after);
-                      $t = str_replace(",", "-", $elArr);
-                          
-                          $work = $before.$t.$after;
-                          $items = explode(",", $work);
-
-                          $partA = explode("-", $items[0]);
-                          $partB = explode("-", $items[1]);
-                          $partC = explode("-", $items[2]);
-
-                  for($a = 0; $a<sizeof($partA); $a++){
-                    for($b = 0; $b<sizeof($partB); $b++){
-                      for($c = 0; $c<sizeof($partC); $c++){
-                        if($funcName == "n"){ $fname = "setvoxel"; } else { $fname = "clrvoxel"; }
-                        //echo $fname."(".$partA[$a].", ".$partB[$b].", ".$partC[$c].");"."<br>";
-                        array_push($stack, $fname."(".$partA[$a].", ".$partB[$b].", ".$partC[$c].");" );
-                      }
-                    }
-                  }
-                     
-                       
-                  } //END $count ==1
-              } //END [ part  
-                  else 
-              
-              if (strpos($a, ':') !== FALSE){
-                   $tmp = str_replace("(", "", $a);
-                      $tmp1 = str_replace(")", "", $tmp);
-                      $a = $tmp1;
-                  
-                  $items = explode(",", $a);
-                  $partA = explode(":", $items[0]);
-                  $partB = explode(":", $items[1]);
-                  $partC = explode(":", $items[2]);
-
-                  for($a = $partA[0], $aa = 0; $aa<=($partA[sizeof($partA)-1])-$partA[0]; $a++, $aa++){
-                    for($b = $partB[0], $bb = 0; $bb<=($partB[sizeof($partB)-1])-$partB[0]; $b++, $bb++){
-                      for($c = $partC[0], $cc = 0; $cc<=($partC[sizeof($partC)-1])-$partC[0]; $c++, $cc++){
-                        if($funcName == "n"){ $fname = "setvoxel"; } else { $fname = "clrvoxel"; }
-                  //      echo $fname."(".$a.", ".$b.", ".$c.");"."\r\n";
-                        array_push($stack, $fname."(".$a.", ".$b.", ".$c.");" );
-                      }
-                    }
-                  }
-                  
-                  
-              } // END : part 
-                  else {
-                      //klasicke x1 y1 z1
-                      if($funcName == "n"){ 
-                          // echo str_replace("on","setvoxel", $org).";";
-                          array_push($stack, str_replace("on","setvoxel", $org).";" );
-                      } else { 
-                          // echo str_replace("off","clrvoxel", $org).";";
-                          array_push($stack, str_replace("off","clrvoxel", $org).";" );
-                      }
-                  }
-            } //END BIG for() array of functions
-                    var_dump($stack);
-                    // exit();
-        } // END $type == "javascript"
-
-        $file = fopen($_POST['filename'] . ".c","a+");
-
-            foreach ($stack as $item) {
-              echo $item;
-            }
         
-        file_put_contents($_POST['filename'] . ".c", $all);
+        file_put_contents("source" . ".c", $all);
         fclose($file);            
 
-        $output = "<pre>".shell_exec("/var/www/olm_app_server/public/./testrunfromphp.sh 2>&1")."</pre>";
-            //print_r($output);
-    }
+        // $output = "<pre>".shell_exec("/var/www/olm_app_server/public/./testrunfromphp.sh 2>&1")."</pre>";
 
-    if ($_POST['submitopen'] == "Show file content") {
-        if(!file_exists($_POST['filename'] . ".c")){
-            exit("Error: File does not exist.");
-        }
-        $file = fopen($_POST['filename'] . ".c", "r");
-        while(!feof($file)){
-            echo fgets($file). "<br />";
-        }
-        fclose($file);
-    }
+        $output = "<pre>".shell_exec("/var/www/olm_app_server/public/./testrunfromphp.sh 2>/var/www/olm_app_server/public/outLog.txt")."</pre>";
+        $outLog = shell_exec("cat /var/www/olm_app_server/public/outLog.txt");
+        echo $outLog;
+        echo "Uploading done.";
+    
+
+    } //END function change
+
 }
-// include '/var/www/html/picam/index.php';
-?>
-
-
-<br/><hr style="background-color: rgb(150,150,150); color: rgb(150,150,150); width: 100%; height: 4px;"><br/>
-</body>
-</html>

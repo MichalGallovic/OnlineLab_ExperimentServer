@@ -25,7 +25,7 @@ return [
 	// 	]
 	// ]
 
-		"change"	=>	[
+	"change"	=>	[
 		[
 			"name"	=>	"c_raw",
 			"rules"	=>	"required",
@@ -42,14 +42,6 @@ void loop() {
 } 
 				',
 			"type"	=>	"textarea"
-		],
-		[
-			"name"	=>	"type",
-			"rules"	=>	"required",
-			"title"	=>	"Jazyk vstupu",
-			"placeholder"	=>	'',
-			"type"	=>	"radio",
-			"values"	=>	["C","JavaScript"]
 		]
 	]
 ];
