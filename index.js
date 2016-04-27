@@ -17,6 +17,8 @@ Array.prototype.clean = function(deleteValue) {
 
 function parseFile(path) {
   var fileArray = fs.readFileSync(path).toString().split('\n');
+  var experimentSetup = fileArray.slice(0,8);
+
   fileArray = fileArray.slice(9,fileArray.length-1);
   fileArray = fileArray.map(function(line) {
     return line.split(',');
@@ -34,7 +36,14 @@ function parseFile(path) {
     });
   });
 
-  return rotatedArray;  
+
+
+  return {
+    data: rotatedArray,
+    settings: {
+      sampling_rate: experimentSetup[3]
+    }
+  };
 }
 
 function streamDataOfFile(path, user_id) {
@@ -52,7 +61,7 @@ redis.on('message', function(channel, message) {
   if(message.event == 'ExperimentStarted') {
     streamingId = setInterval(function() {
       streamDataOfFile(message.data.file_path, message.data.user_id);
-    }, 500);
+    }, 200);
   } else if(message.event == 'ExperimentFinished') {
     clearInterval(streamingId);
   }
