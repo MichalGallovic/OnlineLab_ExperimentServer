@@ -3,6 +3,8 @@
 use App\Experiment;
 use App\ExperimentLog;
 use App\Classes\WebServer\Server;
+use App\Events\ExperimentStarted;
+use Illuminate\Support\Facades\Cache;
 use App\Classes\Services\ExperimentService;
 
 /*
@@ -54,6 +56,42 @@ Route::group(['middleware' => ['web']], function () {
 	Route::get("reset/database", ['uses' => 'DevelopmentController@resetDatabase']);
 });
 
-Route::get("testik", function() {
-	
+Route::get("stream/start", function() {
+
+	$data = [
+		'event'	=>	'ExperimentStarted',
+		'data'	=>	[
+			'user_id'	=> '4',
+			'file_path' => storage_path('logs/devices/tos1a/openloop/1_1461674059.log')
+		]
+	];
+
+	Redis::publish('experiment-channel', json_encode($data));
+
+	return 'Event send! ' . storage_path('logs/devices/tos1a/openloop/1_1461674059.log');
+});
+
+Route::get("stream/end", function() {
+
+	$data = [
+		'event'	=>	'ExperimentEnded',
+		'data'	=>	[
+			'user_id'	=> '4'
+		]
+	];
+
+	Redis::publish('experiment-channel', json_encode($data));
+
+	return 'Event send!';
+});
+Route::get('test', function() {
+	$data = [
+		'event'	=>	'ExperimentStarted',
+		'data'	=>	[
+			'user_id'	=> '4',
+			'file_path' => storage_path('logs/devices/tos1a/openloop/1_1461674059.log')
+		]
+	];
+
+	Redis::publish('experiment-channel', json_encode($data));
 });

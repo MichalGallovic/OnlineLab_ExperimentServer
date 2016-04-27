@@ -9,12 +9,14 @@ use Illuminate\Support\Str;
 use App\Devices\CommandFactory;
 use App\Devices\Helpers\Logger;
 use App\Devices\Commands\Command;
+use App\Events\ExperimentStarted;
 use App\Devices\Scripts\ReadScript;
 use App\Devices\Scripts\StopScript;
 use App\Devices\Scripts\StartScript;
 use App\Devices\Commands\InitCommand;
 use App\Devices\Commands\ReadCommand;
 use App\Devices\Commands\StopCommand;
+use Illuminate\Support\Facades\Redis;
 use App\Devices\Commands\StartCommand;
 use App\Devices\Commands\ChangeCommand;
 use App\Devices\Commands\StatusCommand;
@@ -223,6 +225,19 @@ abstract class AbstractDevice
         $logger->createLogFile();
         $this->device = $this->device->fresh();
         $this->experimentLog = $this->device->currentExperimentLogger;
+
+        $data = [
+            'event' =>  'ExperimentStarted',
+            'data'  =>  [
+                'user_id'   => $this->experimentLog->requested_by,
+                'file_path' => $this->experimentLog->output_path
+            ]
+        ];
+        try {
+            Redis::publish('experiment-channel', json_encode($data));
+        } catch(\Exception $e) {
+            
+        }
     }
 
     protected function start($input)
@@ -232,12 +247,25 @@ abstract class AbstractDevice
 
     protected function afterStart($input)
     {
-        $script = new StopScript(
-                $this->scriptPaths["stop"],
-                $this->device
-            );
+        $data = [
+            'event' =>  'ExperimentFinished',
+            'data'  =>  [
+                'user_id'   => $this->experimentLog->requested_by
+            ]
+        ];
 
-        $script->run();
+         try {
+            Redis::publish('experiment-channel', json_encode($data));
+        } catch(\Exception $e) {
+            
+        }
+
+        // $script = new StopScript(
+        //         $this->scriptPaths["stop"],
+        //         $this->device
+        //     );
+
+        // $script->run();
     }
 
     protected function beforeStop($input)
