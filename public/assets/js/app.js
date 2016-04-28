@@ -470,8 +470,10 @@ vm.$watch('selectedCommand', function() {
 	this.clearCommandOutput();
 });
 
-vm.$watch('activeSoftware', function(newActiveSoftware) {
-	this.selectedCommand = newActiveSoftware.commands[0];
+vm.$watch('activeSoftware', function(newActiveSoftware, oldActiveSoft) {
+	if(newActiveSoftware != oldActiveSoft) {
+		this.selectedCommand = newActiveSoftware.commands[0];
+	}
 });
 
 // vm.$watch('devices', function() {
