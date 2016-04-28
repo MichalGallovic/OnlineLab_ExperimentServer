@@ -2,6 +2,7 @@
 
 namespace App;
 
+use Illuminate\Support\Arr;
 use Illuminate\Support\Str;
 use Illuminate\Support\Collection;
 use Illuminate\Database\Eloquent\Model;
@@ -200,5 +201,51 @@ class Experiment extends Model
         $configKeys = "experiments." . $deviceName . "." . $softwareName;
 
         return config($configKeys);
+    }
+
+    protected function getStartCommandConfig()
+    {
+        $deviceName = Str::lower($this->device->type->name);
+        $softwareName = Str::lower($this->software->name);
+        $command = "start";
+
+        $commandConfig = config(
+            'devices.'  . 
+            $deviceName . "." .
+            $softwareName . "." .
+            'input' . "." .
+            $command
+        );
+
+        return $commandConfig;
+    }
+
+    protected function getKeyForMeaning($meaning = null)
+    {
+        $commandConfig = new Collection($this->getStartCommandConfig());
+
+        $durationField = $commandConfig->where('meaning',$meaning)->first();
+
+        return Arr::get($durationField,'name');
+    }
+
+    public function getDurationKey()
+    {
+        return $this->getKeyForMeaning('experiment_duration');
+    }
+
+    public function getSamplingRateKey()
+    {
+        return $this->getKeyForMeaning('sampling_rate');   
+    }
+
+    public function getParentSchemaKey()
+    {
+        return $this->getKeyForMeaning('parent_schema');   
+    }
+
+    public function getChildSchemaKey()
+    {
+        return $this->getKeyForMeaning('child_schema');   
     }
 }

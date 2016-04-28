@@ -210,13 +210,16 @@ abstract class AbstractDevice
         // where experiment can write its output
         // and set up App\ExperimentLog - model of
         // experiment_logs table
-        $duration = $this->parseDuration($input);
-        if(is_null($duration)) {
-            throw new \Exception('Please implement parseDuration($input) method, if you use start command.');
+
+        try {
+            $duration = $input[$this->experiment->getDurationKey()];
+        } catch(\ErrorException $e) {
+            throw new \Exception("Please mark whitch of the input fields in your input.php config file represents experiment duration. Use 'meaning' => 'experiment_duration' ");
         }
-        $rate = $this->parseSamplingRate($input);
-        if(is_null($rate)) {
-            throw new \Exception('Please implement parseSamplingRate($input) method, if you use start command.');
+        try {
+            $rate = $input[$this->experiment->getSamplingRateKey()];
+        } catch(\ErrorException $e) {
+            throw new \Exception("Please mark whitch of the input fields in your input.php config file represents sampling rate. Use 'meaning' => 'sampling_rate' ");
         }
 
         $logger = new Logger($this->experiment, $input, $requestedBy);
