@@ -37,7 +37,6 @@ class Scilab extends AbstractDevice implements DeviceDriverContract {
 
     protected function start($input)
     {
-        //var_dump($input);
         // regulovana velicina vychadzajuca zo sustavy
         switch ($input["out_sw"]) {
         case "Temperature":
@@ -80,8 +79,18 @@ class Scilab extends AbstractDevice implements DeviceDriverContract {
         
         // reset required value on 0 in file, it is then loaded in scilab scheme, required value could be changed in change function
         $serverPath = str_replace("/public", "", $_SERVER["DOCUMENT_ROOT"]);
-        $fileChange = "$serverPath/server_scripts/tos1a/scilab/shm/change_input";
-        file_put_contents("$fileChange", "0");
+        /*$fileChange= "$serverPath/server_scripts/tos1a/scilab/shm/change_input_".substr($this->device->port, -4);
+        $fileChangeP = "$serverPath/server_scripts/tos1a/scilab/shm/change_input_P_".substr($this->device->port, -4);
+        $fileChangeI = "$serverPath/server_scripts/tos1a/scilab/shm/change_input_I_".substr($this->device->port, -4);
+        $fileChangeD = "$serverPath/server_scripts/tos1a/scilab/shm/change_input_D_".substr($this->device->port, -4);*/
+        $fileChange= "/dev/shm/change_input_".substr($this->device->port, -4);
+        $fileChangeP = "/dev/shm/change_input_P_".substr($this->device->port, -4);
+        $fileChangeI = "/dev/shm/change_input_I_".substr($this->device->port, -4);
+        $fileChangeD = "/dev/shm/change_input_D_".substr($this->device->port, -4);
+        file_put_contents("$fileChange", "");
+        file_put_contents("$fileChangeP", "");
+        file_put_contents("$fileChangeI", "");
+        file_put_contents("$fileChangeD", "");
 
         $script = new StartScriptScilab(
             $this->scriptPaths["start"],
@@ -89,17 +98,22 @@ class Scilab extends AbstractDevice implements DeviceDriverContract {
             $this->device,
             $this->experimentLog->output_path
             );
-
-        $script->run();
+ 
+         $script->run();
 
     }
 
     protected function change($input)
     {
         $serverPath = str_replace("/public", "", $_SERVER["DOCUMENT_ROOT"]);
-        $fileChange = "$serverPath/server_scripts/tos1a/scilab/shm/change_input";
-
-        file_put_contents("$fileChange", $input["required_value"]);
+        $fileChange = "/dev/shm/change_input_".substr($this->device->port, -4);
+        $fileChangeP = "/dev/shm/change_input_P_".substr($this->device->port, -4);
+        $fileChangeI = "/dev/shm/change_input_I_".substr($this->device->port, -4);
+        $fileChangeD = "/dev/shm/change_input_D_".substr($this->device->port, -4);
+        if ( !empty( $input["required_value"] ) ) file_put_contents("$fileChange", $input["required_value"]);
+        if ( !empty( $input["P"] ) ) file_put_contents("$fileChangeP", $input["P"]);
+        if ( !empty( $input["I"] ) ) file_put_contents("$fileChangeI", $input["I"]);
+        if ( !empty( $input["D"] ) ) file_put_contents("$fileChangeD", $input["D"]);
 
     }
 

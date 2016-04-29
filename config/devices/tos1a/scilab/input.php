@@ -56,7 +56,7 @@ return [
 		[
 			"name"	=>	"ts",
 			"rules"	=>	"required",
-			"title"	=>	"Sampling rate in ms",
+			"title"	=>	"TS Sampling rate in ms",
 			"placeholder"	=>	200,
 			"type"	=>	"text"
 		],
@@ -98,7 +98,7 @@ return [
 		[
 	 		"name"	=>	"user_function",
 			"rules"	=>	"",
-	 		"title"	=>	"Own function - in format y1=(relation of four inputs u1,u2,u3,u4)",
+	 		"title"	=>	"Own function - in format y1=(relation of four inputs u1,u2,u3,u4,Ts) u1-required value, u2-temperature, u3-light ntensity, u4-fan rpm, Ts-sample rate",
 	 		"placeholder"	=>	"y1=u1", 
 	 		"type"	=>	"textarea"
 	 	]
@@ -109,9 +109,30 @@ return [
 	"change"  =>  [
 		[
 			"name"	=>	"required_value",
-			"rules"	=>	"required",
+			"rules"	=>	"",
 			"title"	=>	"Required value  °C/lx/RPM",
-			"placeholder"	=>	0,
+			"placeholder"	=>	"",
+			"type"	=>	"text"
+		],
+		[
+			"name"	=>	"P",
+			"rules"	=>	"",
+			"title"	=>	"P",
+			"placeholder"	=>	"",
+			"type"	=>	"text"
+		],
+		[
+			"name"	=>	"I",
+			"rules"	=>	"",
+			"title"	=>	"I",
+			"placeholder"	=>	"",
+			"type"	=>	"text"
+		],
+		[
+			"name"	=>	"D",
+			"rules"	=>	"",
+			"title"	=>	"D",
+			"placeholder"	=>	"",
 			"type"	=>	"text"
 		]
 	]
