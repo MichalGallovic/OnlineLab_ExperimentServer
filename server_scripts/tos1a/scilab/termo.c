@@ -565,13 +565,11 @@ switch (flag) {
 			    port_string[i] = (int)(GetRealInPortPtrs(blk, 4))[i];
           //printf("%c", port_string[i]);
 			}
-      //provizorne urobene, treba upravit (v scilabe priamo je i+1, z conzoly len i)
 			if (port_string[i] < 0){
          port_string[i]=0;
       }else {
           port_string[i+1]=0;
       }
-      //port_string[i]=0;  //bolo tam i+1, nekedy aj v scilabe to uz robi koniny
 
       printf("PORT ID START\n");
       printf("PORT: %s\n",port_string);
