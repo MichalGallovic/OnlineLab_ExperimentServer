@@ -102,6 +102,30 @@ class Server
         return $body;
     }
 
+    public function download($url)
+    {
+        $segments = parse_url($url, PHP_URL_PATH);
+        $url = $this->prepareUrl($segments);
+
+        
+        try {
+            $path = storage_path('uploads/temp/' . str_random(20));
+            $response = $this->client->request('GET', $url, [
+                'sink' => $path
+            ]);
+
+            $this->lastResponseCode = $response->getStatusCode();
+            $this->reachable = true;
+            $response = $this->responseToArray($response);
+        } catch(ConnectException $e) {
+            $this->reachable = false;
+        } catch(ClientException $e) {
+            $this->lastResponseCode = $e->getResponse()->getStatusCode();
+        }
+
+        return $path;
+    }
+
     protected function get($segments = null, $force = false)
     {
         $url = $this->prepareUrl($segments);
@@ -146,7 +170,11 @@ class Server
 
     protected function prepareUrl($segments = null)
     {
-        $segments = substr($segments,0,1) == "/" ? substr($segments, 1, count($segments) - 1) : $segments;
+        $segments = array_filter(explode('/',$segments));
+        $segments = (new Collection($segments))->filter(function($item) {
+            return $item != 'api';
+        })->implode('/');
+
         return $this->apiPrefix . "/" . $segments;
     }
 

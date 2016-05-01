@@ -4,9 +4,10 @@ namespace App\Classes\Services;
 
 use App\Device;
 use App\Software;
-use Illuminate\Http\Request;
+use App\Classes\WebServer\Server;
 use Illuminate\Support\Facades\App;
 use Illuminate\Support\Facades\File;
+use Illuminate\Support\Facades\Request;
 use App\Devices\Contracts\DeviceDriverContract;
 use App\Devices\Exceptions\DeviceNotRunningExperimentException;
 use App\Devices\Exceptions\DeviceAlreadyRunningExperimentException;
@@ -59,6 +60,14 @@ class CommandService
 	 */
 	protected $experimentLog;
 
+
+	/**
+	 * Files downloaded from webserver
+	 * for experiment
+	 * @var array
+	 */
+	protected $downloadedFiles;
+
 	public function __construct(array $input, $deviceId)
 	{
 		$this->comamnds = DeviceDriverContract::AVAILABLE_COMMANDS;
@@ -73,6 +82,12 @@ class CommandService
 		$deviceDriver->checkCommandSupport($this->commandName);
 		$this->experiment = $this->device->getCurrentOrRequestedExperiment($this->softwareName);
 		$this->experiment->validate($this->commandName, $this->input('input'));
+
+		// If the request is from the server
+		// check if we need to pre-download
+		// regulators or schema files
+		// from web server
+	
 		$input = $this->normalizeCommandInput($this->input('input'));
 
 		if(method_exists($this, $this->commandName)) {
@@ -124,6 +139,12 @@ class CommandService
 		    }
 		}
 
+		foreach ($this->downloadedFiles as $file) {
+			if(File::exists($file)) {
+				File::delete($file);
+			}
+		}
+
 		return "Experiment ended";
 	}
 
@@ -161,19 +182,48 @@ class CommandService
 
 		$normalizedInputs = $inputs;
 
+		$normalizedInputs = $this->downloadSchemas($inputs);
+
 		// Normalize file inputs
-		foreach ($inputs as $name => $value) {
-		    if($this->experiment->getInputType($this->commandName,$name) == "file") {
-		        $filePath = storage_path("uploads/dev") . "/" . $value;
-		        $path = $filePath;
-		        $normalizedInputs[$name] = $path;
+		foreach ($normalizedInputs as $name => $value) {
+		    if($this->isInputFile($this->commandName, $name)) {
+		    	if(!File::exists($value)) {
+		    		$filePath = storage_path("uploads/dev") . "/" . $value;
+		    		$path = $filePath;
+		    		$normalizedInputs[$name] = $path;
+		    	}
 		    }
 		}
 
 		return $normalizedInputs;
 	}
 
-	
+	protected function downloadSchemas($inputs)
+	{
+		foreach ($inputs as $name => $value) {
+		    if($this->isInputFile($this->commandName, $name) && $this->isUrl($value)) {
+		    	$inputs[$name] = $this->downloadFile($value);
+		    	$this->downloadedFiles[]=$inputs[$name];
+		    }
+		}
+		return $inputs;
+	}
+
+	protected function downloadFile($url)
+	{
+		$server = new Server(config("webserver.ip"));
+		return $server->download($url);
+	}
+
+	protected function isUrl($url)
+	{
+		return filter_var($url, FILTER_VALIDATE_URL);
+	}
+
+	protected function isInputFile($command, $inputName)
+	{
+		return $this->experiment->getInputType($command,$inputName) == 'file';
+	}
 
     /**
      * Gets the Requested command.
@@ -203,5 +253,16 @@ class CommandService
     public function getExperimentLog()
     {
         return $this->experimentLog;
+    }
+
+    /**
+     * Gets the Files downloaded from webserver
+for experiment.
+     *
+     * @return array
+     */
+    public function getDownloadedFiles()
+    {
+        return $this->downloadedFiles;
     }
 }

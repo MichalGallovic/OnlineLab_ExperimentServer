@@ -9,6 +9,7 @@ use Illuminate\Queue\SerializesModels;
 use Illuminate\Queue\InteractsWithQueue;
 use App\Classes\Services\ExperimentService;
 use Illuminate\Contracts\Queue\ShouldQueue;
+use App\Devices\Exceptions\ParametersInvalidException;
 use App\Devices\Exceptions\DeviceNotConnectedException;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
 use App\Classes\Services\Exceptions\ExperimentCommandsNotDefined;
@@ -43,12 +44,13 @@ class RunExperiment extends Job implements ShouldQueue
         try {
             $experiment = new ExperimentService($this->input, $deviceName, $softwareName);
             $result = $experiment->run();
+            $experiment->updateStatusWS("ready");
+            $experiment->updateReportWs($experiment->getExperimentLog(), $this->input["report_id"]);
         } catch(DeviceNotConnectedException $e) {
             var_dump("Device is not connected :(");
+        } catch(ParametersInvalidException $e) {
+            var_dump("Parameters invalid, sorry :(");
         }
-
-       $experiment->updateStatusWS("ready");
-       $experiment->updateReportWs($experiment->getExperimentLog(), $this->input["report_id"]);
     }
 
     /**
