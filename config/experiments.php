@@ -2,7 +2,7 @@
 
 return [
 	"tos1a"	=> [
-		"openloop"	=>	["read","start"],
+		"openloop"	=>	["start"],
 		"matlab"	=>	["start"]
 	]
 ];

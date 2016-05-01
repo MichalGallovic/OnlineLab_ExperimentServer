@@ -33,7 +33,6 @@ class Openloop extends AbstractDevice implements DeviceDriverContract
 			);
 
 		$script->run();
-
 	}
 
 	protected function stop($input)

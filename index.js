@@ -17,7 +17,7 @@ Array.prototype.clean = function(deleteValue) {
 
 function parseFile(path) {
   var fileArray = fs.readFileSync(path).toString().split('\n');
-  var experimentSetup = fileArray.slice(0,8);
+  //var experimentSetup = fileArray.slice(0,8);
 
   fileArray = fileArray.slice(9,fileArray.length-1);
   fileArray = fileArray.map(function(line) {
@@ -40,9 +40,9 @@ function parseFile(path) {
 
   return {
     data: rotatedArray,
-    settings: {
-      sampling_rate: experimentSetup[3]
-    }
+    //settings: {
+      //sampling_rate: experimentSetup[3]
+    //}
   };
 }
 
