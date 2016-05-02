@@ -104,17 +104,17 @@ class Scilab extends AbstractDevice implements DeviceDriverContract {
     }
 
     protected function change($input)
-    {
+    {   
         $serverPath = str_replace("/public", "", $_SERVER["DOCUMENT_ROOT"]);
         $fileChange = "/dev/shm/change_input_".substr($this->device->port, -4);
         $fileChangeP = "/dev/shm/change_input_P_".substr($this->device->port, -4);
         $fileChangeI = "/dev/shm/change_input_I_".substr($this->device->port, -4);
         $fileChangeD = "/dev/shm/change_input_D_".substr($this->device->port, -4);
-        if ( !empty( $input["required_value"] ) ) file_put_contents("$fileChange", $input["required_value"]);
-        if ( !empty( $input["P"] ) ) file_put_contents("$fileChangeP", $input["P"]);
-        if ( !empty( $input["I"] ) ) file_put_contents("$fileChangeI", $input["I"]);
-        if ( !empty( $input["D"] ) ) file_put_contents("$fileChangeD", $input["D"]);
-
+        if ( is_numeric( $input["required_value"] ) ) file_put_contents("$fileChange", $input["required_value"]);
+        if ( is_numeric( $input["P"] ) ) file_put_contents("$fileChangeP", $input["P"]);
+        if ( is_numeric( $input["I"] ) ) file_put_contents("$fileChangeI", $input["I"]);
+        if ( is_numeric( $input["D"] ) ) file_put_contents("$fileChangeD", $input["D"]);
+        
     }
 
     protected function stop($input)
