@@ -2,14 +2,15 @@
 
 namespace App\Console;
 
-use Illuminate\Console\Scheduling\Schedule;
-use Illuminate\Foundation\Console\Kernel as ConsoleKernel;
 use App\Device;
-use App\Console\Commands\ClearExperimentLogs;
-use App\Console\Commands\ResetAppServer;
 use App\Console\Commands\PingDevices;
-use App\Console\Commands\RefreshCompiledClassmap;
+use App\Console\Commands\ResetAppServer;
 use App\Console\Commands\AddDeviceCommand;
+use Illuminate\Console\Scheduling\Schedule;
+use App\Console\Commands\FlushDatabaseQueue;
+use App\Console\Commands\ClearExperimentLogs;
+use App\Console\Commands\RefreshCompiledClassmap;
+use Illuminate\Foundation\Console\Kernel as ConsoleKernel;
 
 class Kernel extends ConsoleKernel
 {
@@ -25,7 +26,8 @@ class Kernel extends ConsoleKernel
         ResetAppServer::class,
         PingDevices::class,
         RefreshCompiledClassmap::class,
-        AddDeviceCommand::class
+        AddDeviceCommand::class,
+        FlushDatabaseQueue::class
     ];
 
     /**

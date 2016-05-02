@@ -33,7 +33,6 @@ class Openloop extends AbstractDevice implements DeviceDriverContract
 			);
 
 		$script->run();
-
 	}
 
 	protected function stop($input)
@@ -42,7 +41,7 @@ class Openloop extends AbstractDevice implements DeviceDriverContract
 				$this->scriptPaths["stop"],
 				$this->device
 			);
-
+		
 		$script->run();
 	}
 
@@ -56,20 +55,5 @@ class Openloop extends AbstractDevice implements DeviceDriverContract
 		$script->run();
 
 		return $script->getOutput();
-	}
-
-
-	// These methods have to be implemented
-	// only if you are implementing
-	// START command
-	protected function parseDuration($input)
-	{
-		return $input["t_sim"];
-	}
-
-	protected function parseSamplingRate($input)
-	{
-		return $input["s_rate"];
-	}
-	
+	}	
 }

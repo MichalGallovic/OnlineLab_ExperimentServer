@@ -421,27 +421,30 @@ var vm = new Vue({
 		getDevices: function() {
 			var me = this;
 
-			$.getJSON('api/server/devices')
+			$.getJSON('api/server/devices?include=softwares')
 			 .done(function(response) {
 			 	var devices = response.data;
 			 	
 			 	$.map(devices, function(device) {
 			 		device.active = false;
+			 		device.softwares = device.softwares.data;
+			 		if(device.status == "offline") {
+			 			noty ({
+			 				text : "Device " + device.name + " is offline!",
+			 				theme: "relax",
+			 				layout: "topRight",
+			 				timeout : 5000,
+			 				type: 'error'
+			 			});
+			 		}
 			 		return device;
 			 	});
-			 	me.devices = devices;
+			 	me.devices = devices.filter(function(device) {
+			 		return device.status != "offline";
+			 	});
 			 	//@todo remove this - only for auto switching to
 			 	//the first device
 			 	// me.pickDevice(devices[0]);
-			 })
-			 .fail(function(response) {
-			 	noty ({
-			 		text : response.responseJSON.error.message,
-			 		theme: "relax",
-			 		layout: "topRight",
-			 		timeout : 5000,
-			 		type: 'error'
-			 	});
 			 });
 		},
 		//@Todo wrap every request to promises
@@ -467,8 +470,10 @@ vm.$watch('selectedCommand', function() {
 	this.clearCommandOutput();
 });
 
-vm.$watch('activeSoftware', function(newActiveSoftware) {
-	this.selectedCommand = newActiveSoftware.commands[0];
+vm.$watch('activeSoftware', function(newActiveSoftware, oldActiveSoft) {
+	if(newActiveSoftware != oldActiveSoft) {
+		this.selectedCommand = newActiveSoftware.commands[0];
+	}
 });
 
 // vm.$watch('devices', function() {

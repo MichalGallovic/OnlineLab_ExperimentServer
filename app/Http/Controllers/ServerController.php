@@ -2,18 +2,18 @@
 
 namespace App\Http\Controllers;
 
-use Illuminate\Http\Request;
-
-use App\Http\Requests;
 use App\Experiment;
-use App\Http\Controllers\ApiController;
-use App\Classes\Transformers\AvailableExperimentTransformer;
-use Illuminate\Database\Eloquent\ModelNotFoundException;
-use App\Classes\Repositories\DeviceDbRepository;
+use App\Http\Requests;
 use League\Fractal\Manager;
-use App\Devices\Contracts\DeviceDriverContract;
-use App\Classes\Transformers\DeviceTransformer;
+use Illuminate\Http\Request;
+use App\Http\Controllers\ApiController;
 use Illuminate\Support\Facades\Artisan;
+use App\Classes\Services\SystemStatusService;
+use App\Classes\Transformers\DeviceTransformer;
+use App\Devices\Contracts\DeviceDriverContract;
+use App\Classes\Repositories\DeviceDbRepository;
+use Illuminate\Database\Eloquent\ModelNotFoundException;
+use App\Classes\Transformers\AvailableExperimentTransformer;
 
 class ServerController extends ApiController
 {
@@ -28,7 +28,7 @@ class ServerController extends ApiController
     public function experiments(Request $request)
     {
     	$experimnets = Experiment::all();
-
+        
     	return $this->respondWithCollection($experimnets, new AvailableExperimentTransformer);
     }
 
@@ -56,5 +56,13 @@ class ServerController extends ApiController
         
 
         return $this->respondWithCollection($devices, new DeviceTransformer);
+    }
+
+    public function status(Request $request)
+    {
+        $status = new SystemStatusService();
+        $status->check();
+
+        return $status->response();
     }
 }

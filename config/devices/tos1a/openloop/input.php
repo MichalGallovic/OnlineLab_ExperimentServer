@@ -28,14 +28,30 @@ return [
 			"rules"	=>	"required",
 			"title"	=>	"Čas simulácie",
 			"placeholder"	=>	10,
-			"type"	=>	"text"
+			"type"	=>	"text",
+			"meaning"	=>	"experiment_duration"
 		],
 		[
 			"name"	=>	"s_rate",
 			"rules"	=>	"required",
 			"title"	=>	"Vzorkovací čas",
 			"placeholder"	=>	200,
-			"type"	=>	"text"
+			"type"	=>	"text",
+			"meaning"	=>	"sampling_rate"
+		],
+		[
+			"name"	=>	"schema",
+			"rules"	=>	"required",
+			"title"	=>	"Rodicovska schema",
+			"type"	=>	"file",
+			"meaning"	=>	"parent_schema"
+		],
+		[
+			"name"	=>	"regulator",
+			"rules"	=>	"required",
+			"title"	=>	"Detska schema",
+			"type"	=>	"file",
+			"meaning"	=>	"child_schema"
 		]
 	]
 ];
