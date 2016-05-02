@@ -51,14 +51,16 @@ return [
 			"rules"	=>	"required",
 			"title"	=>	"Simulation duration in s",
 			"placeholder"	=>	10,
-			"type"	=>	"text"
+			"type"	=>	"text",
+			"meaning" => "experiment_duration"
 		],
 		[
 			"name"	=>	"ts",
 			"rules"	=>	"required",
 			"title"	=>	"TS Sampling rate in ms",
 			"placeholder"	=>	200,
-			"type"	=>	"text"
+			"type"	=>	"text",
+			"meaning" => "sampling_rate"
 		],
 		[
 	 		"name"	=>	"own_ctrl",
