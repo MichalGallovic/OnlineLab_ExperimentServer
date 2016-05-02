@@ -88,13 +88,13 @@ class ExperimentService
 	public function updateStatusWS($status)
 	{
 		$server = new Server(config("webserver.ip"));
-		$server->updateExperimentStatus($this->experiment, "ready");
+		$server->updateExperimentStatus($this->experiment, $status);
 	}
 
-	public function updateReportWs(ExperimentLog $log, $reportId)
+	public function updateReportWs($log, $reportId)
 	{
-		$outputData = $log->readExperiment();
-		$outputArguments = $log->experiment->getOutputArguments();
+		$outputData = !is_null($log) ? $log->readExperiment() : [];
+		$outputArguments = !is_null($log) ? $log->experiment->getOutputArguments() : [];
 		$output = [];
 		if(count(array_keys($outputData)) == count($outputArguments)) {
 			$output = array_combine($outputArguments, $outputData);
