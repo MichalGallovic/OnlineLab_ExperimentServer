@@ -73,6 +73,7 @@ class CommandService
 		$this->comamnds = DeviceDriverContract::AVAILABLE_COMMANDS;
 		$this->device = Device::findOrFail($deviceId);
 		$this->commandInput = $input;
+		$this->downloadedFiles = [];
 	}
 
 	public function execute()
