@@ -70,14 +70,16 @@ return [
 			"rules"	=>	"required",
 			"title"	=>	"Čas simulácie",
 			"placeholder"	=>	10,
-			"type"	=>	"text"
+			"type"	=>	"text",
+			"meaning"	=>	"experiment_duration"
 		],
 		[
 			"name"	=>	"s_rate",
 			"rules"	=>	"required",
 			"title"	=>	"Vzorkovacia frekvencia",
 			"placeholder"	=>	200,
-			"type"	=>	"text"
+			"type"	=>	"text",
+			"meaning"	=>	"sampling_rate"
 		],
 		[
 			"name"	=>	"input",
@@ -85,13 +87,6 @@ return [
 			"title"	=>	"Žiadaná hodnota",
 			"placeholder"	=>	30,
 			"type"	=>	"text"
-		],
-		[
-			"name"	=>	"scifun",
-			"rules"	=>	"required",
-			"title"	=>	"Scifun ????",
-			"placeholder"	=>	"y1=u1",
-			"type"	=>	"textarea"
 		]
 	]
 ];

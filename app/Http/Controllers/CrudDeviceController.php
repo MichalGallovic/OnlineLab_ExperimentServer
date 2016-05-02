@@ -7,6 +7,7 @@ use App\Software;
 use App\DeviceType;
 use App\Experiment;
 use App\Http\Requests;
+use Illuminate\Support\Arr;
 use Illuminate\Http\Request;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\DB;
@@ -57,6 +58,7 @@ class CrudDeviceController extends Controller
         $device = Device::create([
         	"device_type_id" => $input["device_type"],
         	"port"	=>	$input["port"],
+            "name" => $input["name"]
         	]);
 
         $softwares = Software::find($input["softwares"]);
@@ -125,10 +127,8 @@ class CrudDeviceController extends Controller
     	if(isset($redirect)) return $redirect;
 
         $device = Device::findOrFail($id);
-        $updateFields = [
-        	"port"	=>	$request->only("port")
-        ];
-        $device->update($request->only("port"));
+      
+        $device->update($request->only(["port","name"]));
 
         $input = $request->all();
 
@@ -176,11 +176,14 @@ class CrudDeviceController extends Controller
 
     protected function validateDevice(Request $request)
     {
+        $deviceId = Arr::get($request->route()->parameters(), "device");
+        $softwares = Arr::get($request->input(),"softwares",[]);
     	$validator = Validator::make($request->all(), [
     		'device_type'	=>	'required',
-    		'port'	=>	'required',
+            'name' => 'required|unique:devices,name,' . $deviceId,
+    		'port'	=>	'required|unique:devices,port,' . $deviceId,
     		'softwares'	=>	'required',
-    		'default_software'	=>	"required|default_experiment :" . implode(",",$request->input('softwares'))
+    		'default_software'	=>	"required|default_experiment:" . implode(",", $softwares)
     		]);
 
     	if($validator->fails()) {

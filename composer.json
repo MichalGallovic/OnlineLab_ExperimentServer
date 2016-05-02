@@ -10,7 +10,9 @@
         "league/fractal": "^0.13.0",
         "watson/active": "^2.0",
         "appzcoder/crud-generator": "^1.0",
-        "laravelcollective/html": "^5.2"
+        "laravelcollective/html": "^5.2",
+        "guzzlehttp/guzzle" : "6.2",
+        "predis/predis": "^1.0"
     },
     "require-dev": {
         "fzaninotto/faker": "~1.4",

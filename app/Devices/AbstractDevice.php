@@ -9,12 +9,14 @@ use Illuminate\Support\Str;
 use App\Devices\CommandFactory;
 use App\Devices\Helpers\Logger;
 use App\Devices\Commands\Command;
+use App\Events\ExperimentStarted;
 use App\Devices\Scripts\ReadScript;
 use App\Devices\Scripts\StopScript;
 use App\Devices\Scripts\StartScript;
 use App\Devices\Commands\InitCommand;
 use App\Devices\Commands\ReadCommand;
 use App\Devices\Commands\StopCommand;
+use Illuminate\Support\Facades\Redis;
 use App\Devices\Commands\StartCommand;
 use App\Devices\Commands\ChangeCommand;
 use App\Devices\Commands\StatusCommand;
@@ -208,13 +210,16 @@ abstract class AbstractDevice
         // where experiment can write its output
         // and set up App\ExperimentLog - model of
         // experiment_logs table
-        $duration = $this->parseDuration($input);
-        if(is_null($duration)) {
-            throw new \Exception('Please implement parseDuration($input) method, if you use start command.');
+
+        try {
+            $duration = $input[$this->experiment->getDurationKey()];
+        } catch(\ErrorException $e) {
+            throw new \Exception("Please mark whitch of the input fields in your input.php config file represents experiment duration. Use 'meaning' => 'experiment_duration' ");
         }
-        $rate = $this->parseSamplingRate($input);
-        if(is_null($rate)) {
-            throw new \Exception('Please implement parseSamplingRate($input) method, if you use start command.');
+        try {
+            $rate = $input[$this->experiment->getSamplingRateKey()];
+        } catch(\ErrorException $e) {
+            throw new \Exception("Please mark whitch of the input fields in your input.php config file represents sampling rate. Use 'meaning' => 'sampling_rate' ");
         }
 
         $logger = new Logger($this->experiment, $input, $requestedBy);
@@ -223,6 +228,19 @@ abstract class AbstractDevice
         $logger->createLogFile();
         $this->device = $this->device->fresh();
         $this->experimentLog = $this->device->currentExperimentLogger;
+
+        $data = [
+            'event' =>  'ExperimentStarted',
+            'data'  =>  [
+                'user_id'   => $this->experimentLog->requested_by,
+                'file_path' => $this->experimentLog->output_path
+            ]
+        ];
+        try {
+            Redis::publish('experiment-channel', json_encode($data));
+        } catch(\Exception $e) {
+            
+        }
     }
 
     protected function start($input)
@@ -231,13 +249,26 @@ abstract class AbstractDevice
     }
 
     protected function afterStart($input)
-    {/*
-        $script = new StopScript(
-                $this->scriptPaths["stop"],
-                $this->device
-            );
+    {
+        $data = [
+            'event' =>  'ExperimentFinished',
+            'data'  =>  [
+                'user_id'   => $this->experimentLog->requested_by
+            ]
+        ];
 
-        $script->run();*/
+         try {
+            Redis::publish('experiment-channel', json_encode($data));
+        } catch(\Exception $e) {
+            
+        }
+
+        // $script = new StopScript(
+        //         $this->scriptPaths["stop"],
+        //         $this->device
+        //     );
+
+        // $script->run();
     }
 
     protected function beforeStop($input)
