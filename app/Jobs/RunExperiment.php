@@ -45,12 +45,15 @@ class RunExperiment extends Job implements ShouldQueue
             $experiment = new ExperimentService($this->input, $deviceName, $softwareName);
             $result = $experiment->run();
             $experiment->updateStatusWS("ready");
-            $experiment->updateReportWs($experiment->getExperimentLog(), $this->input["report_id"]);
         } catch(DeviceNotConnectedException $e) {
+            $experiment->updateStatusWS("offline");
             var_dump("Device is not connected :(");
         } catch(ParametersInvalidException $e) {
+            $experiment->updateStatusWS("ready");
             var_dump("Parameters invalid, sorry :(");
         }
+
+        $experiment->updateReportWs($experiment->getExperimentLog(), $this->input["report_id"]);
     }
 
     /**
