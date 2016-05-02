@@ -41,14 +41,14 @@ return [
 		],
 		[
 			"name"	=>	"schema",
-			"rules"	=>	"required",
+			"rules"	=>	"",
 			"title"	=>	"Rodicovska schema",
 			"type"	=>	"file",
 			"meaning"	=>	"parent_schema"
 		],
 		[
 			"name"	=>	"regulator",
-			"rules"	=>	"required",
+			"rules"	=>	"",
 			"title"	=>	"Detska schema",
 			"type"	=>	"file",
 			"meaning"	=>	"child_schema"
