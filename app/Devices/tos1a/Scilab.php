@@ -130,14 +130,4 @@ class Scilab extends AbstractDevice implements DeviceDriverContract {
 
 
 
-    protected function parseDuration($input)
-    {
-        return $input["time"];
-    }
-
-    protected function parseSamplingRate($input)
-    {
-        return $input["ts"];
-    }
-
 }
