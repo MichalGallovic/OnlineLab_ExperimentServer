@@ -5,7 +5,7 @@ return [
 		[
 			"name"	=>	"c_fan",
 			"rules"	=>	"required",
-			"title"	=>	"Napätie ventilátora",
+			"title"	=>	"Napätie ventilátor",
 			"placeholder"	=>	20,
 			"type"	=>	"text"
 		],
@@ -53,5 +53,6 @@ return [
 			"type"	=>	"file",
 			"meaning"	=>	"child_schema"
 		]
-	]
+	],
+	"stop" => []
 ];
