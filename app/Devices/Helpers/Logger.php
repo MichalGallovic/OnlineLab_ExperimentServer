@@ -148,6 +148,7 @@ class Logger
     {
         $header = $this->device->type->name . "\n";
         $header .= $this->software->name . "\n";
+        $header .= $this->device->name . "\n";
         $header .= $this->experimentLogger->duration . "\n";
         $header .= $this->experimentLogger->measuring_rate . "\n";
         $header .= $this->experimentLogger->created_at . "\n";
