@@ -28,6 +28,8 @@ Route::group(['prefix' => 'api'], function() {
 	
 	Route::post('devices/{id}',['uses' => 'DeviceController@executeCommand']);
 
+	Route::post('commands/stop', ['uses' => 'CommandsController@stop']);
+
 	Route::get('experiments/latest',['uses' => 'ExperimentController@latest']);
 	Route::get('experiments/delete',['uses' => 'ExperimentController@destroy']);
 	Route::post('experiments/run', ['uses' => 'ExperimentController@run']);
@@ -58,5 +60,5 @@ Route::group(['middleware' => ['web']], function () {
 
 
 Route::get("test", function() {
-	dd(Experiment::find(52)->getDurationKey());
+	dd(App::environment());
 });

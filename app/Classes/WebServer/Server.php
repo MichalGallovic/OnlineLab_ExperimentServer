@@ -71,18 +71,26 @@ class Server
         return $this->postExperimentStatusUpdate($experiment, $status);
     }
 
-    public function updateExperimentReport(ExperimentLog $log, $output, $reportId)
+    public function updateExperimentReport($log, $output, $reportId)
     {
         return $this->postExperimentReport($log, $output, $reportId);   
     }
 
-    protected function postExperimentReport(ExperimentLog $log, $output, $reportId)
+    protected function postExperimentReport($log, $output, $reportId)
     {
-        $input = [
-            "report"  => $output,
-            "simulation_time"   =>  $log->duration,
-            "sampling_rate"     =>  $log->measuring_rate
-        ];
+        if(!is_null($log)) {
+            $input = [
+                "report"  => $output,
+                "simulation_time"   =>  $log->duration,
+                "sampling_rate"     =>  $log->measuring_rate
+            ];
+        } else {
+            $input = [
+                "report"  => [],
+                "simulation_time"   =>  0,
+                "sampling_rate"     =>  0
+            ];
+        }
 
         $body = $this->post("report/" . $reportId,$input);
 
