@@ -7,6 +7,7 @@ use App\ExperimentLog;
 use App\Http\Requests;
 use App\Jobs\RunExperiment;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Log;
 use App\Http\Controllers\Controller;
 use App\Http\Controllers\ApiController;
 use App\Classes\Services\ExperimentService;
@@ -22,6 +23,7 @@ class ExperimentController extends ApiController
 
     public function queue(ExperimentRunRequest $request)
     {
+        Log::info($request->input());
         $this->dispatch(new RunExperiment($request->input()));
         return $this->respondWithSuccess("Request received");
     }

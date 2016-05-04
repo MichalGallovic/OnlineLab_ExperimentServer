@@ -60,5 +60,5 @@ Route::group(['middleware' => ['web']], function () {
 
 
 Route::get("test", function() {
-	dd(Experiment::find(52)->getDurationKey());
+	dd(App::environment());
 });
