@@ -1,0 +1,14 @@
+[2016-04-13 15:33:53] local.INFO: array (
+)  
+[2016-04-13 15:34:52] local.INFO: array (
+  'software' => 'openloop',
+  'command' => 'start',
+  'input' => 
+  array (
+    'c_fan' => 30,
+    'c_led' => 50,
+    'c_lamp' => 0,
+    't_sim' => 20,
+    's_rate' => 50,
+  ),
+)  
