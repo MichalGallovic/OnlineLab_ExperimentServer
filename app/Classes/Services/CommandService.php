@@ -6,6 +6,7 @@ use App\Device;
 use App\Software;
 use App\Classes\WebServer\Server;
 use Illuminate\Support\Facades\App;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\File;
 use Illuminate\Support\Facades\Request;
 use App\Devices\Contracts\DeviceDriverContract;

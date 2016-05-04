@@ -38,7 +38,6 @@ function parseFile(path) {
   });
 
 
-
   return {
     data: rotatedArray,
     settings: {
@@ -50,6 +49,7 @@ function parseFile(path) {
 function streamDataOfFile(path, user_id) {
   var data = parseFile(path);
   io.emit('experiment-data:' + user_id, data); 
+  console.log('experiment-data:'+user_id);
 }
 
 redis.subscribe('experiment-channel');
@@ -58,7 +58,7 @@ var streamingId = -1;
 
 redis.on('message', function(channel, message) {
   var message = JSON.parse(message);
-
+  console.log(message);
   if(message.event == 'ExperimentStarted') {
     streamingId = setInterval(function() {
       streamDataOfFile(message.data.file_path, message.data.user_id);
