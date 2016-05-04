@@ -17,9 +17,10 @@ Array.prototype.clean = function(deleteValue) {
 
 function parseFile(path) {
   var fileArray = fs.readFileSync(path).toString().split('\n');
-  //var experimentSetup = fileArray.slice(0,8);
+  var experimentSetup = fileArray.slice(0,9);
 
-  fileArray = fileArray.slice(9,fileArray.length-1);
+  // dorobit, aby parsovalo az od === znacky
+  fileArray = fileArray.slice(10,fileArray.length-1);
   fileArray = fileArray.map(function(line) {
     return line.split(',');
   }).clean("");
@@ -37,18 +38,18 @@ function parseFile(path) {
   });
 
 
-
   return {
     data: rotatedArray,
-    //settings: {
-      //sampling_rate: experimentSetup[3]
-    //}
+    settings: {
+      instance: experimentSetup[2]
+    }
   };
 }
 
 function streamDataOfFile(path, user_id) {
   var data = parseFile(path);
   io.emit('experiment-data:' + user_id, data); 
+  console.log('experiment-data:'+user_id);
 }
 
 redis.subscribe('experiment-channel');
@@ -57,7 +58,7 @@ var streamingId = -1;
 
 redis.on('message', function(channel, message) {
   var message = JSON.parse(message);
-
+  console.log(message);
   if(message.event == 'ExperimentStarted') {
     streamingId = setInterval(function() {
       streamDataOfFile(message.data.file_path, message.data.user_id);

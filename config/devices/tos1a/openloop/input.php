@@ -5,7 +5,7 @@ return [
 		[
 			"name"	=>	"c_fan",
 			"rules"	=>	"required",
-			"title"	=>	"Napätie ventilátora",
+			"title"	=>	"Napätie ventilátor",
 			"placeholder"	=>	20,
 			"type"	=>	"text"
 		],
@@ -41,17 +41,18 @@ return [
 		],
 		[
 			"name"	=>	"schema",
-			"rules"	=>	"required",
+			"rules"	=>	"",
 			"title"	=>	"Rodicovska schema",
 			"type"	=>	"file",
 			"meaning"	=>	"parent_schema"
 		],
 		[
 			"name"	=>	"regulator",
-			"rules"	=>	"required",
+			"rules"	=>	"",
 			"title"	=>	"Detska schema",
 			"type"	=>	"file",
 			"meaning"	=>	"child_schema"
 		]
-	]
+	],
+	"stop" => []
 ];
