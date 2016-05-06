@@ -1,12 +1,10 @@
 chdir('/var/www/olm_app_server/server_scripts/tos1a/scilab');
 loadXcosLibs();
 
-global previous_required;
-global previous_error1;
-global previous_error2;
-previous_required=0;
-previous_error1=0;
-previous_error2=0;
+global y;
+global e;
+y = list(0,0,0,0);
+e = list(0,0,0,0); 
 
 c_port = ascii(port);
 
