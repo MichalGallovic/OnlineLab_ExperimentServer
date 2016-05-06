@@ -94,14 +94,15 @@ return [
 		[
 			"name"	=>	"uploaded_file",
 			"rules"	=>	"",
-			"title"	=>	"File to upload",
-			"type"	=>	"file"
+			"title"	=>	"Simulation scheme",
+			"type"	=>	"file",
+			"meaning" => "parent_schema"
 		],
 		[
 	 		"name"	=>	"user_function",
 			"rules"	=>	"",
-	 		"title"	=>	"Own function - in format y1=(relation of four inputs u1,u2,u3,u4,Ts) u1-required value, u2-temperature, u3-light ntensity, u4-fan rpm, Ts-sample rate",
-	 		"placeholder"	=>	"y1=u1", 
+	 		"title"	=>	"Own function - in format y1=(relation of inputs u1,u2,u3,u4,P,I,D,ts) u1-required value, u2-temperature, u3-light intensity, u4-fan rpm, P,I,D, ts-sample rate. Acces to previous 4 output values is by using y[-1]...y[-4], also for error value e[-1]..., error value e[0] needs to be defined in the function.",
+	 		"placeholder"	=>	"y1=u1;", 
 	 		"type"	=>	"textarea"
 	 	]
 
