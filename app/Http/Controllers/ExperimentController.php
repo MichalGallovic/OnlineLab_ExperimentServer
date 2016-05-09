@@ -2,19 +2,49 @@
 
 namespace App\Http\Controllers;
 
-use Illuminate\Http\Request;
-
+use App\Device;
+use App\ExperimentLog;
 use App\Http\Requests;
+use App\Jobs\RunExperiment;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Log;
 use App\Http\Controllers\Controller;
 use App\Http\Controllers\ApiController;
-use App\ExperimentLog;
-use App\Device;
-use Illuminate\Database\Eloquent\ModelNotFoundException;
-use App\Classes\Transformers\ExperimentLogTransformer;
+use App\Classes\Services\ExperimentService;
 use App\Http\Requests\ExperimentLogRequest;
+use App\Http\Requests\ExperimentRunRequest;
+use App\Classes\Transformers\ExperimentLogTransformer;
+use App\Classes\Validators\ExperimentServiceValidator;
+use Illuminate\Database\Eloquent\ModelNotFoundException;
+use App\Classes\Services\Exceptions\ExperimentCommandsNotDefined;
 
 class ExperimentController extends ApiController
 {
+
+    public function queue(ExperimentRunRequest $request)
+    {
+        Log::info($request->input());
+        $this->dispatch(new RunExperiment($request->input()));
+        return $this->respondWithSuccess("Request received");
+    }
+
+    public function run(ExperimentRunRequest $request)
+    {
+        $deviceName = $request->input('device');
+        $softwareName = $request->input('software');
+        
+        try {
+            $experiment = new ExperimentService($request->input(), $deviceName, $softwareName);
+            $result = $experiment->run();
+        } catch(ModelNotFoundException $e) {
+            return $this->errorNotFound("Experiment not found");
+        } catch(ExperimentCommandsNotDefined $e) {
+            return $this->setStatusCode(401)->respondWithError($e->getMessage(), 401);
+        }
+
+        return $this->respondWithSuccess($result);
+    }
+
     public function history(Request $request) 
     {
 

@@ -2,7 +2,10 @@
 
 namespace App\Providers;
 
+use Queue;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\ServiceProvider;
+use Illuminate\Queue\Events\JobProcessed;
 use Illuminate\Support\Facades\Validator;
 
 class AppServiceProvider extends ServiceProvider

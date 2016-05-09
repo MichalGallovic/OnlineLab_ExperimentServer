@@ -1,5 +1,12 @@
 <?php
 
+use App\Experiment;
+use App\ExperimentLog;
+use App\Classes\WebServer\Server;
+use App\Events\ExperimentStarted;
+use Illuminate\Support\Facades\Cache;
+use App\Classes\Services\ExperimentService;
+
 /*
 |--------------------------------------------------------------------------
 | Routes File
@@ -21,8 +28,12 @@ Route::group(['prefix' => 'api'], function() {
 	
 	Route::post('devices/{id}',['uses' => 'DeviceController@executeCommand']);
 
+	Route::post('commands/stop', ['uses' => 'CommandsController@stop']);
+
 	Route::get('experiments/latest',['uses' => 'ExperimentController@latest']);
 	Route::get('experiments/delete',['uses' => 'ExperimentController@destroy']);
+	Route::post('experiments/run', ['uses' => 'ExperimentController@run']);
+	Route::post('experiments/queue', ['uses' => 'ExperimentController@queue']);
 	Route::get('experiments/{id}',['uses' => 'ExperimentController@show']);
 
 	Route::get('server/experiments',['uses' => 'ServerController@experiments']);
@@ -45,4 +56,9 @@ Route::group(['middleware' => ['web']], function () {
 	Route::get("generate/device/{id}/code",['uses' => 'DevelopmentController@generateCode']);
 	Route::get("reset", ['uses'	=>	'DevelopmentController@showReset']);
 	Route::get("reset/database", ['uses' => 'DevelopmentController@resetDatabase']);
+});
+
+
+Route::get("test", function() {
+	dd(App::environment());
 });

@@ -5,29 +5,27 @@ namespace App\Events;
 use App\Device;
 use App\Experiment;
 use App\Events\Event;
+use App\ExperimentLog;
 use Illuminate\Queue\SerializesModels;
-use Illuminate\Contracts\Broadcasting\ShouldBroadcast;
 use App\Devices\Contracts\DeviceDriverContract;
+use Illuminate\Contracts\Broadcasting\ShouldBroadcast;
 
-class ExperimentStarted extends Event
+class ExperimentStarted extends Event implements ShouldBroadcast
 {
     use SerializesModels;
 
-    public $device;
-    public $experiment;
-    public $logger;
+    public $user_id;
+    public $output_path;
 
     /**
      * Create a new event instance.
      *
      * @return void
      */
-    public function __construct(Device $device, Experiment $experiment, ExperimentLo)
+    public function __construct(ExperimentLog $log)
     {
-        $this->device = $device;
-        $this->experiment = $experiment;
-        $this->input = $input;
-        $this->requestedBy = $requestedBy;
+        $this->user_id = $log->requested_by;
+        $this->output_path = $log->output_path;
     }
 
     /**
@@ -37,6 +35,6 @@ class ExperimentStarted extends Event
      */
     public function broadcastOn()
     {
-        return [];
+        return ['experiment-channel'];
     }
 }
