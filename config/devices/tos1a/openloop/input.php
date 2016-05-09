@@ -5,7 +5,7 @@ return [
 		[
 			"name"	=>	"c_fan",
 			"rules"	=>	"required",
-			"title"	=>	"Napätie ventilátora",
+			"title"	=>	"Napätie ventilátor",
 			"placeholder"	=>	20,
 			"type"	=>	"text"
 		],
@@ -28,20 +28,31 @@ return [
 			"rules"	=>	"required",
 			"title"	=>	"Čas simulácie",
 			"placeholder"	=>	10,
-			"type"	=>	"text"
+			"type"	=>	"text",
+			"meaning"	=>	"experiment_duration"
 		],
 		[
 			"name"	=>	"s_rate",
 			"rules"	=>	"required",
 			"title"	=>	"Vzorkovací čas",
 			"placeholder"	=>	200,
-			"type"	=>	"text"
+			"type"	=>	"text",
+			"meaning"	=>	"sampling_rate"
+		],
+		[
+			"name"	=>	"schema",
+			"rules"	=>	"",
+			"title"	=>	"Rodicovska schema",
+			"type"	=>	"file",
+			"meaning"	=>	"parent_schema"
 		],
 		[
 			"name"	=>	"regulator",
-			"rules"	=>	"required",
-			"title"	=>	"Regulator",
-			"type"	=>	"file"
+			"rules"	=>	"",
+			"title"	=>	"Detska schema",
+			"type"	=>	"file",
+			"meaning"	=>	"child_schema"
 		]
-	]
+	],
+	"stop" => []
 ];

@@ -23,6 +23,14 @@ return [
 	// 		"placeholder"	=>	0.8 //Default form value,
 	// 		"type"	=>	"checkbox",
 	// 		"values"	=>	["Prva","Druha","Tretia"]
+	// 	],
+	//	[
+	// 		"name"	=>	"t_sim",
+	// 		"rules"	=>	"required",
+	// 		"title"	=>	"Experimant duration",
+	// 		"placeholder"	=>	10 //Default form value,
+	// 		"type"	=>	"text",
+	// 		"meaning" => "experiment_duration" // other options are "sampling_rate", "parent_schema","child_schema"
 	// 	]
 	// ]
 ];

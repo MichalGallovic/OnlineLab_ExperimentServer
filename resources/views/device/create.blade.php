@@ -11,10 +11,18 @@
         {!! Form::label('device_type', 'Device type: ', ['class' => 'col-sm-3 control-label']) !!}
         <div class="col-sm-6">
             {!! Form::select('device_type', $devicetypes, null, ['class' => 'form-control']) !!}
-            {!! $errors->first('name', '<p class="help-block">:message</p>') !!}
+            {!! $errors->first('device_type', '<p class="help-block">:message</p>') !!}
         </div>
     </div>
     
+    <div class="form-group {{ $errors->has('name') ? 'has-error' : ''}}">
+        {!! Form::label('name', 'Device name: ', ['class' => 'col-sm-3 control-label']) !!}
+        <div class="col-sm-6">
+            {!! Form::text('name', null, ['class' => 'form-control','placeholder' => 'Unique device name']) !!}
+            {!! $errors->first('name', '<p class="help-block">:message</p>') !!}
+        </div>
+    </div>
+
     <div class="form-group {{ $errors->has('port') ? 'has-error' : ''}}">
         {!! Form::label('port', 'Port: ', ['class' => 'col-sm-3 control-label']) !!}
         <div class="col-sm-6">

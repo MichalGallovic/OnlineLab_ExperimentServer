@@ -17,8 +17,8 @@ class CreateDevicesTable extends Migration
             $table->string('status')->default("offline");
             $table->integer('device_type_id')->unsigned();
             $table->foreign('device_type_id')->references('id')->on('device_types');
-            
-            $table->string('port')->nullable();
+            $table->string("name")->unique();
+            $table->string('port')->nullable()->unique();
             $table->text("attached_pids")->nullable();
             $table->timestamps();
         });
