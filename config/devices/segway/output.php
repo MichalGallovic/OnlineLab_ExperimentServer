@@ -42,8 +42,12 @@ return [
 	 	"name"	=>	"angle_R",
 	 	"title"	=>	"Prejdená vzdialenosť pravým kolesom v °"
 	 ],
-//	 [
-//	 	"name"	=>	"servo_tazisko",
+	 [
+	 	"name"	=>	"servo_tazisko",
+	 	"title"	=>	"Poloha serva pre zmenu ťažiska"
+	 ],
+//            [
+//	 	"name"	=>	"zdvihanie_poloha",
 //	 	"title"	=>	"Poloha serva pre zmenu ťažiska"
 //	 ]
 ];
