@@ -33,6 +33,7 @@ class Openmodelica extends AbstractDevice implements DeviceDriverContract {
     ];
     protected $client;
     protected $uploaded_files_dir = "";
+    protected $password = "";
    // protected $T_sim = 60;
 
     /**
@@ -44,6 +45,11 @@ class Openmodelica extends AbstractDevice implements DeviceDriverContract {
 
         //require_once('../Helpers/WSocketServer.php');
         $this->client = new Client("ws://127.0.0.1:18000");
+        
+        require '../../html/laboratory/WebServer/MSconfig.php';
+        
+        $this->password=$config['Passprahses']['olm']; 
+        
         parent::__construct($device, $experiment);
     }
 
@@ -95,7 +101,7 @@ class Openmodelica extends AbstractDevice implements DeviceDriverContract {
         }
         $vars = json_encode($vars);
 
-        $this->client->send("#init_sim:" . $vars);
+        $this->client->send("#".$this->password."#init_sim:" . $vars);
 
         $response = " ";
         $cnt = 0;
@@ -128,7 +134,7 @@ class Openmodelica extends AbstractDevice implements DeviceDriverContract {
         //       while ((strpos($mess, "sim:stop_sent") === false)) {
         $input['output_path']=  $this->experimentLog->output_path;
         //var_dump($input);die();
-        $this->client->send("#start_sim:" . json_encode($input));
+        $this->client->send("#".$this->password."#start_sim:" . json_encode($input));
         // $this->client->setTimeout($this->T_sim+10);
         $this->client->setTimeout(15);
         try {
@@ -143,16 +149,20 @@ class Openmodelica extends AbstractDevice implements DeviceDriverContract {
         }
 
 
-        if (strpos($response, "simulation is not ready in openmodelica") === false) {
+        if (strpos($response, "simulation is not ready") === false) {
+            
+        }else {
+            
             $this->client->setTimeout(5);
             return "simulation is beeing initialized";
         }
 
         $response = " ";
         $cnt = 0;
-        while ((strpos($response, "state:x") === false) && $cnt < $this->T_sim) {
+        
+        while ((strpos($response, "state:x") === false) && $cnt < $input['cas_sim']) {
 
-            $this->client->send("#state_sim");
+            $this->client->send("#".$this->password."#state_sim");
             sleep(1);
             $response = $this->client->receive();
 
@@ -188,7 +198,7 @@ class Openmodelica extends AbstractDevice implements DeviceDriverContract {
         $response = " ";
         //       while ((strpos($mess, "sim:stop_sent") === false)) {
 
-        $this->client->send("#stop_sim");
+        $this->client->send("#".$this->password."#stop_sim");
 
         try {
             sleep(1);
@@ -211,7 +221,7 @@ class Openmodelica extends AbstractDevice implements DeviceDriverContract {
     //done
     protected function read($input) {
 
-        $this->client->send("#read_data");
+        $this->client->send("#".$this->password."#read_data");
 
         $response = " ";
         $cnt = 0;
@@ -256,7 +266,7 @@ class Openmodelica extends AbstractDevice implements DeviceDriverContract {
     protected function change($input) {
         
 
-        $this->client->send("#change_refVal:" . json_encode($input));
+        $this->client->send("#".$this->password."#change_refVal:" . json_encode($input));
 
         $response = " ";
         $cnt = 0;
@@ -289,7 +299,7 @@ class Openmodelica extends AbstractDevice implements DeviceDriverContract {
 
     /* protected function status($input) {
 
-      $this->client->send("#state_sim");
+      $this->client->send("#".$this->password."#state_sim");
 
       $response = " ";
       $cnt = 0;
