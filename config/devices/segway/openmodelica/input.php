@@ -27,13 +27,6 @@ return [
 	// ]
 	 "init"	=>	[
 	 	[
-	 		"name"	=>	"cas_sim",
-	 		"rules"	=>	"required",
-	 		"title"	=>	"Dlžka trvania experimentu [s]",
-	 		"placeholder"	=>	20, //Default form value,
-	 		"type"	=>	"text"
-	 	],
-	 	[
 	 		"name"	=>	"servo_taz",
 	 		"rules"	=>	"required",
 	 		"title"	=>	"Poloha závažia (0-180)",
@@ -101,10 +94,54 @@ return [
 	 ],
  	 "start"	=>	[
 	 	[
+	 		"name"	=>	"cas_sim",
+	 		"rules"	=>	"required",
+	 		"title"	=>	"Dlžka trvania experimentu [s]",
+	 		"placeholder"	=>	20, //Default form value,
+	 		"type"	=>	"text",
+                        "meaning" => "experiment_duration"
+	 	],
+	 	[
 	 		"name"	=>	"s_rate",
 	 		"rules"	=>	"required",
 	 		"title"	=>	"Perioda vzorkovania pre vysledky",
 	 		"placeholder"	=>	0.1, //Default form value,
+	 		"type"	=>	"text",
+                        "meaning" => "sampling_rate"
+	 	],
+	 	[
+	 		"name"	=>	"user_val1",
+	 		"rules"	=>	"required",
+	 		"title"	=>	"Žiadaná hodnota (ref_val)",
+	 		"placeholder"	=>	0.0, //Default form value,
+	 		"type"	=>	"text"
+	 	],
+	 	[
+	 		"name"	=>	"user_val2",
+	 		"rules"	=>	"required",
+	 		"title"	=>	"Parameter user_val2",
+	 		"placeholder"	=>	0.0, //Default form value,
+	 		"type"	=>	"text"
+	 	],
+	 	[
+	 		"name"	=>	"user_val3",
+	 		"rules"	=>	"required",
+	 		"title"	=>	"Parameter user_val3",
+	 		"placeholder"	=>	0.0, //Default form value,
+	 		"type"	=>	"text"
+	 	],
+	 	[
+	 		"name"	=>	"user_val4",
+	 		"rules"	=>	"required",
+	 		"title"	=>	"Parameter user_val4",
+	 		"placeholder"	=>	0.0, //Default form value,
+	 		"type"	=>	"text"
+	 	],
+	 	[
+	 		"name"	=>	"user_val5",
+	 		"rules"	=>	"required",
+	 		"title"	=>	"Parameter user_val5",
+	 		"placeholder"	=>	0.0, //Default form value,
 	 		"type"	=>	"text"
 	 	]
 	 ],
@@ -143,6 +180,6 @@ return [
 	 		"title"	=>	"Parameter user_val5",
 	 		"placeholder"	=>	0.0, //Default form value,
 	 		"type"	=>	"text"
-	 	],
+	 	]
 	 ]
 ];
