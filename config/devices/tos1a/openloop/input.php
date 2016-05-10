@@ -54,5 +54,28 @@ return [
 			"meaning"	=>	"child_schema"
 		]
 	],
-	"stop" => []
+	"stop" => [],
+	"change" => [
+		[
+			"name"	=>	"c_fan",
+			"rules"	=>	"required",
+			"title"	=>	"Napätie ventilátor",
+			"placeholder"	=>	20,
+			"type"	=>	"text"
+		],
+		[
+			"name"	=>	"c_lamp",
+			"rules"	=>	"required",
+			"title"	=>	"Napätie lampy",
+			"placeholder"	=>	60,
+			"type"	=>	"text"
+		],
+		[
+			"name"	=>	"c_led",
+			"rules"	=>	"required",
+			"title"	=>	"Napätie ledky",
+			"placeholder"	=>	0,
+			"type"	=>	"text"
+		]
+	]
 ];
