@@ -19,4 +19,19 @@ class CommandsController extends Controller
     	);
     	$command->execute();
     }
+
+    public function change(Request $request)
+    {
+        $device = Device::where('name',$request->input('instance'))->whereHas('type', function($q) use ($request) {
+            $q->where('name',$request->input('device'));
+        })->first();
+        $command = new CommandService(
+            [
+                "command" => "change", 
+                "software" => $request->input('software'),
+                "input" =>  $request->input('input')
+            ], $device->id
+        );
+        $command->execute();
+    }
 }
