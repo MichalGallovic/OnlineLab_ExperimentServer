@@ -146,12 +146,12 @@ class Logger
      */
     protected function generateLogHeaderContents()
     {
-        $header = $this->device->type->name . "\n";
-        $header .= $this->software->name . "\n";
-        $header .= $this->device->name . "\n";
-        $header .= $this->experimentLogger->duration . "\n";
-        $header .= $this->experimentLogger->measuring_rate . "\n";
-        $header .= $this->experimentLogger->created_at . "\n";
+        $header = "device:".$this->device->type->name . "\n";
+        $header .= "software:".$this->software->name . "\n";
+        $header .= "name:".$this->device->name . "\n";
+        $header .= "duration:".$this->experimentLogger->duration . "\n";
+        $header .= "sampling_rate:".$this->experimentLogger->measuring_rate . "\n";
+        $header .= "start:".$this->experimentLogger->created_at . "\n";
 
         $input = $this->experimentLogger->input_arguments;
         $input = json_decode($input);
@@ -163,8 +163,8 @@ class Logger
         $inputValues = str_replace("[", "", $inputValues);
         $inputValues = str_replace("]", "", $inputValues);
 
-        $header .= $inputNames . "\n";
-        $header .= $inputValues. "\n";
+        $header .= "input_arguments:".$inputNames . "\n";
+        $header .= "input_values:".$inputValues. "\n";
 
         $names = $this->experiment->getOutputArguments();
         $names = collect($names);
@@ -172,7 +172,7 @@ class Logger
         $names = str_replace("[", "", $names);
         $names = str_replace("]", "", $names);
         
-        $header .= $names . "\n";
+        $header .= "output_arguments:".$names . "\n";
         $header .= "===\n";
 
         return $header;
