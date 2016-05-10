@@ -7,7 +7,6 @@ use App\Experiment;
 use App\Devices\AbstractDevice;
 use App\Devices\Traits\AsyncRunnable;
 use App\Devices\Contracts\DeviceDriverContract;
-use App\Devices\Helpers\WSocketServer;
 
 require_once('Exception.php');
 require_once('BadOpcodeException.php');
@@ -34,7 +33,7 @@ class Openmodelica extends AbstractDevice implements DeviceDriverContract {
     ];
     protected $client;
     protected $uploaded_files_dir = "";
-    protected $T_sim = 60;
+   // protected $T_sim = 60;
 
     /**
      * Construct base class (App\Devices\AbstractDevice)
@@ -50,11 +49,11 @@ class Openmodelica extends AbstractDevice implements DeviceDriverContract {
 
     protected function init($input) {
 
-        $vars['T_sim'] = $input['cas_sim'];
+      //  $vars['T_sim'] = $input['cas_sim'];
 
         $vars['servo_taz'] = $input['servo_taz'];
 
-        $this->T_sim = $input['cas_sim'];
+        //$this->T_sim = $input['cas_sim'];
 
         switch ($input['reg_typ']) {
             case "PID":
@@ -116,7 +115,7 @@ class Openmodelica extends AbstractDevice implements DeviceDriverContract {
         }
         $this->client->setTimeout(10);
         if (strpos($response, "init:end") === false) {
-            return "Something went wrong try again please";
+            return $response;
         } else {
             return $response;
         }
@@ -125,6 +124,7 @@ class Openmodelica extends AbstractDevice implements DeviceDriverContract {
     protected function start($input) {
         
         $response = " ";
+        //$input['cas_sim']
         //       while ((strpos($mess, "sim:stop_sent") === false)) {
         $input['output_path']=  $this->experimentLog->output_path;
         //var_dump($input);die();
@@ -168,7 +168,13 @@ class Openmodelica extends AbstractDevice implements DeviceDriverContract {
     // only if you are implementing
     // START command
     protected function parseDuration($input) {
-        return $this->T_sim;
+        if ($input["cas_sim"] > 60) {
+            $input["cas_sim"] = 60;
+        }
+        if ($input["cas_sim"] < 1) {
+            $input["cas_sim"] = 1;
+        }
+        return $input['cas_sim'];
     }
 
     protected function parseSamplingRate($input) {
@@ -248,7 +254,7 @@ class Openmodelica extends AbstractDevice implements DeviceDriverContract {
 
     //done
     protected function change($input) {
-
+        
 
         $this->client->send("#change_refVal:" . json_encode($input));
 
