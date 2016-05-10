@@ -108,41 +108,6 @@ return [
 	 		"placeholder"	=>	0.1, //Default form value,
 	 		"type"	=>	"text",
                         "meaning" => "sampling_rate"
-	 	],
-	 	[
-	 		"name"	=>	"user_val1",
-	 		"rules"	=>	"required",
-	 		"title"	=>	"Žiadaná hodnota (ref_val)",
-	 		"placeholder"	=>	0.0, //Default form value,
-	 		"type"	=>	"text"
-	 	],
-	 	[
-	 		"name"	=>	"user_val2",
-	 		"rules"	=>	"required",
-	 		"title"	=>	"Parameter user_val2",
-	 		"placeholder"	=>	0.0, //Default form value,
-	 		"type"	=>	"text"
-	 	],
-	 	[
-	 		"name"	=>	"user_val3",
-	 		"rules"	=>	"required",
-	 		"title"	=>	"Parameter user_val3",
-	 		"placeholder"	=>	0.0, //Default form value,
-	 		"type"	=>	"text"
-	 	],
-	 	[
-	 		"name"	=>	"user_val4",
-	 		"rules"	=>	"required",
-	 		"title"	=>	"Parameter user_val4",
-	 		"placeholder"	=>	0.0, //Default form value,
-	 		"type"	=>	"text"
-	 	],
-	 	[
-	 		"name"	=>	"user_val5",
-	 		"rules"	=>	"required",
-	 		"title"	=>	"Parameter user_val5",
-	 		"placeholder"	=>	0.0, //Default form value,
-	 		"type"	=>	"text"
 	 	]
 	 ],
  	 "change"	=>	[
