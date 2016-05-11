@@ -580,7 +580,7 @@ switch (flag) {
 		if (ptr->counter == 0) {
       ptr->counter++;
 			tos_init(port_string);
-			//usleep(10000);
+			usleep(1000);
 			tos_write(inLamp, inLed, inFan);
 			//usleep(10000);
       errTest = tos_read(&Temp, &FiltTempInternal, &DerTempInternal, &FiltTempExternal, &DerTempExternal, &FiltLightLinear, &DerLightLinear, &FiltLightLog, &DerLightLog, &AmpereLight, &VoltageLight, &AmpereFan, &VoltageFan, &FanRPM, &DerFanRPM, &Checksum);

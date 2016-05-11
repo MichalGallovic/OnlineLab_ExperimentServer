@@ -20,7 +20,7 @@ input=$(echo $3 | sed "s/\(.*\).\{$n\}/\1/")
 input=$(echo $input | awk '{ print substr( $1, 9, length($1) ) }' | tr : = | tr , ";")
 
 userFcn=$(echo $userFcn  | awk '{ print substr( $userFcn, 15, length($userFcn) ) }')
-userFcn='function y1=user_reg_func(t,u1,u2,u3,u4,u5,u6,u7), '$userFcn'; endfunction;'
+userFcn='function y1=user_reg_func(t,u1,u2,u3,u4,u5,u6,u7), global y; global e; P=u5; I=u6; D=u7;'$userFcn'; y(0)=y1;e(0)=error_value;y(5)=null();e(5)=null();endfunction;'
 
 #echo $userFcn >> /var/www/olm_app_server/storage/logs/devices/tos1a/scilab/testText.txt
 
