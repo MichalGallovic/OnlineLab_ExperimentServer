@@ -1,0 +1,27 @@
+{2016/04/09 21:40:12} RaspiMJPEG Version 5.4.2
+{2016/04/09 21:40:12} recommended video buffers 1
+{2016/04/09 21:40:12} h264 buffers set to recommended 1
+{2016/04/09 21:40:12} MJPEG streaming, ready to receive commands
+{2016/04/09 21:40:12} send smd 9
+[2016/04/09 21:40:13] RaspiCam support started
+[2016/04/09 21:40:13] Capture Pipe already exists /var/www/html/picam/FIFO1
+[2016/04/09 21:40:13] Scheduler loop is started
+{2016/04/09 21:40:13} Starting command loop
+[2016/04/09 21:40:13] Reload parameters command requested
+[2016/04/09 21:40:13] Scheduler loop is started
+[2016/04/09 21:40:14] New period detected 0
+[2016/04/09 21:40:14] Scheduled management tasks. Next at 1460241614
+{2016/04/09 21:40:36} SIGINT/SIGTERM received, stopping
+{2016/04/09 21:41:26} RaspiMJPEG Version 5.4.2
+{2016/04/09 21:41:26} recommended video buffers 1
+{2016/04/09 21:41:26} h264 buffers set to recommended 1
+{2016/04/09 21:41:26} MJPEG streaming, ready to receive commands
+{2016/04/09 21:41:26} send smd 9
+[2016/04/09 21:41:27] RaspiCam support started
+[2016/04/09 21:41:27] Capture Pipe already exists /var/www/html/picam/FIFO1
+[2016/04/09 21:41:27] Scheduler loop is started
+{2016/04/09 21:41:27} Starting command loop
+[2016/04/09 21:41:27] Reload parameters command requested
+[2016/04/09 21:41:27] Scheduler loop is started
+[2016/04/09 21:41:28] New period detected 0
+[2016/04/09 21:41:28] Scheduled management tasks. Next at 1460241688

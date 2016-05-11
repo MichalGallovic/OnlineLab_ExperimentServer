@@ -60,6 +60,11 @@
 								:description="experimentDescription"
 								:series="experimentData"
 							></olm-graph>
+
+						</div>
+						<div class="col-lg-12" v-if="activeDevice.name == 'led_cube'">
+							<olm-webcam>
+							</olm-webcam>
 						</div>
 						<div
 						style="margin-top:40px;" 
@@ -190,7 +195,7 @@
 		</template>
 		<template id="input-template">
 			<div class="row" style="margin-top:10px">
-				<div v-el:input class="form-group">
+				<div class="form-group">
 				<label 
 				v-bind:class="{
 					'col-xs-6' : (type == 'text' || type == 'select'),
@@ -199,27 +204,29 @@
 				class="control-label"
 				>@{{ label }}</label>
 				<div class="col-xs-6" v-if="type == 'text'">
-					<input v-model="input" class="form-control" type="text" name="@{{ name }}" placeholder="@{{ placeholder }}" value="@{{ placeholder }}">
+					<input v-el:input v-model="input" class="form-control" type="text" name="@{{ name }}" placeholder="@{{ placeholder }}" value="@{{ placeholder }}">
 				</div>
 				<div class="col-xs-12" v-if="type == 'radio'">
 					<span v-for="(index, value) in values" >
 						<label class="radio-inline">
-						  <input v-model="input" type="radio" name="@{{ name }}[]" value="@{{ value }}"> @{{ value }}
+						  <input v-el:input v-model="input" type="radio" name="@{{ name }}[]" value="@{{ value }}"> @{{ value }}
 						</label>
 					</span>
 				</div>
 				<div class="col-xs-12" v-if="type == 'checkbox'">
 					<span v-for="(index, value) in values" >
 						<label class="checkbox-inline" for="@{{ name}}@{{index}}">
-						  <input id="@{{ name}}@{{index}}" v-model="input" type="checkbox" name="@{{ name }}[]" value="@{{ value }}"> @{{ value }}
+						  <input v-el:input id="@{{ name}}@{{index}}" v-model="input" type="checkbox" name="@{{ name }}[]" value="@{{ value }}"> @{{ value }}
 						</label>
 					</span>
 				</div>
 				<div class="col-xs-12" v-if="type == 'textarea'">
-					<textarea v-model="input" class="form-control" rows="3" placeholder="@{{ placeholder }}"></textarea>
+					<textarea v-el:input v-model="input" class="form-control" rows="3" placeholder="@{{ placeholder }}">
+						@{{ placeholder }}
+					</textarea>
 				</div>
 				<div class="col-xs-6" v-if="type == 'select'">
-					<select class="form-control" name="@{{ name }}" v-model="input">
+					<select v-el:input class="form-control" name="@{{ name }}" v-model="input">
 					  <option v-for="value in values">@{{ value }}</option>
 					</select>
 				</div>
@@ -230,6 +237,11 @@
 			</div>
 			</div>
 		</template>
+		<template id="webcam-template">
+			<div id="narrow">
+	           <img id="mjpeg_dest" />
+	       </div>
+		</template>
 	</div>
 	<script src="{{ asset('assets/js/jquery-1.12.1.js') }}"></script>
 	<script src="{{ asset('assets/js/bootstrap.min.js') }}"></script>
@@ -239,6 +251,7 @@
 	<script src="{{ asset('assets/js/noty/jquery.noty.packaged.min.js') }}"></script>
 	<script src="{{ asset('assets/js/noty/relax.js') }}"></script>
 	<script src="{{ asset('assets/js/noty/topRight.js') }}"></script>
+	<script src="{{ asset('script_min.js') }}"></script>
 	<script src="{{ asset('assets/js/app.js') }}"></script>
 </body>
 </html>
