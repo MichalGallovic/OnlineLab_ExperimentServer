@@ -129,6 +129,9 @@ class Openmodelica extends AbstractDevice implements DeviceDriverContract {
 
     protected function start($input) {
         
+        $input["s_rate"]=$input["s_rate"]/1000; //from miliseconds to seconds
+        
+        chmod($this->experimentLog->output_path,0664);
         $response = " ";
         //$input['cas_sim']
         //       while ((strpos($mess, "sim:stop_sent") === false)) {
@@ -160,7 +163,7 @@ class Openmodelica extends AbstractDevice implements DeviceDriverContract {
         $response = " ";
         $cnt = 0;
         
-        while ((strpos($response, "state:x") === false) && $cnt < $input['cas_sim']) {
+        while ((strpos($response, "state:x") === false) && $cnt < ($input['cas_sim'])+5) {
 
             $this->client->send("#".$this->password."#state_sim");
             sleep(1);
@@ -188,8 +191,8 @@ class Openmodelica extends AbstractDevice implements DeviceDriverContract {
     }
 
     protected function parseSamplingRate($input) {
-        if ($input["s_rate"] < 0.01) {
-            $input["s_rate"] = 0.01;
+        if ($input["s_rate"] < 10) {
+            $input["s_rate"] = 10;
         }
         return $input["s_rate"];
     }
