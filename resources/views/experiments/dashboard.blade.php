@@ -231,7 +231,7 @@
 					</select>
 				</div>
 				<div class="col-xs-12" v-if="type == 'file'">
-					<input type="file" name="@{{ name }}" v-model="input">
+					<input v-el:input type="file" name="@{{ name }}" v-model="input">
 					<p class="help-block">@{{ placeholder }}</p>
 				</div>
 			</div>
