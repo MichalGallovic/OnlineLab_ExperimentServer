@@ -37,6 +37,7 @@ class Scilab extends AbstractDevice implements DeviceDriverContract {
 
     protected function start($input)
     {
+        
         // regulovana velicina vychadzajuca zo sustavy
         switch ($input["out_sw"]) {
         case "Temperature":
@@ -70,15 +71,26 @@ class Scilab extends AbstractDevice implements DeviceDriverContract {
             $input["own_ctrl"] = "1";
             break;
         } 
-        // prisposobenie vlastnej funkcie pre citatelnost v scilabe  
-        
+    
         $input["ts"] = ($input["ts"]) * (0.001); 
+        $input['P'] = str_replace(',','.', $input['P']);
+        $input['I'] = str_replace(',','.', $input['I']);
+        $input['D'] = str_replace(',','.', $input['D']);
+
 
         if( is_file($input["uploaded_file"]) && file_exists( $input["uploaded_file"]) ) $input["own_ctrl"] = "2";
+        // prisposobenie vlastnej funkcie pre citatelnost v scilabe  
         $input["uploaded_file"] = "'".$input["uploaded_file"] ."'";
+
+        $input['user_function'] = str_replace('e[0]','error_value', $input['user_function']);
+        $input['user_function'] = str_replace('[0]','(0)', $input['user_function']);
         
-        // reset required value on 0 in file, it is then loaded in scilab scheme, required value could be changed in change function
-        $serverPath = str_replace("/public", "", $_SERVER["DOCUMENT_ROOT"]);
+        for ($i=1; $i <4 ; $i++) { 
+            $input['user_function'] = str_replace('[-'.$i.']','('.$i.')', $input['user_function']);
+        }
+
+        // resetnutie hodnot v zdielanych suboroch
+        //$serverPath = str_replace("/public", "", $_SERVER["DOCUMENT_ROOT"]);
         /*$fileChange= "$serverPath/server_scripts/tos1a/scilab/shm/change_input_".substr($this->device->port, -4);
         $fileChangeP = "$serverPath/server_scripts/tos1a/scilab/shm/change_input_P_".substr($this->device->port, -4);
         $fileChangeI = "$serverPath/server_scripts/tos1a/scilab/shm/change_input_I_".substr($this->device->port, -4);
@@ -105,7 +117,6 @@ class Scilab extends AbstractDevice implements DeviceDriverContract {
 
     protected function change($input)
     {   
-        $serverPath = str_replace("/public", "", $_SERVER["DOCUMENT_ROOT"]);
         $fileChange = "/dev/shm/change_input_".substr($this->device->port, -4);
         $fileChangeP = "/dev/shm/change_input_P_".substr($this->device->port, -4);
         $fileChangeI = "/dev/shm/change_input_I_".substr($this->device->port, -4);
@@ -129,15 +140,5 @@ class Scilab extends AbstractDevice implements DeviceDriverContract {
     }
 
 
-
-    protected function parseDuration($input)
-    {
-        return $input["time"];
-    }
-
-    protected function parseSamplingRate($input)
-    {
-        return $input["ts"];
-    }
 
 }
