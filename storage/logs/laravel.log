@@ -190,3 +190,675 @@ Stack trace:
   'requested_by' => 2,
   'report_id' => 160,
 )  
+[2016-05-10 11:17:54] production.INFO: array (
+  'device' => 'tos1a',
+  'software' => 'openloop',
+  'input' => 
+  array (
+    'start' => 
+    array (
+      'c_fan' => '20',
+      'c_lamp' => '60',
+      'c_led' => '0',
+      't_sim' => '10',
+      's_rate' => '200',
+      'schema' => '',
+      'regulator' => '',
+    ),
+  ),
+  'duration' => '10',
+  'sampling_rate' => '200',
+  'instance' => 'r1',
+  'requested_by' => 2,
+  'report_id' => 163,
+)  
+[2016-05-10 11:18:14] production.INFO: array (
+  'device' => 'tos1a',
+  'software' => 'openloop',
+  'input' => 
+  array (
+    'start' => 
+    array (
+      'c_fan' => '20',
+      'c_lamp' => '60',
+      'c_led' => '0',
+      't_sim' => '10',
+      's_rate' => '200',
+      'schema' => '',
+      'regulator' => '',
+    ),
+  ),
+  'duration' => '10',
+  'sampling_rate' => '200',
+  'instance' => 'r1',
+  'requested_by' => 2,
+  'report_id' => 164,
+)  
+[2016-05-10 11:18:47] production.INFO: array (
+  'device' => 'tos1a',
+  'software' => 'openloop',
+  'input' => 
+  array (
+    'start' => 
+    array (
+      'c_fan' => '20',
+      'c_lamp' => '60',
+      'c_led' => '0',
+      't_sim' => '10',
+      's_rate' => '200',
+      'schema' => '',
+      'regulator' => '',
+    ),
+  ),
+  'duration' => '10',
+  'sampling_rate' => '200',
+  'instance' => 'r1',
+  'requested_by' => 2,
+  'report_id' => 165,
+)  
+[2016-05-10 11:19:04] production.INFO: array (
+  'device' => 'tos1a',
+  'software' => 'openloop',
+  'input' => 
+  array (
+    'start' => 
+    array (
+      'c_fan' => '20',
+      'c_lamp' => '60',
+      'c_led' => '0',
+      't_sim' => '10',
+      's_rate' => '200',
+      'schema' => '',
+      'regulator' => '',
+    ),
+  ),
+  'duration' => '10',
+  'sampling_rate' => '200',
+  'instance' => 'r1',
+  'requested_by' => 2,
+  'report_id' => 166,
+)  
+[2016-05-10 11:20:02] production.INFO: array (
+  'device' => 'tos1a',
+  'software' => 'openloop',
+  'input' => 
+  array (
+    'start' => 
+    array (
+      'c_fan' => '20',
+      'c_lamp' => '60',
+      'c_led' => '0',
+      't_sim' => '10',
+      's_rate' => '200',
+      'schema' => '',
+      'regulator' => '',
+    ),
+  ),
+  'duration' => '10',
+  'sampling_rate' => '200',
+  'instance' => 'r1',
+  'requested_by' => 2,
+  'report_id' => 167,
+)  
+[2016-05-10 11:20:36] production.INFO: array (
+  'device' => 'tos1a',
+  'software' => 'openloop',
+  'input' => 
+  array (
+    'start' => 
+    array (
+      'c_fan' => '20',
+      'c_lamp' => '60',
+      'c_led' => '0',
+      't_sim' => '20',
+      's_rate' => '200',
+      'schema' => '',
+      'regulator' => '',
+    ),
+  ),
+  'duration' => '20',
+  'sampling_rate' => '200',
+  'instance' => 'r1',
+  'requested_by' => 2,
+  'report_id' => 172,
+)  
+[2016-05-10 11:21:12] production.ERROR: exception 'App\Devices\Exceptions\DeviceNotRunningExperimentException' in /var/www/olm_app_server/app/Classes/Services/CommandService.php:167
+Stack trace:
+#0 /var/www/olm_app_server/app/Classes/Services/CommandService.php(97): App\Classes\Services\CommandService->stop(Object(App\Devices\TOS1A\Openloop), Array)
+#1 /var/www/olm_app_server/app/Http/Controllers/DeviceController.php(56): App\Classes\Services\CommandService->execute()
+#2 [internal function]: App\Http\Controllers\DeviceController->executeCommand(Object(App\Http\Requests\DeviceCommandRequest), '14')
+#3 /var/www/olm_app_server/vendor/laravel/framework/src/Illuminate/Routing/Controller.php(80): call_user_func_array(Array, Array)
+#4 /var/www/olm_app_server/vendor/laravel/framework/src/Illuminate/Routing/ControllerDispatcher.php(146): Illuminate\Routing\Controller->callAction('executeCommand', Array)
+#5 /var/www/olm_app_server/vendor/laravel/framework/src/Illuminate/Routing/ControllerDispatcher.php(94): Illuminate\Routing\ControllerDispatcher->call(Object(App\Http\Controllers\DeviceController), Object(Illuminate\Routing\Route), 'executeCommand')
+#6 [internal function]: Illuminate\Routing\ControllerDispatcher->Illuminate\Routing\{closure}(Object(Illuminate\Http\Request))
+#7 /var/www/olm_app_server/vendor/laravel/framework/src/Illuminate/Routing/Pipeline.php(52): call_user_func(Object(Closure), Object(Illuminate\Http\Request))
+#8 [internal function]: Illuminate\Routing\Pipeline->Illuminate\Routing\{closure}(Object(Illuminate\Http\Request))
+#9 /var/www/olm_app_server/vendor/laravel/framework/src/Illuminate/Pipeline/Pipeline.php(103): call_user_func(Object(Closure), Object(Illuminate\Http\Request))
+#10 /var/www/olm_app_server/vendor/laravel/framework/src/Illuminate/Routing/ControllerDispatcher.php(96): Illuminate\Pipeline\Pipeline->then(Object(Closure))
+#11 /var/www/olm_app_server/vendor/laravel/framework/src/Illuminate/Routing/ControllerDispatcher.php(54): Illuminate\Routing\ControllerDispatcher->callWithinStack(Object(App\Http\Controllers\DeviceController), Object(Illuminate\Routing\Route), Object(Illuminate\Http\Request), 'executeCommand')
+#12 /var/www/olm_app_server/vendor/laravel/framework/src/Illuminate/Routing/Route.php(174): Illuminate\Routing\ControllerDispatcher->dispatch(Object(Illuminate\Routing\Route), Object(Illuminate\Http\Request), 'App\\Http\\Contro...', 'executeCommand')
+#13 /var/www/olm_app_server/vendor/laravel/framework/src/Illuminate/Routing/Route.php(140): Illuminate\Routing\Route->runController(Object(Illuminate\Http\Request))
+#14 /var/www/olm_app_server/vendor/laravel/framework/src/Illuminate/Routing/Router.php(724): Illuminate\Routing\Route->run(Object(Illuminate\Http\Request))
+#15 [internal function]: Illuminate\Routing\Router->Illuminate\Routing\{closure}(Object(Illuminate\Http\Request))
+#16 /var/www/olm_app_server/vendor/laravel/framework/src/Illuminate/Routing/Pipeline.php(52): call_user_func(Object(Closure), Object(Illuminate\Http\Request))
+#17 [internal function]: Illuminate\Routing\Pipeline->Illuminate\Routing\{closure}(Object(Illuminate\Http\Request))
+#18 /var/www/olm_app_server/vendor/laravel/framework/src/Illuminate/Pipeline/Pipeline.php(103): call_user_func(Object(Closure), Object(Illuminate\Http\Request))
+#19 /var/www/olm_app_server/vendor/laravel/framework/src/Illuminate/Routing/Router.php(726): Illuminate\Pipeline\Pipeline->then(Object(Closure))
+#20 /var/www/olm_app_server/vendor/laravel/framework/src/Illuminate/Routing/Router.php(699): Illuminate\Routing\Router->runRouteWithinStack(Object(Illuminate\Routing\Route), Object(Illuminate\Http\Request))
+#21 /var/www/olm_app_server/vendor/laravel/framework/src/Illuminate/Routing/Router.php(675): Illuminate\Routing\Router->dispatchToRoute(Object(Illuminate\Http\Request))
+#22 /var/www/olm_app_server/vendor/laravel/framework/src/Illuminate/Foundation/Http/Kernel.php(246): Illuminate\Routing\Router->dispatch(Object(Illuminate\Http\Request))
+#23 [internal function]: Illuminate\Foundation\Http\Kernel->Illuminate\Foundation\Http\{closure}(Object(Illuminate\Http\Request))
+#24 /var/www/olm_app_server/vendor/laravel/framework/src/Illuminate/Routing/Pipeline.php(52): call_user_func(Object(Closure), Object(Illuminate\Http\Request))
+#25 /var/www/olm_app_server/vendor/laravel/framework/src/Illuminate/Foundation/Http/Middleware/CheckForMaintenanceMode.php(44): Illuminate\Routing\Pipeline->Illuminate\Routing\{closure}(Object(Illuminate\Http\Request))
+#26 [internal function]: Illuminate\Foundation\Http\Middleware\CheckForMaintenanceMode->handle(Object(Illuminate\Http\Request), Object(Closure))
+#27 /var/www/olm_app_server/vendor/laravel/framework/src/Illuminate/Pipeline/Pipeline.php(136): call_user_func_array(Array, Array)
+#28 [internal function]: Illuminate\Pipeline\Pipeline->Illuminate\Pipeline\{closure}(Object(Illuminate\Http\Request))
+#29 /var/www/olm_app_server/vendor/laravel/framework/src/Illuminate/Routing/Pipeline.php(32): call_user_func(Object(Closure), Object(Illuminate\Http\Request))
+#30 [internal function]: Illuminate\Routing\Pipeline->Illuminate\Routing\{closure}(Object(Illuminate\Http\Request))
+#31 /var/www/olm_app_server/vendor/laravel/framework/src/Illuminate/Pipeline/Pipeline.php(103): call_user_func(Object(Closure), Object(Illuminate\Http\Request))
+#32 /var/www/olm_app_server/vendor/laravel/framework/src/Illuminate/Foundation/Http/Kernel.php(132): Illuminate\Pipeline\Pipeline->then(Object(Closure))
+#33 /var/www/olm_app_server/vendor/laravel/framework/src/Illuminate/Foundation/Http/Kernel.php(99): Illuminate\Foundation\Http\Kernel->sendRequestThroughRouter(Object(Illuminate\Http\Request))
+#34 /var/www/olm_app_server/public/index.php(54): Illuminate\Foundation\Http\Kernel->handle(Object(Illuminate\Http\Request))
+#35 {main}  
+[2016-05-10 11:21:13] production.ERROR: exception 'App\Devices\Exceptions\DeviceNotRunningExperimentException' in /var/www/olm_app_server/app/Classes/Services/CommandService.php:167
+Stack trace:
+#0 /var/www/olm_app_server/app/Classes/Services/CommandService.php(97): App\Classes\Services\CommandService->stop(Object(App\Devices\TOS1A\Openloop), Array)
+#1 /var/www/olm_app_server/app/Http/Controllers/DeviceController.php(56): App\Classes\Services\CommandService->execute()
+#2 [internal function]: App\Http\Controllers\DeviceController->executeCommand(Object(App\Http\Requests\DeviceCommandRequest), '14')
+#3 /var/www/olm_app_server/vendor/laravel/framework/src/Illuminate/Routing/Controller.php(80): call_user_func_array(Array, Array)
+#4 /var/www/olm_app_server/vendor/laravel/framework/src/Illuminate/Routing/ControllerDispatcher.php(146): Illuminate\Routing\Controller->callAction('executeCommand', Array)
+#5 /var/www/olm_app_server/vendor/laravel/framework/src/Illuminate/Routing/ControllerDispatcher.php(94): Illuminate\Routing\ControllerDispatcher->call(Object(App\Http\Controllers\DeviceController), Object(Illuminate\Routing\Route), 'executeCommand')
+#6 [internal function]: Illuminate\Routing\ControllerDispatcher->Illuminate\Routing\{closure}(Object(Illuminate\Http\Request))
+#7 /var/www/olm_app_server/vendor/laravel/framework/src/Illuminate/Routing/Pipeline.php(52): call_user_func(Object(Closure), Object(Illuminate\Http\Request))
+#8 [internal function]: Illuminate\Routing\Pipeline->Illuminate\Routing\{closure}(Object(Illuminate\Http\Request))
+#9 /var/www/olm_app_server/vendor/laravel/framework/src/Illuminate/Pipeline/Pipeline.php(103): call_user_func(Object(Closure), Object(Illuminate\Http\Request))
+#10 /var/www/olm_app_server/vendor/laravel/framework/src/Illuminate/Routing/ControllerDispatcher.php(96): Illuminate\Pipeline\Pipeline->then(Object(Closure))
+#11 /var/www/olm_app_server/vendor/laravel/framework/src/Illuminate/Routing/ControllerDispatcher.php(54): Illuminate\Routing\ControllerDispatcher->callWithinStack(Object(App\Http\Controllers\DeviceController), Object(Illuminate\Routing\Route), Object(Illuminate\Http\Request), 'executeCommand')
+#12 /var/www/olm_app_server/vendor/laravel/framework/src/Illuminate/Routing/Route.php(174): Illuminate\Routing\ControllerDispatcher->dispatch(Object(Illuminate\Routing\Route), Object(Illuminate\Http\Request), 'App\\Http\\Contro...', 'executeCommand')
+#13 /var/www/olm_app_server/vendor/laravel/framework/src/Illuminate/Routing/Route.php(140): Illuminate\Routing\Route->runController(Object(Illuminate\Http\Request))
+#14 /var/www/olm_app_server/vendor/laravel/framework/src/Illuminate/Routing/Router.php(724): Illuminate\Routing\Route->run(Object(Illuminate\Http\Request))
+#15 [internal function]: Illuminate\Routing\Router->Illuminate\Routing\{closure}(Object(Illuminate\Http\Request))
+#16 /var/www/olm_app_server/vendor/laravel/framework/src/Illuminate/Routing/Pipeline.php(52): call_user_func(Object(Closure), Object(Illuminate\Http\Request))
+#17 [internal function]: Illuminate\Routing\Pipeline->Illuminate\Routing\{closure}(Object(Illuminate\Http\Request))
+#18 /var/www/olm_app_server/vendor/laravel/framework/src/Illuminate/Pipeline/Pipeline.php(103): call_user_func(Object(Closure), Object(Illuminate\Http\Request))
+#19 /var/www/olm_app_server/vendor/laravel/framework/src/Illuminate/Routing/Router.php(726): Illuminate\Pipeline\Pipeline->then(Object(Closure))
+#20 /var/www/olm_app_server/vendor/laravel/framework/src/Illuminate/Routing/Router.php(699): Illuminate\Routing\Router->runRouteWithinStack(Object(Illuminate\Routing\Route), Object(Illuminate\Http\Request))
+#21 /var/www/olm_app_server/vendor/laravel/framework/src/Illuminate/Routing/Router.php(675): Illuminate\Routing\Router->dispatchToRoute(Object(Illuminate\Http\Request))
+#22 /var/www/olm_app_server/vendor/laravel/framework/src/Illuminate/Foundation/Http/Kernel.php(246): Illuminate\Routing\Router->dispatch(Object(Illuminate\Http\Request))
+#23 [internal function]: Illuminate\Foundation\Http\Kernel->Illuminate\Foundation\Http\{closure}(Object(Illuminate\Http\Request))
+#24 /var/www/olm_app_server/vendor/laravel/framework/src/Illuminate/Routing/Pipeline.php(52): call_user_func(Object(Closure), Object(Illuminate\Http\Request))
+#25 /var/www/olm_app_server/vendor/laravel/framework/src/Illuminate/Foundation/Http/Middleware/CheckForMaintenanceMode.php(44): Illuminate\Routing\Pipeline->Illuminate\Routing\{closure}(Object(Illuminate\Http\Request))
+#26 [internal function]: Illuminate\Foundation\Http\Middleware\CheckForMaintenanceMode->handle(Object(Illuminate\Http\Request), Object(Closure))
+#27 /var/www/olm_app_server/vendor/laravel/framework/src/Illuminate/Pipeline/Pipeline.php(136): call_user_func_array(Array, Array)
+#28 [internal function]: Illuminate\Pipeline\Pipeline->Illuminate\Pipeline\{closure}(Object(Illuminate\Http\Request))
+#29 /var/www/olm_app_server/vendor/laravel/framework/src/Illuminate/Routing/Pipeline.php(32): call_user_func(Object(Closure), Object(Illuminate\Http\Request))
+#30 [internal function]: Illuminate\Routing\Pipeline->Illuminate\Routing\{closure}(Object(Illuminate\Http\Request))
+#31 /var/www/olm_app_server/vendor/laravel/framework/src/Illuminate/Pipeline/Pipeline.php(103): call_user_func(Object(Closure), Object(Illuminate\Http\Request))
+#32 /var/www/olm_app_server/vendor/laravel/framework/src/Illuminate/Foundation/Http/Kernel.php(132): Illuminate\Pipeline\Pipeline->then(Object(Closure))
+#33 /var/www/olm_app_server/vendor/laravel/framework/src/Illuminate/Foundation/Http/Kernel.php(99): Illuminate\Foundation\Http\Kernel->sendRequestThroughRouter(Object(Illuminate\Http\Request))
+#34 /var/www/olm_app_server/public/index.php(54): Illuminate\Foundation\Http\Kernel->handle(Object(Illuminate\Http\Request))
+#35 {main}  
+[2016-05-10 11:21:14] production.ERROR: exception 'App\Devices\Exceptions\DeviceNotRunningExperimentException' in /var/www/olm_app_server/app/Classes/Services/CommandService.php:167
+Stack trace:
+#0 /var/www/olm_app_server/app/Classes/Services/CommandService.php(97): App\Classes\Services\CommandService->stop(Object(App\Devices\TOS1A\Openloop), Array)
+#1 /var/www/olm_app_server/app/Http/Controllers/DeviceController.php(56): App\Classes\Services\CommandService->execute()
+#2 [internal function]: App\Http\Controllers\DeviceController->executeCommand(Object(App\Http\Requests\DeviceCommandRequest), '14')
+#3 /var/www/olm_app_server/vendor/laravel/framework/src/Illuminate/Routing/Controller.php(80): call_user_func_array(Array, Array)
+#4 /var/www/olm_app_server/vendor/laravel/framework/src/Illuminate/Routing/ControllerDispatcher.php(146): Illuminate\Routing\Controller->callAction('executeCommand', Array)
+#5 /var/www/olm_app_server/vendor/laravel/framework/src/Illuminate/Routing/ControllerDispatcher.php(94): Illuminate\Routing\ControllerDispatcher->call(Object(App\Http\Controllers\DeviceController), Object(Illuminate\Routing\Route), 'executeCommand')
+#6 [internal function]: Illuminate\Routing\ControllerDispatcher->Illuminate\Routing\{closure}(Object(Illuminate\Http\Request))
+#7 /var/www/olm_app_server/vendor/laravel/framework/src/Illuminate/Routing/Pipeline.php(52): call_user_func(Object(Closure), Object(Illuminate\Http\Request))
+#8 [internal function]: Illuminate\Routing\Pipeline->Illuminate\Routing\{closure}(Object(Illuminate\Http\Request))
+#9 /var/www/olm_app_server/vendor/laravel/framework/src/Illuminate/Pipeline/Pipeline.php(103): call_user_func(Object(Closure), Object(Illuminate\Http\Request))
+#10 /var/www/olm_app_server/vendor/laravel/framework/src/Illuminate/Routing/ControllerDispatcher.php(96): Illuminate\Pipeline\Pipeline->then(Object(Closure))
+#11 /var/www/olm_app_server/vendor/laravel/framework/src/Illuminate/Routing/ControllerDispatcher.php(54): Illuminate\Routing\ControllerDispatcher->callWithinStack(Object(App\Http\Controllers\DeviceController), Object(Illuminate\Routing\Route), Object(Illuminate\Http\Request), 'executeCommand')
+#12 /var/www/olm_app_server/vendor/laravel/framework/src/Illuminate/Routing/Route.php(174): Illuminate\Routing\ControllerDispatcher->dispatch(Object(Illuminate\Routing\Route), Object(Illuminate\Http\Request), 'App\\Http\\Contro...', 'executeCommand')
+#13 /var/www/olm_app_server/vendor/laravel/framework/src/Illuminate/Routing/Route.php(140): Illuminate\Routing\Route->runController(Object(Illuminate\Http\Request))
+#14 /var/www/olm_app_server/vendor/laravel/framework/src/Illuminate/Routing/Router.php(724): Illuminate\Routing\Route->run(Object(Illuminate\Http\Request))
+#15 [internal function]: Illuminate\Routing\Router->Illuminate\Routing\{closure}(Object(Illuminate\Http\Request))
+#16 /var/www/olm_app_server/vendor/laravel/framework/src/Illuminate/Routing/Pipeline.php(52): call_user_func(Object(Closure), Object(Illuminate\Http\Request))
+#17 [internal function]: Illuminate\Routing\Pipeline->Illuminate\Routing\{closure}(Object(Illuminate\Http\Request))
+#18 /var/www/olm_app_server/vendor/laravel/framework/src/Illuminate/Pipeline/Pipeline.php(103): call_user_func(Object(Closure), Object(Illuminate\Http\Request))
+#19 /var/www/olm_app_server/vendor/laravel/framework/src/Illuminate/Routing/Router.php(726): Illuminate\Pipeline\Pipeline->then(Object(Closure))
+#20 /var/www/olm_app_server/vendor/laravel/framework/src/Illuminate/Routing/Router.php(699): Illuminate\Routing\Router->runRouteWithinStack(Object(Illuminate\Routing\Route), Object(Illuminate\Http\Request))
+#21 /var/www/olm_app_server/vendor/laravel/framework/src/Illuminate/Routing/Router.php(675): Illuminate\Routing\Router->dispatchToRoute(Object(Illuminate\Http\Request))
+#22 /var/www/olm_app_server/vendor/laravel/framework/src/Illuminate/Foundation/Http/Kernel.php(246): Illuminate\Routing\Router->dispatch(Object(Illuminate\Http\Request))
+#23 [internal function]: Illuminate\Foundation\Http\Kernel->Illuminate\Foundation\Http\{closure}(Object(Illuminate\Http\Request))
+#24 /var/www/olm_app_server/vendor/laravel/framework/src/Illuminate/Routing/Pipeline.php(52): call_user_func(Object(Closure), Object(Illuminate\Http\Request))
+#25 /var/www/olm_app_server/vendor/laravel/framework/src/Illuminate/Foundation/Http/Middleware/CheckForMaintenanceMode.php(44): Illuminate\Routing\Pipeline->Illuminate\Routing\{closure}(Object(Illuminate\Http\Request))
+#26 [internal function]: Illuminate\Foundation\Http\Middleware\CheckForMaintenanceMode->handle(Object(Illuminate\Http\Request), Object(Closure))
+#27 /var/www/olm_app_server/vendor/laravel/framework/src/Illuminate/Pipeline/Pipeline.php(136): call_user_func_array(Array, Array)
+#28 [internal function]: Illuminate\Pipeline\Pipeline->Illuminate\Pipeline\{closure}(Object(Illuminate\Http\Request))
+#29 /var/www/olm_app_server/vendor/laravel/framework/src/Illuminate/Routing/Pipeline.php(32): call_user_func(Object(Closure), Object(Illuminate\Http\Request))
+#30 [internal function]: Illuminate\Routing\Pipeline->Illuminate\Routing\{closure}(Object(Illuminate\Http\Request))
+#31 /var/www/olm_app_server/vendor/laravel/framework/src/Illuminate/Pipeline/Pipeline.php(103): call_user_func(Object(Closure), Object(Illuminate\Http\Request))
+#32 /var/www/olm_app_server/vendor/laravel/framework/src/Illuminate/Foundation/Http/Kernel.php(132): Illuminate\Pipeline\Pipeline->then(Object(Closure))
+#33 /var/www/olm_app_server/vendor/laravel/framework/src/Illuminate/Foundation/Http/Kernel.php(99): Illuminate\Foundation\Http\Kernel->sendRequestThroughRouter(Object(Illuminate\Http\Request))
+#34 /var/www/olm_app_server/public/index.php(54): Illuminate\Foundation\Http\Kernel->handle(Object(Illuminate\Http\Request))
+#35 {main}  
+[2016-05-10 11:21:56] production.ERROR: exception 'App\Devices\Exceptions\DeviceNotRunningExperimentException' in /var/www/olm_app_server/app/Classes/Services/CommandService.php:167
+Stack trace:
+#0 /var/www/olm_app_server/app/Classes/Services/CommandService.php(97): App\Classes\Services\CommandService->stop(Object(App\Devices\TOS1A\Openloop), Array)
+#1 /var/www/olm_app_server/app/Http/Controllers/DeviceController.php(56): App\Classes\Services\CommandService->execute()
+#2 [internal function]: App\Http\Controllers\DeviceController->executeCommand(Object(App\Http\Requests\DeviceCommandRequest), '14')
+#3 /var/www/olm_app_server/vendor/laravel/framework/src/Illuminate/Routing/Controller.php(80): call_user_func_array(Array, Array)
+#4 /var/www/olm_app_server/vendor/laravel/framework/src/Illuminate/Routing/ControllerDispatcher.php(146): Illuminate\Routing\Controller->callAction('executeCommand', Array)
+#5 /var/www/olm_app_server/vendor/laravel/framework/src/Illuminate/Routing/ControllerDispatcher.php(94): Illuminate\Routing\ControllerDispatcher->call(Object(App\Http\Controllers\DeviceController), Object(Illuminate\Routing\Route), 'executeCommand')
+#6 [internal function]: Illuminate\Routing\ControllerDispatcher->Illuminate\Routing\{closure}(Object(Illuminate\Http\Request))
+#7 /var/www/olm_app_server/vendor/laravel/framework/src/Illuminate/Routing/Pipeline.php(52): call_user_func(Object(Closure), Object(Illuminate\Http\Request))
+#8 [internal function]: Illuminate\Routing\Pipeline->Illuminate\Routing\{closure}(Object(Illuminate\Http\Request))
+#9 /var/www/olm_app_server/vendor/laravel/framework/src/Illuminate/Pipeline/Pipeline.php(103): call_user_func(Object(Closure), Object(Illuminate\Http\Request))
+#10 /var/www/olm_app_server/vendor/laravel/framework/src/Illuminate/Routing/ControllerDispatcher.php(96): Illuminate\Pipeline\Pipeline->then(Object(Closure))
+#11 /var/www/olm_app_server/vendor/laravel/framework/src/Illuminate/Routing/ControllerDispatcher.php(54): Illuminate\Routing\ControllerDispatcher->callWithinStack(Object(App\Http\Controllers\DeviceController), Object(Illuminate\Routing\Route), Object(Illuminate\Http\Request), 'executeCommand')
+#12 /var/www/olm_app_server/vendor/laravel/framework/src/Illuminate/Routing/Route.php(174): Illuminate\Routing\ControllerDispatcher->dispatch(Object(Illuminate\Routing\Route), Object(Illuminate\Http\Request), 'App\\Http\\Contro...', 'executeCommand')
+#13 /var/www/olm_app_server/vendor/laravel/framework/src/Illuminate/Routing/Route.php(140): Illuminate\Routing\Route->runController(Object(Illuminate\Http\Request))
+#14 /var/www/olm_app_server/vendor/laravel/framework/src/Illuminate/Routing/Router.php(724): Illuminate\Routing\Route->run(Object(Illuminate\Http\Request))
+#15 [internal function]: Illuminate\Routing\Router->Illuminate\Routing\{closure}(Object(Illuminate\Http\Request))
+#16 /var/www/olm_app_server/vendor/laravel/framework/src/Illuminate/Routing/Pipeline.php(52): call_user_func(Object(Closure), Object(Illuminate\Http\Request))
+#17 [internal function]: Illuminate\Routing\Pipeline->Illuminate\Routing\{closure}(Object(Illuminate\Http\Request))
+#18 /var/www/olm_app_server/vendor/laravel/framework/src/Illuminate/Pipeline/Pipeline.php(103): call_user_func(Object(Closure), Object(Illuminate\Http\Request))
+#19 /var/www/olm_app_server/vendor/laravel/framework/src/Illuminate/Routing/Router.php(726): Illuminate\Pipeline\Pipeline->then(Object(Closure))
+#20 /var/www/olm_app_server/vendor/laravel/framework/src/Illuminate/Routing/Router.php(699): Illuminate\Routing\Router->runRouteWithinStack(Object(Illuminate\Routing\Route), Object(Illuminate\Http\Request))
+#21 /var/www/olm_app_server/vendor/laravel/framework/src/Illuminate/Routing/Router.php(675): Illuminate\Routing\Router->dispatchToRoute(Object(Illuminate\Http\Request))
+#22 /var/www/olm_app_server/vendor/laravel/framework/src/Illuminate/Foundation/Http/Kernel.php(246): Illuminate\Routing\Router->dispatch(Object(Illuminate\Http\Request))
+#23 [internal function]: Illuminate\Foundation\Http\Kernel->Illuminate\Foundation\Http\{closure}(Object(Illuminate\Http\Request))
+#24 /var/www/olm_app_server/vendor/laravel/framework/src/Illuminate/Routing/Pipeline.php(52): call_user_func(Object(Closure), Object(Illuminate\Http\Request))
+#25 /var/www/olm_app_server/vendor/laravel/framework/src/Illuminate/Foundation/Http/Middleware/CheckForMaintenanceMode.php(44): Illuminate\Routing\Pipeline->Illuminate\Routing\{closure}(Object(Illuminate\Http\Request))
+#26 [internal function]: Illuminate\Foundation\Http\Middleware\CheckForMaintenanceMode->handle(Object(Illuminate\Http\Request), Object(Closure))
+#27 /var/www/olm_app_server/vendor/laravel/framework/src/Illuminate/Pipeline/Pipeline.php(136): call_user_func_array(Array, Array)
+#28 [internal function]: Illuminate\Pipeline\Pipeline->Illuminate\Pipeline\{closure}(Object(Illuminate\Http\Request))
+#29 /var/www/olm_app_server/vendor/laravel/framework/src/Illuminate/Routing/Pipeline.php(32): call_user_func(Object(Closure), Object(Illuminate\Http\Request))
+#30 [internal function]: Illuminate\Routing\Pipeline->Illuminate\Routing\{closure}(Object(Illuminate\Http\Request))
+#31 /var/www/olm_app_server/vendor/laravel/framework/src/Illuminate/Pipeline/Pipeline.php(103): call_user_func(Object(Closure), Object(Illuminate\Http\Request))
+#32 /var/www/olm_app_server/vendor/laravel/framework/src/Illuminate/Foundation/Http/Kernel.php(132): Illuminate\Pipeline\Pipeline->then(Object(Closure))
+#33 /var/www/olm_app_server/vendor/laravel/framework/src/Illuminate/Foundation/Http/Kernel.php(99): Illuminate\Foundation\Http\Kernel->sendRequestThroughRouter(Object(Illuminate\Http\Request))
+#34 /var/www/olm_app_server/public/index.php(54): Illuminate\Foundation\Http\Kernel->handle(Object(Illuminate\Http\Request))
+#35 {main}  
+[2016-05-10 11:21:57] production.ERROR: exception 'App\Devices\Exceptions\DeviceNotRunningExperimentException' in /var/www/olm_app_server/app/Classes/Services/CommandService.php:167
+Stack trace:
+#0 /var/www/olm_app_server/app/Classes/Services/CommandService.php(97): App\Classes\Services\CommandService->stop(Object(App\Devices\TOS1A\Openloop), Array)
+#1 /var/www/olm_app_server/app/Http/Controllers/DeviceController.php(56): App\Classes\Services\CommandService->execute()
+#2 [internal function]: App\Http\Controllers\DeviceController->executeCommand(Object(App\Http\Requests\DeviceCommandRequest), '14')
+#3 /var/www/olm_app_server/vendor/laravel/framework/src/Illuminate/Routing/Controller.php(80): call_user_func_array(Array, Array)
+#4 /var/www/olm_app_server/vendor/laravel/framework/src/Illuminate/Routing/ControllerDispatcher.php(146): Illuminate\Routing\Controller->callAction('executeCommand', Array)
+#5 /var/www/olm_app_server/vendor/laravel/framework/src/Illuminate/Routing/ControllerDispatcher.php(94): Illuminate\Routing\ControllerDispatcher->call(Object(App\Http\Controllers\DeviceController), Object(Illuminate\Routing\Route), 'executeCommand')
+#6 [internal function]: Illuminate\Routing\ControllerDispatcher->Illuminate\Routing\{closure}(Object(Illuminate\Http\Request))
+#7 /var/www/olm_app_server/vendor/laravel/framework/src/Illuminate/Routing/Pipeline.php(52): call_user_func(Object(Closure), Object(Illuminate\Http\Request))
+#8 [internal function]: Illuminate\Routing\Pipeline->Illuminate\Routing\{closure}(Object(Illuminate\Http\Request))
+#9 /var/www/olm_app_server/vendor/laravel/framework/src/Illuminate/Pipeline/Pipeline.php(103): call_user_func(Object(Closure), Object(Illuminate\Http\Request))
+#10 /var/www/olm_app_server/vendor/laravel/framework/src/Illuminate/Routing/ControllerDispatcher.php(96): Illuminate\Pipeline\Pipeline->then(Object(Closure))
+#11 /var/www/olm_app_server/vendor/laravel/framework/src/Illuminate/Routing/ControllerDispatcher.php(54): Illuminate\Routing\ControllerDispatcher->callWithinStack(Object(App\Http\Controllers\DeviceController), Object(Illuminate\Routing\Route), Object(Illuminate\Http\Request), 'executeCommand')
+#12 /var/www/olm_app_server/vendor/laravel/framework/src/Illuminate/Routing/Route.php(174): Illuminate\Routing\ControllerDispatcher->dispatch(Object(Illuminate\Routing\Route), Object(Illuminate\Http\Request), 'App\\Http\\Contro...', 'executeCommand')
+#13 /var/www/olm_app_server/vendor/laravel/framework/src/Illuminate/Routing/Route.php(140): Illuminate\Routing\Route->runController(Object(Illuminate\Http\Request))
+#14 /var/www/olm_app_server/vendor/laravel/framework/src/Illuminate/Routing/Router.php(724): Illuminate\Routing\Route->run(Object(Illuminate\Http\Request))
+#15 [internal function]: Illuminate\Routing\Router->Illuminate\Routing\{closure}(Object(Illuminate\Http\Request))
+#16 /var/www/olm_app_server/vendor/laravel/framework/src/Illuminate/Routing/Pipeline.php(52): call_user_func(Object(Closure), Object(Illuminate\Http\Request))
+#17 [internal function]: Illuminate\Routing\Pipeline->Illuminate\Routing\{closure}(Object(Illuminate\Http\Request))
+#18 /var/www/olm_app_server/vendor/laravel/framework/src/Illuminate/Pipeline/Pipeline.php(103): call_user_func(Object(Closure), Object(Illuminate\Http\Request))
+#19 /var/www/olm_app_server/vendor/laravel/framework/src/Illuminate/Routing/Router.php(726): Illuminate\Pipeline\Pipeline->then(Object(Closure))
+#20 /var/www/olm_app_server/vendor/laravel/framework/src/Illuminate/Routing/Router.php(699): Illuminate\Routing\Router->runRouteWithinStack(Object(Illuminate\Routing\Route), Object(Illuminate\Http\Request))
+#21 /var/www/olm_app_server/vendor/laravel/framework/src/Illuminate/Routing/Router.php(675): Illuminate\Routing\Router->dispatchToRoute(Object(Illuminate\Http\Request))
+#22 /var/www/olm_app_server/vendor/laravel/framework/src/Illuminate/Foundation/Http/Kernel.php(246): Illuminate\Routing\Router->dispatch(Object(Illuminate\Http\Request))
+#23 [internal function]: Illuminate\Foundation\Http\Kernel->Illuminate\Foundation\Http\{closure}(Object(Illuminate\Http\Request))
+#24 /var/www/olm_app_server/vendor/laravel/framework/src/Illuminate/Routing/Pipeline.php(52): call_user_func(Object(Closure), Object(Illuminate\Http\Request))
+#25 /var/www/olm_app_server/vendor/laravel/framework/src/Illuminate/Foundation/Http/Middleware/CheckForMaintenanceMode.php(44): Illuminate\Routing\Pipeline->Illuminate\Routing\{closure}(Object(Illuminate\Http\Request))
+#26 [internal function]: Illuminate\Foundation\Http\Middleware\CheckForMaintenanceMode->handle(Object(Illuminate\Http\Request), Object(Closure))
+#27 /var/www/olm_app_server/vendor/laravel/framework/src/Illuminate/Pipeline/Pipeline.php(136): call_user_func_array(Array, Array)
+#28 [internal function]: Illuminate\Pipeline\Pipeline->Illuminate\Pipeline\{closure}(Object(Illuminate\Http\Request))
+#29 /var/www/olm_app_server/vendor/laravel/framework/src/Illuminate/Routing/Pipeline.php(32): call_user_func(Object(Closure), Object(Illuminate\Http\Request))
+#30 [internal function]: Illuminate\Routing\Pipeline->Illuminate\Routing\{closure}(Object(Illuminate\Http\Request))
+#31 /var/www/olm_app_server/vendor/laravel/framework/src/Illuminate/Pipeline/Pipeline.php(103): call_user_func(Object(Closure), Object(Illuminate\Http\Request))
+#32 /var/www/olm_app_server/vendor/laravel/framework/src/Illuminate/Foundation/Http/Kernel.php(132): Illuminate\Pipeline\Pipeline->then(Object(Closure))
+#33 /var/www/olm_app_server/vendor/laravel/framework/src/Illuminate/Foundation/Http/Kernel.php(99): Illuminate\Foundation\Http\Kernel->sendRequestThroughRouter(Object(Illuminate\Http\Request))
+#34 /var/www/olm_app_server/public/index.php(54): Illuminate\Foundation\Http\Kernel->handle(Object(Illuminate\Http\Request))
+#35 {main}  
+[2016-05-10 11:21:58] production.ERROR: exception 'App\Devices\Exceptions\DeviceNotRunningExperimentException' in /var/www/olm_app_server/app/Classes/Services/CommandService.php:167
+Stack trace:
+#0 /var/www/olm_app_server/app/Classes/Services/CommandService.php(97): App\Classes\Services\CommandService->stop(Object(App\Devices\TOS1A\Openloop), Array)
+#1 /var/www/olm_app_server/app/Http/Controllers/DeviceController.php(56): App\Classes\Services\CommandService->execute()
+#2 [internal function]: App\Http\Controllers\DeviceController->executeCommand(Object(App\Http\Requests\DeviceCommandRequest), '14')
+#3 /var/www/olm_app_server/vendor/laravel/framework/src/Illuminate/Routing/Controller.php(80): call_user_func_array(Array, Array)
+#4 /var/www/olm_app_server/vendor/laravel/framework/src/Illuminate/Routing/ControllerDispatcher.php(146): Illuminate\Routing\Controller->callAction('executeCommand', Array)
+#5 /var/www/olm_app_server/vendor/laravel/framework/src/Illuminate/Routing/ControllerDispatcher.php(94): Illuminate\Routing\ControllerDispatcher->call(Object(App\Http\Controllers\DeviceController), Object(Illuminate\Routing\Route), 'executeCommand')
+#6 [internal function]: Illuminate\Routing\ControllerDispatcher->Illuminate\Routing\{closure}(Object(Illuminate\Http\Request))
+#7 /var/www/olm_app_server/vendor/laravel/framework/src/Illuminate/Routing/Pipeline.php(52): call_user_func(Object(Closure), Object(Illuminate\Http\Request))
+#8 [internal function]: Illuminate\Routing\Pipeline->Illuminate\Routing\{closure}(Object(Illuminate\Http\Request))
+#9 /var/www/olm_app_server/vendor/laravel/framework/src/Illuminate/Pipeline/Pipeline.php(103): call_user_func(Object(Closure), Object(Illuminate\Http\Request))
+#10 /var/www/olm_app_server/vendor/laravel/framework/src/Illuminate/Routing/ControllerDispatcher.php(96): Illuminate\Pipeline\Pipeline->then(Object(Closure))
+#11 /var/www/olm_app_server/vendor/laravel/framework/src/Illuminate/Routing/ControllerDispatcher.php(54): Illuminate\Routing\ControllerDispatcher->callWithinStack(Object(App\Http\Controllers\DeviceController), Object(Illuminate\Routing\Route), Object(Illuminate\Http\Request), 'executeCommand')
+#12 /var/www/olm_app_server/vendor/laravel/framework/src/Illuminate/Routing/Route.php(174): Illuminate\Routing\ControllerDispatcher->dispatch(Object(Illuminate\Routing\Route), Object(Illuminate\Http\Request), 'App\\Http\\Contro...', 'executeCommand')
+#13 /var/www/olm_app_server/vendor/laravel/framework/src/Illuminate/Routing/Route.php(140): Illuminate\Routing\Route->runController(Object(Illuminate\Http\Request))
+#14 /var/www/olm_app_server/vendor/laravel/framework/src/Illuminate/Routing/Router.php(724): Illuminate\Routing\Route->run(Object(Illuminate\Http\Request))
+#15 [internal function]: Illuminate\Routing\Router->Illuminate\Routing\{closure}(Object(Illuminate\Http\Request))
+#16 /var/www/olm_app_server/vendor/laravel/framework/src/Illuminate/Routing/Pipeline.php(52): call_user_func(Object(Closure), Object(Illuminate\Http\Request))
+#17 [internal function]: Illuminate\Routing\Pipeline->Illuminate\Routing\{closure}(Object(Illuminate\Http\Request))
+#18 /var/www/olm_app_server/vendor/laravel/framework/src/Illuminate/Pipeline/Pipeline.php(103): call_user_func(Object(Closure), Object(Illuminate\Http\Request))
+#19 /var/www/olm_app_server/vendor/laravel/framework/src/Illuminate/Routing/Router.php(726): Illuminate\Pipeline\Pipeline->then(Object(Closure))
+#20 /var/www/olm_app_server/vendor/laravel/framework/src/Illuminate/Routing/Router.php(699): Illuminate\Routing\Router->runRouteWithinStack(Object(Illuminate\Routing\Route), Object(Illuminate\Http\Request))
+#21 /var/www/olm_app_server/vendor/laravel/framework/src/Illuminate/Routing/Router.php(675): Illuminate\Routing\Router->dispatchToRoute(Object(Illuminate\Http\Request))
+#22 /var/www/olm_app_server/vendor/laravel/framework/src/Illuminate/Foundation/Http/Kernel.php(246): Illuminate\Routing\Router->dispatch(Object(Illuminate\Http\Request))
+#23 [internal function]: Illuminate\Foundation\Http\Kernel->Illuminate\Foundation\Http\{closure}(Object(Illuminate\Http\Request))
+#24 /var/www/olm_app_server/vendor/laravel/framework/src/Illuminate/Routing/Pipeline.php(52): call_user_func(Object(Closure), Object(Illuminate\Http\Request))
+#25 /var/www/olm_app_server/vendor/laravel/framework/src/Illuminate/Foundation/Http/Middleware/CheckForMaintenanceMode.php(44): Illuminate\Routing\Pipeline->Illuminate\Routing\{closure}(Object(Illuminate\Http\Request))
+#26 [internal function]: Illuminate\Foundation\Http\Middleware\CheckForMaintenanceMode->handle(Object(Illuminate\Http\Request), Object(Closure))
+#27 /var/www/olm_app_server/vendor/laravel/framework/src/Illuminate/Pipeline/Pipeline.php(136): call_user_func_array(Array, Array)
+#28 [internal function]: Illuminate\Pipeline\Pipeline->Illuminate\Pipeline\{closure}(Object(Illuminate\Http\Request))
+#29 /var/www/olm_app_server/vendor/laravel/framework/src/Illuminate/Routing/Pipeline.php(32): call_user_func(Object(Closure), Object(Illuminate\Http\Request))
+#30 [internal function]: Illuminate\Routing\Pipeline->Illuminate\Routing\{closure}(Object(Illuminate\Http\Request))
+#31 /var/www/olm_app_server/vendor/laravel/framework/src/Illuminate/Pipeline/Pipeline.php(103): call_user_func(Object(Closure), Object(Illuminate\Http\Request))
+#32 /var/www/olm_app_server/vendor/laravel/framework/src/Illuminate/Foundation/Http/Kernel.php(132): Illuminate\Pipeline\Pipeline->then(Object(Closure))
+#33 /var/www/olm_app_server/vendor/laravel/framework/src/Illuminate/Foundation/Http/Kernel.php(99): Illuminate\Foundation\Http\Kernel->sendRequestThroughRouter(Object(Illuminate\Http\Request))
+#34 /var/www/olm_app_server/public/index.php(54): Illuminate\Foundation\Http\Kernel->handle(Object(Illuminate\Http\Request))
+#35 {main}  
+[2016-05-10 11:22:20] production.ERROR: exception 'App\Devices\Exceptions\DeviceNotConnectedException' in /var/www/olm_app_server/app/Device.php:22
+Stack trace:
+#0 /var/www/olm_app_server/app/Classes/Services/CommandService.php(179): App\Device->driver('openloop')
+#1 /var/www/olm_app_server/app/Classes/Services/CommandService.php(82): App\Classes\Services\CommandService->resolveDeviceDriver()
+#2 /var/www/olm_app_server/app/Http/Controllers/DeviceController.php(56): App\Classes\Services\CommandService->execute()
+#3 [internal function]: App\Http\Controllers\DeviceController->executeCommand(Object(App\Http\Requests\DeviceCommandRequest), '14')
+#4 /var/www/olm_app_server/vendor/laravel/framework/src/Illuminate/Routing/Controller.php(80): call_user_func_array(Array, Array)
+#5 /var/www/olm_app_server/vendor/laravel/framework/src/Illuminate/Routing/ControllerDispatcher.php(146): Illuminate\Routing\Controller->callAction('executeCommand', Array)
+#6 /var/www/olm_app_server/vendor/laravel/framework/src/Illuminate/Routing/ControllerDispatcher.php(94): Illuminate\Routing\ControllerDispatcher->call(Object(App\Http\Controllers\DeviceController), Object(Illuminate\Routing\Route), 'executeCommand')
+#7 [internal function]: Illuminate\Routing\ControllerDispatcher->Illuminate\Routing\{closure}(Object(Illuminate\Http\Request))
+#8 /var/www/olm_app_server/vendor/laravel/framework/src/Illuminate/Routing/Pipeline.php(52): call_user_func(Object(Closure), Object(Illuminate\Http\Request))
+#9 [internal function]: Illuminate\Routing\Pipeline->Illuminate\Routing\{closure}(Object(Illuminate\Http\Request))
+#10 /var/www/olm_app_server/vendor/laravel/framework/src/Illuminate/Pipeline/Pipeline.php(103): call_user_func(Object(Closure), Object(Illuminate\Http\Request))
+#11 /var/www/olm_app_server/vendor/laravel/framework/src/Illuminate/Routing/ControllerDispatcher.php(96): Illuminate\Pipeline\Pipeline->then(Object(Closure))
+#12 /var/www/olm_app_server/vendor/laravel/framework/src/Illuminate/Routing/ControllerDispatcher.php(54): Illuminate\Routing\ControllerDispatcher->callWithinStack(Object(App\Http\Controllers\DeviceController), Object(Illuminate\Routing\Route), Object(Illuminate\Http\Request), 'executeCommand')
+#13 /var/www/olm_app_server/vendor/laravel/framework/src/Illuminate/Routing/Route.php(174): Illuminate\Routing\ControllerDispatcher->dispatch(Object(Illuminate\Routing\Route), Object(Illuminate\Http\Request), 'App\\Http\\Contro...', 'executeCommand')
+#14 /var/www/olm_app_server/vendor/laravel/framework/src/Illuminate/Routing/Route.php(140): Illuminate\Routing\Route->runController(Object(Illuminate\Http\Request))
+#15 /var/www/olm_app_server/vendor/laravel/framework/src/Illuminate/Routing/Router.php(724): Illuminate\Routing\Route->run(Object(Illuminate\Http\Request))
+#16 [internal function]: Illuminate\Routing\Router->Illuminate\Routing\{closure}(Object(Illuminate\Http\Request))
+#17 /var/www/olm_app_server/vendor/laravel/framework/src/Illuminate/Routing/Pipeline.php(52): call_user_func(Object(Closure), Object(Illuminate\Http\Request))
+#18 [internal function]: Illuminate\Routing\Pipeline->Illuminate\Routing\{closure}(Object(Illuminate\Http\Request))
+#19 /var/www/olm_app_server/vendor/laravel/framework/src/Illuminate/Pipeline/Pipeline.php(103): call_user_func(Object(Closure), Object(Illuminate\Http\Request))
+#20 /var/www/olm_app_server/vendor/laravel/framework/src/Illuminate/Routing/Router.php(726): Illuminate\Pipeline\Pipeline->then(Object(Closure))
+#21 /var/www/olm_app_server/vendor/laravel/framework/src/Illuminate/Routing/Router.php(699): Illuminate\Routing\Router->runRouteWithinStack(Object(Illuminate\Routing\Route), Object(Illuminate\Http\Request))
+#22 /var/www/olm_app_server/vendor/laravel/framework/src/Illuminate/Routing/Router.php(675): Illuminate\Routing\Router->dispatchToRoute(Object(Illuminate\Http\Request))
+#23 /var/www/olm_app_server/vendor/laravel/framework/src/Illuminate/Foundation/Http/Kernel.php(246): Illuminate\Routing\Router->dispatch(Object(Illuminate\Http\Request))
+#24 [internal function]: Illuminate\Foundation\Http\Kernel->Illuminate\Foundation\Http\{closure}(Object(Illuminate\Http\Request))
+#25 /var/www/olm_app_server/vendor/laravel/framework/src/Illuminate/Routing/Pipeline.php(52): call_user_func(Object(Closure), Object(Illuminate\Http\Request))
+#26 /var/www/olm_app_server/vendor/laravel/framework/src/Illuminate/Foundation/Http/Middleware/CheckForMaintenanceMode.php(44): Illuminate\Routing\Pipeline->Illuminate\Routing\{closure}(Object(Illuminate\Http\Request))
+#27 [internal function]: Illuminate\Foundation\Http\Middleware\CheckForMaintenanceMode->handle(Object(Illuminate\Http\Request), Object(Closure))
+#28 /var/www/olm_app_server/vendor/laravel/framework/src/Illuminate/Pipeline/Pipeline.php(136): call_user_func_array(Array, Array)
+#29 [internal function]: Illuminate\Pipeline\Pipeline->Illuminate\Pipeline\{closure}(Object(Illuminate\Http\Request))
+#30 /var/www/olm_app_server/vendor/laravel/framework/src/Illuminate/Routing/Pipeline.php(32): call_user_func(Object(Closure), Object(Illuminate\Http\Request))
+#31 [internal function]: Illuminate\Routing\Pipeline->Illuminate\Routing\{closure}(Object(Illuminate\Http\Request))
+#32 /var/www/olm_app_server/vendor/laravel/framework/src/Illuminate/Pipeline/Pipeline.php(103): call_user_func(Object(Closure), Object(Illuminate\Http\Request))
+#33 /var/www/olm_app_server/vendor/laravel/framework/src/Illuminate/Foundation/Http/Kernel.php(132): Illuminate\Pipeline\Pipeline->then(Object(Closure))
+#34 /var/www/olm_app_server/vendor/laravel/framework/src/Illuminate/Foundation/Http/Kernel.php(99): Illuminate\Foundation\Http\Kernel->sendRequestThroughRouter(Object(Illuminate\Http\Request))
+#35 /var/www/olm_app_server/public/index.php(54): Illuminate\Foundation\Http\Kernel->handle(Object(Illuminate\Http\Request))
+#36 {main}  
+[2016-05-10 11:22:20] production.ERROR: exception 'App\Devices\Exceptions\DeviceNotConnectedException' in /var/www/olm_app_server/app/Device.php:22
+Stack trace:
+#0 /var/www/olm_app_server/app/Classes/Services/CommandService.php(179): App\Device->driver('openloop')
+#1 /var/www/olm_app_server/app/Classes/Services/CommandService.php(82): App\Classes\Services\CommandService->resolveDeviceDriver()
+#2 /var/www/olm_app_server/app/Http/Controllers/DeviceController.php(56): App\Classes\Services\CommandService->execute()
+#3 [internal function]: App\Http\Controllers\DeviceController->executeCommand(Object(App\Http\Requests\DeviceCommandRequest), '14')
+#4 /var/www/olm_app_server/vendor/laravel/framework/src/Illuminate/Routing/Controller.php(80): call_user_func_array(Array, Array)
+#5 /var/www/olm_app_server/vendor/laravel/framework/src/Illuminate/Routing/ControllerDispatcher.php(146): Illuminate\Routing\Controller->callAction('executeCommand', Array)
+#6 /var/www/olm_app_server/vendor/laravel/framework/src/Illuminate/Routing/ControllerDispatcher.php(94): Illuminate\Routing\ControllerDispatcher->call(Object(App\Http\Controllers\DeviceController), Object(Illuminate\Routing\Route), 'executeCommand')
+#7 [internal function]: Illuminate\Routing\ControllerDispatcher->Illuminate\Routing\{closure}(Object(Illuminate\Http\Request))
+#8 /var/www/olm_app_server/vendor/laravel/framework/src/Illuminate/Routing/Pipeline.php(52): call_user_func(Object(Closure), Object(Illuminate\Http\Request))
+#9 [internal function]: Illuminate\Routing\Pipeline->Illuminate\Routing\{closure}(Object(Illuminate\Http\Request))
+#10 /var/www/olm_app_server/vendor/laravel/framework/src/Illuminate/Pipeline/Pipeline.php(103): call_user_func(Object(Closure), Object(Illuminate\Http\Request))
+#11 /var/www/olm_app_server/vendor/laravel/framework/src/Illuminate/Routing/ControllerDispatcher.php(96): Illuminate\Pipeline\Pipeline->then(Object(Closure))
+#12 /var/www/olm_app_server/vendor/laravel/framework/src/Illuminate/Routing/ControllerDispatcher.php(54): Illuminate\Routing\ControllerDispatcher->callWithinStack(Object(App\Http\Controllers\DeviceController), Object(Illuminate\Routing\Route), Object(Illuminate\Http\Request), 'executeCommand')
+#13 /var/www/olm_app_server/vendor/laravel/framework/src/Illuminate/Routing/Route.php(174): Illuminate\Routing\ControllerDispatcher->dispatch(Object(Illuminate\Routing\Route), Object(Illuminate\Http\Request), 'App\\Http\\Contro...', 'executeCommand')
+#14 /var/www/olm_app_server/vendor/laravel/framework/src/Illuminate/Routing/Route.php(140): Illuminate\Routing\Route->runController(Object(Illuminate\Http\Request))
+#15 /var/www/olm_app_server/vendor/laravel/framework/src/Illuminate/Routing/Router.php(724): Illuminate\Routing\Route->run(Object(Illuminate\Http\Request))
+#16 [internal function]: Illuminate\Routing\Router->Illuminate\Routing\{closure}(Object(Illuminate\Http\Request))
+#17 /var/www/olm_app_server/vendor/laravel/framework/src/Illuminate/Routing/Pipeline.php(52): call_user_func(Object(Closure), Object(Illuminate\Http\Request))
+#18 [internal function]: Illuminate\Routing\Pipeline->Illuminate\Routing\{closure}(Object(Illuminate\Http\Request))
+#19 /var/www/olm_app_server/vendor/laravel/framework/src/Illuminate/Pipeline/Pipeline.php(103): call_user_func(Object(Closure), Object(Illuminate\Http\Request))
+#20 /var/www/olm_app_server/vendor/laravel/framework/src/Illuminate/Routing/Router.php(726): Illuminate\Pipeline\Pipeline->then(Object(Closure))
+#21 /var/www/olm_app_server/vendor/laravel/framework/src/Illuminate/Routing/Router.php(699): Illuminate\Routing\Router->runRouteWithinStack(Object(Illuminate\Routing\Route), Object(Illuminate\Http\Request))
+#22 /var/www/olm_app_server/vendor/laravel/framework/src/Illuminate/Routing/Router.php(675): Illuminate\Routing\Router->dispatchToRoute(Object(Illuminate\Http\Request))
+#23 /var/www/olm_app_server/vendor/laravel/framework/src/Illuminate/Foundation/Http/Kernel.php(246): Illuminate\Routing\Router->dispatch(Object(Illuminate\Http\Request))
+#24 [internal function]: Illuminate\Foundation\Http\Kernel->Illuminate\Foundation\Http\{closure}(Object(Illuminate\Http\Request))
+#25 /var/www/olm_app_server/vendor/laravel/framework/src/Illuminate/Routing/Pipeline.php(52): call_user_func(Object(Closure), Object(Illuminate\Http\Request))
+#26 /var/www/olm_app_server/vendor/laravel/framework/src/Illuminate/Foundation/Http/Middleware/CheckForMaintenanceMode.php(44): Illuminate\Routing\Pipeline->Illuminate\Routing\{closure}(Object(Illuminate\Http\Request))
+#27 [internal function]: Illuminate\Foundation\Http\Middleware\CheckForMaintenanceMode->handle(Object(Illuminate\Http\Request), Object(Closure))
+#28 /var/www/olm_app_server/vendor/laravel/framework/src/Illuminate/Pipeline/Pipeline.php(136): call_user_func_array(Array, Array)
+#29 [internal function]: Illuminate\Pipeline\Pipeline->Illuminate\Pipeline\{closure}(Object(Illuminate\Http\Request))
+#30 /var/www/olm_app_server/vendor/laravel/framework/src/Illuminate/Routing/Pipeline.php(32): call_user_func(Object(Closure), Object(Illuminate\Http\Request))
+#31 [internal function]: Illuminate\Routing\Pipeline->Illuminate\Routing\{closure}(Object(Illuminate\Http\Request))
+#32 /var/www/olm_app_server/vendor/laravel/framework/src/Illuminate/Pipeline/Pipeline.php(103): call_user_func(Object(Closure), Object(Illuminate\Http\Request))
+#33 /var/www/olm_app_server/vendor/laravel/framework/src/Illuminate/Foundation/Http/Kernel.php(132): Illuminate\Pipeline\Pipeline->then(Object(Closure))
+#34 /var/www/olm_app_server/vendor/laravel/framework/src/Illuminate/Foundation/Http/Kernel.php(99): Illuminate\Foundation\Http\Kernel->sendRequestThroughRouter(Object(Illuminate\Http\Request))
+#35 /var/www/olm_app_server/public/index.php(54): Illuminate\Foundation\Http\Kernel->handle(Object(Illuminate\Http\Request))
+#36 {main}  
+[2016-05-10 11:24:33] production.INFO: array (
+  'device' => 'tos1a',
+  'software' => 'openloop',
+  'input' => 
+  array (
+    'start' => 
+    array (
+      'c_fan' => '20',
+      'c_lamp' => '60',
+      'c_led' => '0',
+      't_sim' => '10',
+      's_rate' => '200',
+      'schema' => '',
+      'regulator' => '',
+    ),
+  ),
+  'duration' => '10',
+  'sampling_rate' => '200',
+  'instance' => 'r1',
+  'requested_by' => 2,
+  'report_id' => 180,
+)  
+[2016-05-10 11:25:28] production.INFO: array (
+  'device' => 'tos1a',
+  'software' => 'openloop',
+  'input' => 
+  array (
+    'start' => 
+    array (
+      'c_fan' => '20',
+      'c_lamp' => '60',
+      'c_led' => '0',
+      't_sim' => '10',
+      's_rate' => '200',
+      'schema' => '',
+      'regulator' => '',
+    ),
+  ),
+  'duration' => '10',
+  'sampling_rate' => '200',
+  'instance' => 'r1',
+  'requested_by' => 2,
+  'report_id' => 181,
+)  
+[2016-05-10 11:25:43] production.INFO: array (
+  'device' => 'tos1a',
+  'software' => 'openloop',
+  'input' => 
+  array (
+    'start' => 
+    array (
+      'c_fan' => '20',
+      'c_lamp' => '60',
+      'c_led' => '0',
+      't_sim' => '20',
+      's_rate' => '200',
+      'schema' => '',
+      'regulator' => '',
+    ),
+  ),
+  'duration' => '20',
+  'sampling_rate' => '200',
+  'instance' => 'r1',
+  'requested_by' => 2,
+  'report_id' => 182,
+)  
+[2016-05-10 11:26:33] production.INFO: array (
+  'device' => 'tos1a',
+  'software' => 'openloop',
+  'input' => 
+  array (
+    'start' => 
+    array (
+      'c_fan' => '20',
+      'c_lamp' => '60',
+      'c_led' => '0',
+      't_sim' => '20',
+      's_rate' => '200',
+      'schema' => '',
+      'regulator' => '',
+    ),
+  ),
+  'duration' => '20',
+  'sampling_rate' => '200',
+  'instance' => 'r1',
+  'requested_by' => 2,
+  'report_id' => 184,
+)  
+[2016-05-10 11:27:01] production.INFO: array (
+  'device' => 'tos1a',
+  'software' => 'openloop',
+  'input' => 
+  array (
+    'start' => 
+    array (
+      'c_fan' => '20',
+      'c_lamp' => '60',
+      'c_led' => '0',
+      't_sim' => '10',
+      's_rate' => '200',
+      'schema' => '',
+      'regulator' => '',
+    ),
+  ),
+  'duration' => '10',
+  'sampling_rate' => '200',
+  'instance' => 'r1',
+  'requested_by' => 2,
+  'report_id' => 187,
+)  
+[2016-05-10 12:36:53] production.ERROR: exception 'Symfony\Component\Process\Exception\ProcessTimedOutException' with message 'The process "'/usr/bin/php5' 'artisan' queue:work '' --queue='default' --delay=0 --memory=128 --sleep=3 --tries=0 --env='production'" exceeded the timeout of 60 seconds.' in /var/www/olm_app_server/vendor/symfony/process/Process.php:1152
+Stack trace:
+#0 /var/www/olm_app_server/vendor/symfony/process/Process.php(361): Symfony\Component\Process\Process->checkTimeout()
+#1 /var/www/olm_app_server/vendor/symfony/process/Process.php(203): Symfony\Component\Process\Process->wait()
+#2 /var/www/olm_app_server/vendor/laravel/framework/src/Illuminate/Queue/Listener.php(120): Symfony\Component\Process\Process->run(Object(Closure))
+#3 /var/www/olm_app_server/vendor/laravel/framework/src/Illuminate/Queue/Listener.php(105): Illuminate\Queue\Listener->runProcess(Object(Symfony\Component\Process\Process), 128)
+#4 /var/www/olm_app_server/vendor/laravel/framework/src/Illuminate/Queue/Console/ListenCommand.php(73): Illuminate\Queue\Listener->listen(NULL, 'default', 0, 128, 60)
+#5 [internal function]: Illuminate\Queue\Console\ListenCommand->fire()
+#6 /var/www/olm_app_server/vendor/laravel/framework/src/Illuminate/Container/Container.php(507): call_user_func_array(Array, Array)
+#7 /var/www/olm_app_server/vendor/laravel/framework/src/Illuminate/Console/Command.php(169): Illuminate\Container\Container->call(Array)
+#8 /var/www/olm_app_server/vendor/symfony/console/Command/Command.php(256): Illuminate\Console\Command->execute(Object(Symfony\Component\Console\Input\ArgvInput), Object(Symfony\Component\Console\Output\ConsoleOutput))
+#9 /var/www/olm_app_server/vendor/laravel/framework/src/Illuminate/Console/Command.php(155): Symfony\Component\Console\Command\Command->run(Object(Symfony\Component\Console\Input\ArgvInput), Object(Symfony\Component\Console\Output\ConsoleOutput))
+#10 /var/www/olm_app_server/vendor/symfony/console/Application.php(791): Illuminate\Console\Command->run(Object(Symfony\Component\Console\Input\ArgvInput), Object(Symfony\Component\Console\Output\ConsoleOutput))
+#11 /var/www/olm_app_server/vendor/symfony/console/Application.php(186): Symfony\Component\Console\Application->doRunCommand(Object(Illuminate\Queue\Console\ListenCommand), Object(Symfony\Component\Console\Input\ArgvInput), Object(Symfony\Component\Console\Output\ConsoleOutput))
+#12 /var/www/olm_app_server/vendor/symfony/console/Application.php(117): Symfony\Component\Console\Application->doRun(Object(Symfony\Component\Console\Input\ArgvInput), Object(Symfony\Component\Console\Output\ConsoleOutput))
+#13 /var/www/olm_app_server/vendor/laravel/framework/src/Illuminate/Foundation/Console/Kernel.php(107): Symfony\Component\Console\Application->run(Object(Symfony\Component\Console\Input\ArgvInput), Object(Symfony\Component\Console\Output\ConsoleOutput))
+#14 /var/www/olm_app_server/artisan(36): Illuminate\Foundation\Console\Kernel->handle(Object(Symfony\Component\Console\Input\ArgvInput), Object(Symfony\Component\Console\Output\ConsoleOutput))
+#15 {main}  
+[2016-05-10 12:38:14] production.INFO: array (
+  'device' => 'tos1a',
+  'software' => 'openloop',
+  'input' => 
+  array (
+    'start' => 
+    array (
+      'c_fan' => '20',
+      'c_lamp' => '60',
+      'c_led' => '0',
+      't_sim' => '10',
+      's_rate' => '200',
+      'schema' => '',
+      'regulator' => '',
+    ),
+  ),
+  'duration' => '10',
+  'sampling_rate' => '200',
+  'instance' => '',
+  'requested_by' => 2,
+  'report_id' => 189,
+)  
+[2016-05-10 12:39:59] production.INFO: array (
+  'device' => 'tos1a',
+  'software' => 'openloop',
+  'input' => 
+  array (
+    'start' => 
+    array (
+      'c_fan' => '20',
+      'c_lamp' => '60',
+      'c_led' => '0',
+      't_sim' => '10',
+      's_rate' => '200',
+      'schema' => '',
+      'regulator' => '',
+    ),
+  ),
+  'duration' => '10',
+  'sampling_rate' => '200',
+  'instance' => 'r1',
+  'requested_by' => 2,
+  'report_id' => 190,
+)  
+[2016-05-10 12:40:16] production.INFO: array (
+  'device' => 'tos1a',
+  'software' => 'openloop',
+  'input' => 
+  array (
+    'start' => 
+    array (
+      'c_fan' => '20',
+      'c_lamp' => '60',
+      'c_led' => '0',
+      't_sim' => '10',
+      's_rate' => '200',
+      'schema' => '',
+      'regulator' => '',
+    ),
+  ),
+  'duration' => '10',
+  'sampling_rate' => '200',
+  'instance' => 'r1',
+  'requested_by' => 2,
+  'report_id' => 191,
+)  
+[2016-05-10 12:40:37] production.INFO: array (
+  'device' => 'tos1a',
+  'software' => 'openloop',
+  'input' => 
+  array (
+    'start' => 
+    array (
+      'c_fan' => '20',
+      'c_lamp' => '60',
+      'c_led' => '0',
+      't_sim' => '20',
+      's_rate' => '200',
+      'schema' => '',
+      'regulator' => '',
+    ),
+  ),
+  'duration' => '20',
+  'sampling_rate' => '200',
+  'instance' => 'r1',
+  'requested_by' => 2,
+  'report_id' => 192,
+)  
+[2016-05-10 14:39:11] production.ERROR: exception 'Symfony\Component\Process\Exception\ProcessTimedOutException' with message 'The process "'/usr/bin/php5' 'artisan' queue:work '' --queue='default' --delay=0 --memory=128 --sleep=3 --tries=0 --env='production'" exceeded the timeout of 60 seconds.' in /var/www/olm_app_server/vendor/symfony/process/Process.php:1152
+Stack trace:
+#0 /var/www/olm_app_server/vendor/symfony/process/Process.php(361): Symfony\Component\Process\Process->checkTimeout()
+#1 /var/www/olm_app_server/vendor/symfony/process/Process.php(203): Symfony\Component\Process\Process->wait()
+#2 /var/www/olm_app_server/vendor/laravel/framework/src/Illuminate/Queue/Listener.php(120): Symfony\Component\Process\Process->run(Object(Closure))
+#3 /var/www/olm_app_server/vendor/laravel/framework/src/Illuminate/Queue/Listener.php(105): Illuminate\Queue\Listener->runProcess(Object(Symfony\Component\Process\Process), 128)
+#4 /var/www/olm_app_server/vendor/laravel/framework/src/Illuminate/Queue/Console/ListenCommand.php(73): Illuminate\Queue\Listener->listen(NULL, 'default', 0, 128, 60)
+#5 [internal function]: Illuminate\Queue\Console\ListenCommand->fire()
+#6 /var/www/olm_app_server/vendor/laravel/framework/src/Illuminate/Container/Container.php(507): call_user_func_array(Array, Array)
+#7 /var/www/olm_app_server/vendor/laravel/framework/src/Illuminate/Console/Command.php(169): Illuminate\Container\Container->call(Array)
+#8 /var/www/olm_app_server/vendor/symfony/console/Command/Command.php(256): Illuminate\Console\Command->execute(Object(Symfony\Component\Console\Input\ArgvInput), Object(Symfony\Component\Console\Output\ConsoleOutput))
+#9 /var/www/olm_app_server/vendor/laravel/framework/src/Illuminate/Console/Command.php(155): Symfony\Component\Console\Command\Command->run(Object(Symfony\Component\Console\Input\ArgvInput), Object(Symfony\Component\Console\Output\ConsoleOutput))
+#10 /var/www/olm_app_server/vendor/symfony/console/Application.php(791): Illuminate\Console\Command->run(Object(Symfony\Component\Console\Input\ArgvInput), Object(Symfony\Component\Console\Output\ConsoleOutput))
+#11 /var/www/olm_app_server/vendor/symfony/console/Application.php(186): Symfony\Component\Console\Application->doRunCommand(Object(Illuminate\Queue\Console\ListenCommand), Object(Symfony\Component\Console\Input\ArgvInput), Object(Symfony\Component\Console\Output\ConsoleOutput))
+#12 /var/www/olm_app_server/vendor/symfony/console/Application.php(117): Symfony\Component\Console\Application->doRun(Object(Symfony\Component\Console\Input\ArgvInput), Object(Symfony\Component\Console\Output\ConsoleOutput))
+#13 /var/www/olm_app_server/vendor/laravel/framework/src/Illuminate/Foundation/Console/Kernel.php(107): Symfony\Component\Console\Application->run(Object(Symfony\Component\Console\Input\ArgvInput), Object(Symfony\Component\Console\Output\ConsoleOutput))
+#14 /var/www/olm_app_server/artisan(36): Illuminate\Foundation\Console\Kernel->handle(Object(Symfony\Component\Console\Input\ArgvInput), Object(Symfony\Component\Console\Output\ConsoleOutput))
+#15 {main}  
