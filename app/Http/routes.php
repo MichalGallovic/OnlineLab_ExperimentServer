@@ -61,5 +61,5 @@ Route::group(['middleware' => ['web']], function () {
 
 
 Route::get("test", function() {
-	dd(App::environment());
+	
 });
