@@ -77,7 +77,7 @@ Vue.component('olm-input',{
 			var deferred = $.Deferred();
 			if(this.type == "file") {
 				var formData = new FormData();
-				var blob = $(this.$els.input).find(":input").get(0).files[0];
+				var blob = $(this.$els.input).get(0).files[0];
 				formData.append(this.name, blob);
 
 				this.uploadFile(formData).done(function(response) {
