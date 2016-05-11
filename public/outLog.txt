@@ -1,0 +1,24 @@
+
+avrdude: AVR device initialized and ready to accept instructions
+
+Reading | ################################################## | 100% 0.01s
+
+avrdude: Device signature = 0x1e950f
+avrdude: reading input file ".build/uno/firmware.hex"
+avrdude: writing flash (1768 bytes):
+
+Writing | ################################################## | 100% 0.35s
+
+avrdude: 1768 bytes of flash written
+avrdude: verifying flash memory against .build/uno/firmware.hex:
+avrdude: load data flash data from input file .build/uno/firmware.hex:
+avrdude: input file .build/uno/firmware.hex contains 1768 bytes
+avrdude: reading on-chip flash data:
+
+Reading | ################################################## | 100% 0.27s
+
+avrdude: verifying ...
+avrdude: 1768 bytes of flash verified
+
+avrdude done.  Thank you.
+
