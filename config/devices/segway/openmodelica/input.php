@@ -104,8 +104,8 @@ return [
 	 	[
 	 		"name"	=>	"s_rate",
 	 		"rules"	=>	"required",
-	 		"title"	=>	"Perioda vzorkovania pre vysledky",
-	 		"placeholder"	=>	0.1, //Default form value,
+	 		"title"	=>	"Perioda vzorkovania pre vysledky [ms]",
+	 		"placeholder"	=>	10, //Default form value,
 	 		"type"	=>	"text",
                         "meaning" => "sampling_rate"
 	 	]
