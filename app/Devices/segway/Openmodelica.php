@@ -34,7 +34,8 @@ class Openmodelica extends AbstractDevice implements DeviceDriverContract {
     protected $client;
     protected $uploaded_files_dir = "";
     protected $password = "";
-   // protected $T_sim = 60;
+
+    // protected $T_sim = 60;
 
     /**
      * Construct base class (App\Devices\AbstractDevice)
@@ -45,20 +46,21 @@ class Openmodelica extends AbstractDevice implements DeviceDriverContract {
 
         //require_once('../Helpers/WSocketServer.php');
         $this->client = new Client("ws://127.0.0.1:18000");
-        
+
         require "/var/www/olm_app_server/server_scripts/segway/openmodelica/MSConfig.php";
-        
-        $this->password=$config['Passprahses']['olm']; 
-        
+
+        $this->password = $config['Passprahses']['olm'];
+
         parent::__construct($device, $experiment);
     }
 
     protected function init($input) {
-      //  var_dump($input); die();
-      //  $vars['T_sim'] = $input['cas_sim'];
+        //  var_dump($input); die();
+        //  $vars['T_sim'] = $input['cas_sim'];
 
         $vars['servo_taz'] = $input['servo_taz'];
-        if (!empty($input['libraries'])) $vars['libraries'] = trim($input['libraries']);
+        if (!empty($input['libraries']))
+            $vars['libraries'] = trim($input['libraries']);
         //$this->T_sim = $input['cas_sim'];
 
         switch ($input['reg_typ']) {
@@ -100,7 +102,7 @@ class Openmodelica extends AbstractDevice implements DeviceDriverContract {
         }
         $vars = json_encode($vars);
 
-        $this->client->send("#".$this->password."#init_sim:" . $vars);
+        $this->client->send("#" . $this->password . "#init_sim:" . $vars);
 
         $response = " ";
         $cnt = 0;
@@ -127,52 +129,57 @@ class Openmodelica extends AbstractDevice implements DeviceDriverContract {
     }
 
     protected function start($input) {
-        
-        $input["s_rate"]=$input["s_rate"]/1000; //from miliseconds to seconds
-        
-        chmod($this->experimentLog->output_path,0664);
+
+        $input["s_rate"] = $input["s_rate"] / 1000; //from miliseconds to seconds
+
+        chmod($this->experimentLog->output_path, 0664);
         $response = " ";
         //$input['cas_sim']
         //       while ((strpos($mess, "sim:stop_sent") === false)) {
-        $input['output_path']=  $this->experimentLog->output_path;
+        $input['output_path'] = $this->experimentLog->output_path;
         //var_dump($input);die();
-        $this->client->send("#".$this->password."#start_sim:" . json_encode($input));
+
         // $this->client->setTimeout($this->T_sim+10);
         $this->client->setTimeout(15);
-        try {
-            sleep(1);
-            $response = $this->client->receive();
-        } catch (\Exception $exc) {
-            $mess = $exc->getMessage();
-            if (strpos($mess, "Empty read; connection dead?") === false) {
-                echo $exc->getMessage();
-            } else {//no message received in timeout
+        $cnt = 0;
+        while ($response==" "||(!(strpos($response, "simulation is not ready") === false)) && $cnt < 20) {
+            
+            if (!(strpos($response, "OK") === false)){
+                break;
             }
+            
+            $this->client->send("#" . $this->password . "#start_sim:" . json_encode($input));
+            try {
+                sleep(1);
+                $response = $this->client->receive();
+            } catch (\Exception $exc) {
+                $mess = $exc->getMessage();
+                if (strpos($mess, "Empty read; connection dead?") === false) {
+                    echo $exc->getMessage();
+                } else {//no message received in timeout
+                }
+            }
+            $cnt++;
         }
-
-
-        if (strpos($response, "simulation is not ready") === false) {
-            
-        }else {
-            
-            $this->client->setTimeout(5);
-            return "simulation is beeing initialized";
+        if ($cnt >= 20) {
+            //when initialisation is not ready
+            //aplicationserver does not hadnle this situation
+            //   $this->client->setTimeout(5);
+            //   return "simulation is not ready";
         }
 
         $response = " ";
         $cnt = 0;
-        
-        while ((strpos($response, "state:x") === false) && $cnt < ($input['cas_sim'])+5) {
 
-            $this->client->send("#".$this->password."#state_sim");
+        while ((strpos($response, "state:x") === false) && $cnt < ($input['cas_sim']) + 5) {
+
+            $this->client->send("#" . $this->password . "#state_sim");
             sleep(1);
             $response = $this->client->receive();
-
-            
         }
-            if (strpos($response, "state:x") === false) {
-                return "OK";
-            }
+        if (strpos($response, "state:x") === false) {
+            return "OK";
+        }
         return "message timeout";
     }
 
@@ -200,7 +207,7 @@ class Openmodelica extends AbstractDevice implements DeviceDriverContract {
         $response = " ";
         //       while ((strpos($mess, "sim:stop_sent") === false)) {
 
-        $this->client->send("#".$this->password."#stop_sim");
+        $this->client->send("#" . $this->password . "#stop_sim");
 
         try {
             sleep(1);
@@ -223,7 +230,7 @@ class Openmodelica extends AbstractDevice implements DeviceDriverContract {
     //done
     protected function read($input) {
 
-        $this->client->send("#".$this->password."#read_data");
+        $this->client->send("#" . $this->password . "#read_data");
 
         $response = " ";
         $cnt = 0;
@@ -266,9 +273,9 @@ class Openmodelica extends AbstractDevice implements DeviceDriverContract {
 
     //done
     protected function change($input) {
-        
 
-        $this->client->send("#".$this->password."#change_refVal:" . json_encode($input));
+
+        $this->client->send("#" . $this->password . "#change_refVal:" . json_encode($input));
 
         $response = " ";
         $cnt = 0;
