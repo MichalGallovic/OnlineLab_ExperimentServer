@@ -54,11 +54,11 @@ class Openmodelica extends AbstractDevice implements DeviceDriverContract {
     }
 
     protected function init($input) {
-
+      //  var_dump($input); die();
       //  $vars['T_sim'] = $input['cas_sim'];
 
         $vars['servo_taz'] = $input['servo_taz'];
-
+        if (!empty($input['libraries'])) $vars['libraries'] = trim($input['libraries']);
         //$this->T_sim = $input['cas_sim'];
 
         switch ($input['reg_typ']) {
@@ -70,7 +70,7 @@ class Openmodelica extends AbstractDevice implements DeviceDriverContract {
 
                 $vars['equations']['controller'] = 'e=setpoint_phi - phi; '
                         . 'der(ie)=e; '
-                        . ' actuator_value = (-e * P) +(-ie*P/Ti ) +(P*Td*der(e)); ';
+                        . ' actuator_value = (-e * P) +(-ie*P/Ti ) -(P*Td*dphi); ';
 
 
                 $vars['equations']['variables'] = 'Real e(start=0) "control error"; '
@@ -92,8 +92,7 @@ class Openmodelica extends AbstractDevice implements DeviceDriverContract {
                 break;
             case "Súbor":
                 $vars['inputtype'] = 'file';
-                $vars['file']['name'] = $input['file'];
-                $vars['file']['path'] = $this->uploaded_files_dir;
+                $vars['file']['path'] = $input['file_schema'];
                 break;
             default:
                 return 'error';
