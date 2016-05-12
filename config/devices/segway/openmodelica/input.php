@@ -34,6 +34,13 @@ return [
 	 		"type"	=>	"text"
 	 	],
 	 	[
+	 		"name"	=>	"libraries",
+	 		"rules"	=>	"",
+	 		"title"	=>	"Názvy dodatočných knižníc oddelené ,",
+	 		"placeholder"	=>	'', //Default form value,
+	 		"type"	=>	"text"
+	 	],
+	 	[
 	 		"name"	=>	"reg_typ",
 	 		"rules"	=>	"required",
 	 		"title"	=>	"Typ regulátora sústavy",
@@ -84,12 +91,11 @@ return [
 	 		"type"	=>	"textarea"
 	 	],
 		[
-	 		"name"	=>	"file",
+	 		"name"	=>	"file_schema",
 	 		"rules"	=>	"",
 	 		"title"	=>	"Názov súboru",
-	 		"placeholder"	=>	"", //Default form value,
-	 		"type"	=>	"select",
-                        "values"	=>	["PID","niecoine","uplneine"]
+	 		"type"	=>	"file",
+                        "meaning" => "parent_schema"
 	 	]
 	 ],
  	 "start"	=>	[
