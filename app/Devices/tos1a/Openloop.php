@@ -6,16 +6,19 @@ use App\Devices\AbstractDevice;
 use App\Devices\Scripts\Script;
 use App\Devices\Scripts\ReadScript;
 use App\Devices\Scripts\StopScript;
+use Illuminate\Support\Facades\Log;
 use App\Devices\Scripts\StartScript;
 use App\Devices\Contracts\DeviceDriverContract;
+use App\Devices\Scripts\TOS1A\Openloop\ChangeScript;
 
 class Openloop extends AbstractDevice implements DeviceDriverContract
 {
 
 	protected $scriptPaths = [
-		"start"	=>	"tos1a/openloop/start.py",
-		"stop"	=>	"tos1a/stop.py",
-		"read"	=>	"tos1a/read.py"
+		"start"		=>	"tos1a/openloop/start.py",
+		"stop"		=>	"tos1a/stop.py",
+		"read"		=>	"tos1a/read.py",
+		"change"	=>	"tos1a/openloop/change.py"
 	];
 
 	public function __construct($device,$experiment) 
@@ -55,5 +58,17 @@ class Openloop extends AbstractDevice implements DeviceDriverContract
 		$script->run();
 
 		return $script->getOutput();
-	}	
+	}
+
+	protected function change($input)
+	{
+
+		$script = new ChangeScript(
+				$this->scriptPaths["change"],
+				$input,
+				$this->device
+			);
+
+		$script->run();
+	}
 }

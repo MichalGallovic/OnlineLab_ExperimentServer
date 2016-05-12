@@ -5,7 +5,7 @@ return [
 		"openloop"	=>	["start"],
 		"matlab"	=>	["start"]
 	],
-        "sewgway"	=> [
+        "segway"	=> [
 		"openmodelica"	=>	["change","init","start"]
 	]
 ];

@@ -46,7 +46,7 @@ class Openmodelica extends AbstractDevice implements DeviceDriverContract {
         //require_once('../Helpers/WSocketServer.php');
         $this->client = new Client("ws://127.0.0.1:18000");
         
-        require '../../html/laboratory/WebServer/MSconfig.php';
+        require "/var/www/olm_app_server/server_scripts/segway/openmodelica/MSConfig.php";
         
         $this->password=$config['Passprahses']['olm']; 
         

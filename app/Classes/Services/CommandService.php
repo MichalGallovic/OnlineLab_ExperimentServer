@@ -83,6 +83,7 @@ class CommandService
 		$this->commandName = $this->input('command');
 		$deviceDriver->checkCommandSupport($this->commandName);
 		$this->experiment = $this->device->getCurrentOrRequestedExperiment($this->softwareName);
+
 		$this->experiment->validate($this->commandName, $this->input('input'));
 
 		// If the request is from the server
