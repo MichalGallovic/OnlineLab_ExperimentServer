@@ -5,6 +5,7 @@ namespace App;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Str;
 use Illuminate\Support\Collection;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Validator;
 use App\Devices\Contracts\DeviceDriverContract;
@@ -135,6 +136,7 @@ class Experiment extends Model
         $input = !is_array($input) ? [] : $input;
         $rules = $this->getInputRules($command);
         $rules = is_null($rules) ? [] : $rules;
+
 
         $validator = Validator::make($input, $rules);
 

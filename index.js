@@ -42,14 +42,14 @@ function parseFile(path) {
     data: rotatedArray,
     settings: {
       instance: experimentSetup[2]
-    }
+    },
+    event: "streaming"
   };
 }
 
 function streamDataOfFile(path, user_id) {
   var data = parseFile(path);
   io.emit('experiment-data:' + user_id, data); 
-  console.log('experiment-data:'+user_id);
 }
 
 redis.subscribe('experiment-channel');
@@ -58,13 +58,15 @@ var streamingId = -1;
 
 redis.on('message', function(channel, message) {
   var message = JSON.parse(message);
-  console.log(message);
   if(message.event == 'ExperimentStarted') {
     streamingId = setInterval(function() {
       streamDataOfFile(message.data.file_path, message.data.user_id);
     }, 200);
   } else if(message.event == 'ExperimentFinished') {
     clearInterval(streamingId);
+    io.emit('experiment-data:' + message.data.user_id, {
+      event: "finished"
+    });
   }
 });
 
