@@ -90,15 +90,15 @@ class Scilab extends AbstractDevice implements DeviceDriverContract {
         }
 
         // resetnutie hodnot v zdielanych suboroch
-        //$serverPath = str_replace("/public", "", $_SERVER["DOCUMENT_ROOT"]);
-        /*$fileChange= "$serverPath/server_scripts/tos1a/scilab/shm/change_input_".substr($this->device->port, -4);
+        $serverPath = str_replace("/public", "", $_SERVER["DOCUMENT_ROOT"]);
+        $fileChange= "$serverPath/server_scripts/tos1a/scilab/shm/change_input_".substr($this->device->port, -4);
         $fileChangeP = "$serverPath/server_scripts/tos1a/scilab/shm/change_input_P_".substr($this->device->port, -4);
         $fileChangeI = "$serverPath/server_scripts/tos1a/scilab/shm/change_input_I_".substr($this->device->port, -4);
-        $fileChangeD = "$serverPath/server_scripts/tos1a/scilab/shm/change_input_D_".substr($this->device->port, -4);*/
-        $fileChange= "/dev/shm/change_input_".substr($this->device->port, -4);
+        $fileChangeD = "$serverPath/server_scripts/tos1a/scilab/shm/change_input_D_".substr($this->device->port, -4);
+        /*$fileChange= "/dev/shm/change_input_".substr($this->device->port, -4);
         $fileChangeP = "/dev/shm/change_input_P_".substr($this->device->port, -4);
         $fileChangeI = "/dev/shm/change_input_I_".substr($this->device->port, -4);
-        $fileChangeD = "/dev/shm/change_input_D_".substr($this->device->port, -4);
+        $fileChangeD = "/dev/shm/change_input_D_".substr($this->device->port, -4);*/
         file_put_contents("$fileChange", "");
         file_put_contents("$fileChangeP", "");
         file_put_contents("$fileChangeI", "");
@@ -117,10 +117,15 @@ class Scilab extends AbstractDevice implements DeviceDriverContract {
 
     protected function change($input)
     {   
-        $fileChange = "/dev/shm/change_input_".substr($this->device->port, -4);
+        $serverPath = str_replace("/public", "", $_SERVER["DOCUMENT_ROOT"]);
+        $fileChange= "$serverPath/server_scripts/tos1a/scilab/shm/change_input_".substr($this->device->port, -4);
+        $fileChangeP = "$serverPath/server_scripts/tos1a/scilab/shm/change_input_P_".substr($this->device->port, -4);
+        $fileChangeI = "$serverPath/server_scripts/tos1a/scilab/shm/change_input_I_".substr($this->device->port, -4);
+        $fileChangeD = "$serverPath/server_scripts/tos1a/scilab/shm/change_input_D_".substr($this->device->port, -4);
+        /*$fileChange = "/dev/shm/change_input_".substr($this->device->port, -4);
         $fileChangeP = "/dev/shm/change_input_P_".substr($this->device->port, -4);
         $fileChangeI = "/dev/shm/change_input_I_".substr($this->device->port, -4);
-        $fileChangeD = "/dev/shm/change_input_D_".substr($this->device->port, -4);
+        $fileChangeD = "/dev/shm/change_input_D_".substr($this->device->port, -4);*/
         if ( is_numeric( $input["required_value"] ) ) file_put_contents("$fileChange", $input["required_value"]);
         if ( is_numeric( $input["P"] ) ) file_put_contents("$fileChangeP", $input["P"]);
         if ( is_numeric( $input["I"] ) ) file_put_contents("$fileChangeI", $input["I"]);
