@@ -142,11 +142,13 @@ class Openmodelica extends AbstractDevice implements DeviceDriverContract {
         // $this->client->setTimeout($this->T_sim+10);
         $this->client->setTimeout(15);
         $cnt = 0;
-        while ($response==" "||(!(strpos($response, "simulation is not ready") === false)) && $cnt < 20) {
+        while ($response==" "||(!(strpos($response, "simulation is not ready") === false)) && $cnt < 4) {
             
             if (!(strpos($response, "OK") === false)){
                 break;
             }
+            
+            if ($cnt>0) sleep(4);
             
             $this->client->send("#" . $this->password . "#start_sim:" . json_encode($input));
             try {
@@ -161,7 +163,7 @@ class Openmodelica extends AbstractDevice implements DeviceDriverContract {
             }
             $cnt++;
         }
-        if ($cnt >= 20) {
+        if ($cnt >= 4) {
             //when initialisation is not ready
             //aplicationserver does not hadnle this situation
             //   $this->client->setTimeout(5);
