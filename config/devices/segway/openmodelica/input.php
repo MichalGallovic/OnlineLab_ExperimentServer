@@ -34,6 +34,13 @@ return [
 	 		"type"	=>	"text"
 	 	],
 	 	[
+	 		"name"	=>	"libraries",
+	 		"rules"	=>	"",
+	 		"title"	=>	"Názvy dodatočných knižníc oddelené ,",
+	 		"placeholder"	=>	'', //Default form value,
+	 		"type"	=>	"text"
+	 	],
+	 	[
 	 		"name"	=>	"reg_typ",
 	 		"rules"	=>	"required",
 	 		"title"	=>	"Typ regulátora sústavy",
@@ -84,12 +91,11 @@ return [
 	 		"type"	=>	"textarea"
 	 	],
 		[
-	 		"name"	=>	"file",
+	 		"name"	=>	"file_schema",
 	 		"rules"	=>	"",
 	 		"title"	=>	"Názov súboru",
-	 		"placeholder"	=>	"", //Default form value,
-	 		"type"	=>	"select",
-                        "values"	=>	["PID","niecoine","uplneine"]
+	 		"type"	=>	"file",
+                        "meaning" => "parent_schema"
 	 	]
 	 ],
  	 "start"	=>	[
@@ -104,45 +110,10 @@ return [
 	 	[
 	 		"name"	=>	"s_rate",
 	 		"rules"	=>	"required",
-	 		"title"	=>	"Perioda vzorkovania pre vysledky",
-	 		"placeholder"	=>	0.1, //Default form value,
+	 		"title"	=>	"Perioda vzorkovania pre vysledky [ms]",
+	 		"placeholder"	=>	200, //Default form value,
 	 		"type"	=>	"text",
                         "meaning" => "sampling_rate"
-	 	],
-	 	[
-	 		"name"	=>	"user_val1",
-	 		"rules"	=>	"required",
-	 		"title"	=>	"Žiadaná hodnota (ref_val)",
-	 		"placeholder"	=>	0.0, //Default form value,
-	 		"type"	=>	"text"
-	 	],
-	 	[
-	 		"name"	=>	"user_val2",
-	 		"rules"	=>	"required",
-	 		"title"	=>	"Parameter user_val2",
-	 		"placeholder"	=>	0.0, //Default form value,
-	 		"type"	=>	"text"
-	 	],
-	 	[
-	 		"name"	=>	"user_val3",
-	 		"rules"	=>	"required",
-	 		"title"	=>	"Parameter user_val3",
-	 		"placeholder"	=>	0.0, //Default form value,
-	 		"type"	=>	"text"
-	 	],
-	 	[
-	 		"name"	=>	"user_val4",
-	 		"rules"	=>	"required",
-	 		"title"	=>	"Parameter user_val4",
-	 		"placeholder"	=>	0.0, //Default form value,
-	 		"type"	=>	"text"
-	 	],
-	 	[
-	 		"name"	=>	"user_val5",
-	 		"rules"	=>	"required",
-	 		"title"	=>	"Parameter user_val5",
-	 		"placeholder"	=>	0.0, //Default form value,
-	 		"type"	=>	"text"
 	 	]
 	 ],
  	 "change"	=>	[
