@@ -34,10 +34,10 @@ scilabRunFile="exec $ran_from/RunFile.sce;exit;"
 identifier=$(echo -n $1 | tail -c 4)
 #echo $identifier >> /var/www/olm_app_server/storage/logs/devices/tos1a/scilab/testText.txt
 
-shmComm="get_shm_command='cat /dev/shm/change_input_$identifier';"
-shmP="get_shm_command_P='cat /dev/shm/change_input_P_$identifier';"
-shmI="get_shm_command_I='cat /dev/shm/change_input_I_$identifier';"
-shmD="get_shm_command_D='cat /dev/shm/change_input_D_$identifier';"
+shmComm="get_shm_command='cat $ran_from/shm/change_input_$identifier';"
+shmP="get_shm_command_P='cat $ran_from/shm/change_input_P_$identifier';"
+shmI="get_shm_command_I='cat $ran_from/shm/change_input_I_$identifier';"
+shmD="get_shm_command_D='cat $ran_from/shm/change_input_D_$identifier';"
 
 #echo $port$output$input$userFcn$shmComm$shmP$shmI$shmD$scilabRunFile >> /var/www/olm_app_server/storage/logs/devices/tos1a/scilab/testText.txt
 
