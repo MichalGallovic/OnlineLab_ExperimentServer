@@ -103,7 +103,7 @@ return [
 	 		"name"	=>	"cas_sim",
 	 		"rules"	=>	"required",
 	 		"title"	=>	"Dlžka trvania experimentu [s]",
-	 		"placeholder"	=>	20, //Default form value,
+	 		"placeholder"	=>	10, //Default form value,
 	 		"type"	=>	"text",
                         "meaning" => "experiment_duration"
 	 	],

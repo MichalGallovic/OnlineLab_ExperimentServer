@@ -1,5 +1,7 @@
 <?php $config['SHM']['key'] = 16000;
 $config['SHM']['size'] = 512;
+$config['SERVERIP']="147.175.105.183";
+$config['SERVERPORT']="18000";
 $config['SHM']['INIT_SHM_ADRESS'] = 0;
 $config['SHM']['PROCESS_VALUES_ADRESS'] = 1;
 $config['SHM']['ACTUATOR_ADRESS'] = 200;

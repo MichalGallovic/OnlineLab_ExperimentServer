@@ -43,11 +43,12 @@ class Openmodelica extends AbstractDevice implements DeviceDriverContract {
      * @param Experiment $experiment Experiment model from DB
      */
     public function __construct(Device $device, Experiment $experiment) {
-
-        //require_once('../Helpers/WSocketServer.php');
-        $this->client = new Client("ws://127.0.0.1:18000");
-
         require "/var/www/olm_app_server/server_scripts/segway/openmodelica/MSConfig.php";
+        //require_once('../Helpers/WSocketServer.php');
+       // var_dump(gethostbyname(gethostname())); die();
+        $this->client = new Client("ws://".$config['SERVERIP'].":18000"); //$config['SERVERIP']=147.175.105.183;
+
+
 
         $this->password = $config['Passprahses']['olm'];
 
