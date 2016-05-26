@@ -95,7 +95,7 @@ return [
 	 		"rules"	=>	"",
 	 		"title"	=>	"Názov súboru",
 	 		"type"	=>	"file",
-                        "meaning" => "parent_schema"
+                        "meaning" => "child_schema"
 	 	]
 	 ],
  	 "start"	=>	[

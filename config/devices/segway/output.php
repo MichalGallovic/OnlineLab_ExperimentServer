@@ -2,6 +2,8 @@
 
 return [[	"name"	=>	"phi",
 	 	"title"	=>	"Uhol náklonu modelu Segway"],
+	 ["name"	=>	"actuartor_1",
+	 	"title"	=>	"Akčný zásah do motorov"],
 	 ["name"	=>	"velocity_L",
 	 	"title"	=>	"Rýchlosť ľavého kolesa"],
 	 ["name"	=>	"velocity_R",
@@ -15,8 +17,9 @@ return [[	"name"	=>	"phi",
 	 ["name"	=>	"distance_R",
 	 	"title"	=>	"Prejdená vzdialenosť pravým kolesom v cm"],
 	 ["name"	=>	"angle_L",
-	 	"title"	=>	"Prejdená vzdialenosť ľavým kolesom v °"],
+	 	"title"	=>	"Prejdená vzdialenosť ľavým kolesom v rad"],
 	 ["name"	=>	"angle_R",
-	 	"title"	=>	"Prejdená vzdialenosť pravým kolesom v °"],
+	 	"title"	=>	"Prejdená vzdialenosť pravým kolesom v rad"],
 	 ["name"	=>	"servo_tazisko",
 	 	"title"	=>	"Poloha serva pre zmenu ťažiska"]];
+
