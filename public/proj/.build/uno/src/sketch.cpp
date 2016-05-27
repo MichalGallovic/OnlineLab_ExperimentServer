@@ -116,74 +116,18 @@ void loop()
   int cnt;
 
   while (true){
-  						
-effect_planboing(AXIS_Z, 4700);
-effect_planboing(AXIS_Y, 4700);
-effect_planboing(AXIS_X, 4700);
+  setvoxel(0, 0, 0); setvoxel(0, 0, 1); setvoxel(0, 0, 2); setvoxel(0, 0, 3); setvoxel(0, 0, 4); setvoxel(0, 0, 5); setvoxel(0, 0, 6); setvoxel(0, 0, 7); setvoxel(0, 1, 0); setvoxel(0, 1, 1); setvoxel(0, 1, 2); setvoxel(0, 1, 3); setvoxel(0, 1, 4); setvoxel(0, 1, 5); setvoxel(0, 1, 6); setvoxel(0, 1, 7); setvoxel(0, 2, 0); setvoxel(0, 2, 1); setvoxel(0, 2, 2); setvoxel(0, 2, 3); setvoxel(0, 2, 4); setvoxel(0, 2, 5); setvoxel(0, 2, 6); setvoxel(0, 2, 7); setvoxel(0, 3, 0); setvoxel(0, 3, 1); setvoxel(0, 3, 2); setvoxel(0, 3, 3); setvoxel(0, 3, 4); setvoxel(0, 3, 5); setvoxel(0, 3, 6); setvoxel(0, 3, 7); setvoxel(0, 4, 0); setvoxel(0, 4, 1); setvoxel(0, 4, 2); setvoxel(0, 4, 3); setvoxel(0, 4, 4); setvoxel(0, 4, 5); setvoxel(0, 4, 6); setvoxel(0, 4, 7); setvoxel(0, 5, 0); setvoxel(0, 5, 1); setvoxel(0, 5, 2); setvoxel(0, 5, 3); setvoxel(0, 5, 4); setvoxel(0, 5, 5); setvoxel(0, 5, 6); setvoxel(0, 5, 7); setvoxel(0, 6, 0); setvoxel(0, 6, 1); setvoxel(0, 6, 2); setvoxel(0, 6, 3); setvoxel(0, 6, 4); setvoxel(0, 6, 5); setvoxel(0, 6, 6); setvoxel(0, 6, 7); setvoxel(0, 7, 0); setvoxel(0, 7, 1); setvoxel(0, 7, 2); setvoxel(0, 7, 3); setvoxel(0, 7, 4); setvoxel(0, 7, 5); setvoxel(0, 7, 6); setvoxel(0, 7, 7); setvoxel(1, 0, 0); setvoxel(1, 0, 1); setvoxel(1, 0, 2); setvoxel(1, 0, 3); setvoxel(1, 0, 4); setvoxel(1, 0, 5); setvoxel(1, 0, 6); setvoxel(1, 0, 7); setvoxel(1, 1, 0); setvoxel(1, 1, 1); setvoxel(1, 1, 2); setvoxel(1, 1, 3); setvoxel(1, 1, 4); setvoxel(1, 1, 5); setvoxel(1, 1, 6); setvoxel(1, 1, 7); setvoxel(1, 2, 0); setvoxel(1, 2, 1); setvoxel(1, 2, 2); setvoxel(1, 2, 3); setvoxel(1, 2, 4); setvoxel(1, 2, 5); setvoxel(1, 2, 6); setvoxel(1, 2, 7); setvoxel(1, 3, 0); setvoxel(1, 3, 1); setvoxel(1, 3, 2); setvoxel(1, 3, 3); setvoxel(1, 3, 4); setvoxel(1, 3, 5); setvoxel(1, 3, 6); setvoxel(1, 3, 7); setvoxel(1, 4, 0); setvoxel(1, 4, 1); setvoxel(1, 4, 2); setvoxel(1, 4, 3); setvoxel(1, 4, 4); setvoxel(1, 4, 5); setvoxel(1, 4, 6); setvoxel(1, 4, 7); setvoxel(1, 5, 0); setvoxel(1, 5, 1); setvoxel(1, 5, 2); setvoxel(1, 5, 3); setvoxel(1, 5, 4); setvoxel(1, 5, 5); setvoxel(1, 5, 6); setvoxel(1, 5, 7); setvoxel(1, 6, 0); setvoxel(1, 6, 1); setvoxel(1, 6, 2); setvoxel(1, 6, 3); setvoxel(1, 6, 4); setvoxel(1, 6, 5); setvoxel(1, 6, 6); setvoxel(1, 6, 7); setvoxel(1, 7, 0); setvoxel(1, 7, 1); setvoxel(1, 7, 2); setvoxel(1, 7, 3); setvoxel(1, 7, 4); setvoxel(1, 7, 5); setvoxel(1, 7, 6); setvoxel(1, 7, 7); setvoxel(2, 0, 0); setvoxel(2, 0, 1); setvoxel(2, 0, 2); setvoxel(2, 0, 3); setvoxel(2, 0, 4); setvoxel(2, 0, 5); setvoxel(2, 0, 6); setvoxel(2, 0, 7); setvoxel(2, 1, 0); setvoxel(2, 1, 1); setvoxel(2, 1, 2); setvoxel(2, 1, 3); setvoxel(2, 1, 4); setvoxel(2, 1, 5); setvoxel(2, 1, 6); setvoxel(2, 1, 7); setvoxel(2, 2, 0); setvoxel(2, 2, 1); setvoxel(2, 2, 2); setvoxel(2, 2, 3); setvoxel(2, 2, 4); setvoxel(2, 2, 5); setvoxel(2, 2, 6); setvoxel(2, 2, 7); setvoxel(2, 3, 0); setvoxel(2, 3, 1); setvoxel(2, 3, 2); setvoxel(2, 3, 3); setvoxel(2, 3, 4); setvoxel(2, 3, 5); setvoxel(2, 3, 6); setvoxel(2, 3, 7); setvoxel(2, 4, 0); setvoxel(2, 4, 1); setvoxel(2, 4, 2); setvoxel(2, 4, 3); setvoxel(2, 4, 4); setvoxel(2, 4, 5); setvoxel(2, 4, 6); setvoxel(2, 4, 7); setvoxel(2, 5, 0); setvoxel(2, 5, 1); setvoxel(2, 5, 2); setvoxel(2, 5, 3); setvoxel(2, 5, 4); setvoxel(2, 5, 5); setvoxel(2, 5, 6); setvoxel(2, 5, 7); setvoxel(2, 6, 0); setvoxel(2, 6, 1); setvoxel(2, 6, 2); setvoxel(2, 6, 3); setvoxel(2, 6, 4); setvoxel(2, 6, 5); setvoxel(2, 6, 6); setvoxel(2, 6, 7); setvoxel(2, 7, 0); setvoxel(2, 7, 1); setvoxel(2, 7, 2); setvoxel(2, 7, 3); setvoxel(2, 7, 4); setvoxel(2, 7, 5); setvoxel(2, 7, 6); setvoxel(2, 7, 7); setvoxel(3, 0, 0); setvoxel(3, 0, 1); setvoxel(3, 0, 2); setvoxel(3, 0, 3); setvoxel(3, 0, 4); setvoxel(3, 0, 5); setvoxel(3, 0, 6); setvoxel(3, 0, 7); setvoxel(3, 1, 0); setvoxel(3, 1, 1); setvoxel(3, 1, 2); setvoxel(3, 1, 3); setvoxel(3, 1, 4); setvoxel(3, 1, 5); setvoxel(3, 1, 6); setvoxel(3, 1, 7); setvoxel(3, 2, 0); setvoxel(3, 2, 1); setvoxel(3, 2, 2); setvoxel(3, 2, 3); setvoxel(3, 2, 4); setvoxel(3, 2, 5); setvoxel(3, 2, 6); setvoxel(3, 2, 7); setvoxel(3, 3, 0); setvoxel(3, 3, 1); setvoxel(3, 3, 2); setvoxel(3, 3, 3); setvoxel(3, 3, 4); setvoxel(3, 3, 5); setvoxel(3, 3, 6); setvoxel(3, 3, 7); setvoxel(3, 4, 0); setvoxel(3, 4, 1); setvoxel(3, 4, 2); setvoxel(3, 4, 3); setvoxel(3, 4, 4); setvoxel(3, 4, 5); setvoxel(3, 4, 6); setvoxel(3, 4, 7); setvoxel(3, 5, 0); setvoxel(3, 5, 1); setvoxel(3, 5, 2); setvoxel(3, 5, 3); setvoxel(3, 5, 4); setvoxel(3, 5, 5); setvoxel(3, 5, 6); setvoxel(3, 5, 7); setvoxel(3, 6, 0); setvoxel(3, 6, 1); setvoxel(3, 6, 2); setvoxel(3, 6, 3); setvoxel(3, 6, 4); setvoxel(3, 6, 5); setvoxel(3, 6, 6); setvoxel(3, 6, 7); setvoxel(3, 7, 0); setvoxel(3, 7, 1); setvoxel(3, 7, 2); setvoxel(3, 7, 3); setvoxel(3, 7, 4); setvoxel(3, 7, 5); setvoxel(3, 7, 6); setvoxel(3, 7, 7); setvoxel(4, 0, 0); setvoxel(4, 0, 1); setvoxel(4, 0, 2); setvoxel(4, 0, 3); setvoxel(4, 0, 4); setvoxel(4, 0, 5); setvoxel(4, 0, 6); setvoxel(4, 0, 7); setvoxel(4, 1, 0); setvoxel(4, 1, 1); setvoxel(4, 1, 2); setvoxel(4, 1, 3); setvoxel(4, 1, 4); setvoxel(4, 1, 5); setvoxel(4, 1, 6); setvoxel(4, 1, 7); setvoxel(4, 2, 0); setvoxel(4, 2, 1); setvoxel(4, 2, 2); setvoxel(4, 2, 3); setvoxel(4, 2, 4); setvoxel(4, 2, 5); setvoxel(4, 2, 6); setvoxel(4, 2, 7); setvoxel(4, 3, 0); setvoxel(4, 3, 1); setvoxel(4, 3, 2); setvoxel(4, 3, 3); setvoxel(4, 3, 4); setvoxel(4, 3, 5); setvoxel(4, 3, 6); setvoxel(4, 3, 7); setvoxel(4, 4, 0); setvoxel(4, 4, 1); setvoxel(4, 4, 2); setvoxel(4, 4, 3); setvoxel(4, 4, 4); setvoxel(4, 4, 5); setvoxel(4, 4, 6); setvoxel(4, 4, 7); setvoxel(4, 5, 0); setvoxel(4, 5, 1); setvoxel(4, 5, 2); setvoxel(4, 5, 3); setvoxel(4, 5, 4); setvoxel(4, 5, 5); setvoxel(4, 5, 6); setvoxel(4, 5, 7); setvoxel(4, 6, 0); setvoxel(4, 6, 1); setvoxel(4, 6, 2); setvoxel(4, 6, 3); setvoxel(4, 6, 4); setvoxel(4, 6, 5); setvoxel(4, 6, 6); setvoxel(4, 6, 7); setvoxel(4, 7, 0); setvoxel(4, 7, 1); setvoxel(4, 7, 2); setvoxel(4, 7, 3); setvoxel(4, 7, 4); setvoxel(4, 7, 5); setvoxel(4, 7, 6); setvoxel(4, 7, 7); setvoxel(5, 0, 0); setvoxel(5, 0, 1); setvoxel(5, 0, 2); setvoxel(5, 0, 3); setvoxel(5, 0, 4); setvoxel(5, 0, 5); setvoxel(5, 0, 6); setvoxel(5, 0, 7); setvoxel(5, 1, 0); setvoxel(5, 1, 1); setvoxel(5, 1, 2); setvoxel(5, 1, 3); setvoxel(5, 1, 4); setvoxel(5, 1, 5); setvoxel(5, 1, 6); setvoxel(5, 1, 7); setvoxel(5, 2, 0); setvoxel(5, 2, 1); setvoxel(5, 2, 2); setvoxel(5, 2, 3); setvoxel(5, 2, 4); setvoxel(5, 2, 5); setvoxel(5, 2, 6); setvoxel(5, 2, 7); setvoxel(5, 3, 0); setvoxel(5, 3, 1); setvoxel(5, 3, 2); setvoxel(5, 3, 3); setvoxel(5, 3, 4); setvoxel(5, 3, 5); setvoxel(5, 3, 6); setvoxel(5, 3, 7); setvoxel(5, 4, 0); setvoxel(5, 4, 1); setvoxel(5, 4, 2); setvoxel(5, 4, 3); setvoxel(5, 4, 4); setvoxel(5, 4, 5); setvoxel(5, 4, 6); setvoxel(5, 4, 7); setvoxel(5, 5, 0); setvoxel(5, 5, 1); setvoxel(5, 5, 2); setvoxel(5, 5, 3); setvoxel(5, 5, 4); setvoxel(5, 5, 5); setvoxel(5, 5, 6); setvoxel(5, 5, 7); setvoxel(5, 6, 0); setvoxel(5, 6, 1); setvoxel(5, 6, 2); setvoxel(5, 6, 3); setvoxel(5, 6, 4); setvoxel(5, 6, 5); setvoxel(5, 6, 6); setvoxel(5, 6, 7); setvoxel(5, 7, 0); setvoxel(5, 7, 1); setvoxel(5, 7, 2); setvoxel(5, 7, 3); setvoxel(5, 7, 4); setvoxel(5, 7, 5); setvoxel(5, 7, 6); setvoxel(5, 7, 7); setvoxel(6, 0, 0); setvoxel(6, 0, 1); setvoxel(6, 0, 2); setvoxel(6, 0, 3); setvoxel(6, 0, 4); setvoxel(6, 0, 5); setvoxel(6, 0, 6); setvoxel(6, 0, 7); setvoxel(6, 1, 0); setvoxel(6, 1, 1); setvoxel(6, 1, 2); setvoxel(6, 1, 3); setvoxel(6, 1, 4); setvoxel(6, 1, 5); setvoxel(6, 1, 6); setvoxel(6, 1, 7); setvoxel(6, 2, 0); setvoxel(6, 2, 1); setvoxel(6, 2, 2); setvoxel(6, 2, 3); setvoxel(6, 2, 4); setvoxel(6, 2, 5); setvoxel(6, 2, 6); setvoxel(6, 2, 7); setvoxel(6, 3, 0); setvoxel(6, 3, 1); setvoxel(6, 3, 2); setvoxel(6, 3, 3); setvoxel(6, 3, 4); setvoxel(6, 3, 5); setvoxel(6, 3, 6); setvoxel(6, 3, 7); setvoxel(6, 4, 0); setvoxel(6, 4, 1); setvoxel(6, 4, 2); setvoxel(6, 4, 3); setvoxel(6, 4, 4); setvoxel(6, 4, 5); setvoxel(6, 4, 6); setvoxel(6, 4, 7); setvoxel(6, 5, 0); setvoxel(6, 5, 1); setvoxel(6, 5, 2); setvoxel(6, 5, 3); setvoxel(6, 5, 4); setvoxel(6, 5, 5); setvoxel(6, 5, 6); setvoxel(6, 5, 7); setvoxel(6, 6, 0); setvoxel(6, 6, 1); setvoxel(6, 6, 2); setvoxel(6, 6, 3); setvoxel(6, 6, 4); setvoxel(6, 6, 5); setvoxel(6, 6, 6); setvoxel(6, 6, 7); setvoxel(6, 7, 0); setvoxel(6, 7, 1); setvoxel(6, 7, 2); setvoxel(6, 7, 3); setvoxel(6, 7, 4); setvoxel(6, 7, 5); setvoxel(6, 7, 6); setvoxel(6, 7, 7); setvoxel(7, 0, 0); setvoxel(7, 0, 1); setvoxel(7, 0, 2); setvoxel(7, 0, 3); setvoxel(7, 0, 4); setvoxel(7, 0, 5); setvoxel(7, 0, 6); setvoxel(7, 0, 7); setvoxel(7, 1, 0); setvoxel(7, 1, 1); setvoxel(7, 1, 2); setvoxel(7, 1, 3); setvoxel(7, 1, 4); setvoxel(7, 1, 5); setvoxel(7, 1, 6); setvoxel(7, 1, 7); setvoxel(7, 2, 0); setvoxel(7, 2, 1); setvoxel(7, 2, 2); setvoxel(7, 2, 3); setvoxel(7, 2, 4); setvoxel(7, 2, 5); setvoxel(7, 2, 6); setvoxel(7, 2, 7); setvoxel(7, 3, 0); setvoxel(7, 3, 1); setvoxel(7, 3, 2); setvoxel(7, 3, 3); setvoxel(7, 3, 4); setvoxel(7, 3, 5); setvoxel(7, 3, 6); setvoxel(7, 3, 7); setvoxel(7, 4, 0); setvoxel(7, 4, 1); setvoxel(7, 4, 2); setvoxel(7, 4, 3); setvoxel(7, 4, 4); setvoxel(7, 4, 5); setvoxel(7, 4, 6); setvoxel(7, 4, 7); setvoxel(7, 5, 0); setvoxel(7, 5, 1); setvoxel(7, 5, 2); setvoxel(7, 5, 3); setvoxel(7, 5, 4); setvoxel(7, 5, 5); setvoxel(7, 5, 6); setvoxel(7, 5, 7); setvoxel(7, 6, 0); setvoxel(7, 6, 1); setvoxel(7, 6, 2); setvoxel(7, 6, 3); setvoxel(7, 6, 4); setvoxel(7, 6, 5); setvoxel(7, 6, 6); setvoxel(7, 6, 7); setvoxel(7, 7, 0); setvoxel(7, 7, 1); setvoxel(7, 7, 2); setvoxel(7, 7, 3); setvoxel(7, 7, 4); setvoxel(7, 7, 5); setvoxel(7, 7, 6); setvoxel(7, 7, 7); 
+delay_ms(5000); clrvoxel(0, 0, 0); clrvoxel(1, 0, 0); clrvoxel(2, 0, 0); clrvoxel(3, 0, 0); clrvoxel(4, 0, 0); clrvoxel(5, 0, 0); clrvoxel(6, 0, 0); clrvoxel(7, 0, 0); 
+delay_ms(2000); clrvoxel(0, 0, 0); clrvoxel(0, 1, 0); clrvoxel(0, 2, 0); clrvoxel(0, 3, 0); clrvoxel(0, 4, 0); clrvoxel(0, 5, 0); clrvoxel(0, 6, 0); clrvoxel(0, 7, 0); 
+delay_ms(2000); clrvoxel(0, 0, 0); clrvoxel(0, 0, 1); clrvoxel(0, 0, 2); clrvoxel(0, 0, 3); clrvoxel(0, 0, 4); clrvoxel(0, 0, 5); clrvoxel(0, 0, 6); clrvoxel(0, 0, 7); 
+delay_ms(2000); 
 
-setvoxel(0,1,2);
-clrvoxel(0,1,2);
 
-// DEMO EXAMPLES
-    // effect_planboing(AXIS_Z, 4700);
-    // effect_planboing(AXIS_Y, 4700);
-    // effect_planboing(AXIS_X, 4700);
-    
-    // effect_blinky2();
-    
-    // effect_random_filler(75,1);
-    // effect_random_filler(75,0);
-    
-    // effect_rain(200);
-   
-    // effect_boxside_randsend_parallel (AXIS_X, 0, 150, 1);
-    // effect_boxside_randsend_parallel (AXIS_X, 1, 150, 1);
-    // effect_boxside_randsend_parallel (AXIS_Y, 0, 150, 1);
-    // effect_boxside_randsend_parallel (AXIS_Y, 1, 150, 1);
-    // effect_boxside_randsend_parallel (AXIS_Z, 0, 150, 1);
-    // effect_boxside_randsend_parallel (AXIS_Z, 1, 150, 1);
-
-    // turning_cross(300);
-    
-
-    // effect_intro();
-
-    // zoom_pyramid();
-    // zoom_pyramid_clear();
-    // zoom_pyramid();
-    // zoom_pyramid_clear();
-
-    // firework(0, 0, 0);
-    // firework(-2, -2, 50);
-    // firework(1, 1, -250);
-    // firework(0, 1, 200);
-    // firework(1, -3, 400);
-    // firework(2, -3, 600);
-    // firework(2, 1, 500);
-    // firework(2, -2, 200);
-    // firework(2, 1, 0);
-    // firework(0, 0, 0);
-
-    // pyro();
-    // pyro();
-
-    // firework(2, -2, 500);
-
-    // space(100);
-    // space(100);
-
-    // firework(-2, 1, 600);
-
-    // for (cnt = 0; cnt < 501; cnt += 100)
-    //   turning_cross_animation(cnt);
-    // for (cnt = 500; cnt >= 0; cnt -= 100)
-    //   turning_cross_animation(cnt);
-
-    // turning_cross(300);
-
-    // syd_rox();
-    // syd_rox();
-									
+setvoxel(0,1,2); 
+setvoxel(0,1,3); 
+delay_ms(1200); 
+clrvoxel(0,1,2); 
+setvoxel(7,7,7); 
 
   }
 }
