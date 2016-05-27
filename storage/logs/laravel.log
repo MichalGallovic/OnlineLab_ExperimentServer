@@ -64,3 +64,113 @@
   'requested_by' => 1,
   'report_id' => 6,
 )  
+[2016-05-27 08:24:40] production.INFO: array (
+  'device' => 'tos1a',
+  'software' => 'openloop',
+  'input' => 
+  array (
+    'start' => 
+    array (
+      'c_fan' => '20',
+      'c_lamp' => '60',
+      'c_led' => '0',
+      't_sim' => '10',
+      's_rate' => '200',
+      'schema' => '',
+      'regulator' => '',
+    ),
+  ),
+  'duration' => '10',
+  'sampling_rate' => '200',
+  'instance' => 'r1',
+  'requested_by' => 1,
+  'report_id' => 7,
+)  
+[2016-05-27 08:25:39] production.INFO: array (
+  'device' => 'tos1a',
+  'software' => 'openloop',
+  'input' => 
+  array (
+    'start' => 
+    array (
+      'c_fan' => '20',
+      'c_lamp' => '60',
+      'c_led' => '0',
+      't_sim' => '10',
+      's_rate' => '200',
+      'schema' => '',
+      'regulator' => '',
+    ),
+  ),
+  'duration' => '10',
+  'sampling_rate' => '200',
+  'instance' => 'r1',
+  'requested_by' => 1,
+  'report_id' => 8,
+)  
+[2016-05-27 08:26:47] production.INFO: array (
+  'device' => 'tos1a',
+  'software' => 'openloop',
+  'input' => 
+  array (
+    'start' => 
+    array (
+      'c_fan' => '20',
+      'c_lamp' => '60',
+      'c_led' => '0',
+      't_sim' => '10',
+      's_rate' => '200',
+      'schema' => '',
+      'regulator' => '',
+    ),
+  ),
+  'duration' => '10',
+  'sampling_rate' => '200',
+  'instance' => 'r1',
+  'requested_by' => 1,
+  'report_id' => 9,
+)  
+[2016-05-27 08:27:31] production.INFO: array (
+  'device' => 'tos1a',
+  'software' => 'openloop',
+  'input' => 
+  array (
+    'start' => 
+    array (
+      'c_fan' => '20',
+      'c_lamp' => '60',
+      'c_led' => '0',
+      't_sim' => '10',
+      's_rate' => '200',
+      'schema' => '',
+      'regulator' => '',
+    ),
+  ),
+  'duration' => '10',
+  'sampling_rate' => '200',
+  'instance' => 'r1',
+  'requested_by' => 1,
+  'report_id' => 10,
+)  
+[2016-05-27 08:29:22] production.INFO: array (
+  'device' => 'tos1a',
+  'software' => 'openloop',
+  'input' => 
+  array (
+    'start' => 
+    array (
+      'c_fan' => '20',
+      'c_lamp' => '60',
+      'c_led' => '0',
+      't_sim' => '10',
+      's_rate' => '200',
+      'schema' => '',
+      'regulator' => '',
+    ),
+  ),
+  'duration' => '10',
+  'sampling_rate' => '200',
+  'instance' => 'r1',
+  'requested_by' => 2,
+  'report_id' => 11,
+)  
