@@ -5,7 +5,6 @@ Homestead.json
 .env
 .env.example
 /storage/logs/devices
-/storage/uploads/temp/
 # MacOS X specific
 .DS_Store
 composer.phar
