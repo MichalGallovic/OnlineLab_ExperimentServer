@@ -51,14 +51,20 @@ return [
 			"rules"	=>	"",
 			"title"	=>	"Walking",
 			"type"	=>	"text",
-			"visible"	=>	["test_field" => "Walking"]
+			"visible"	=>	[
+				"name"	=>	"test_field",
+				"value"	=>	"Walking"
+			]
 		],
 		[
 			"name"	=>	"flying",
 			"rules"	=>	"",
 			"title"	=>	"Flying",
 			"type"	=>	"text",
-			"visible"	=>	["test_field" => "Walking"]
+			"visible"	=>	[
+				"name"	=>	"test_field",
+				"value"	=>	"Flying"
+			]
 		]
 	],
 	"stop" => [],
