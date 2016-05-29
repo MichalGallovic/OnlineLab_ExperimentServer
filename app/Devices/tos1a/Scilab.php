@@ -99,14 +99,8 @@ class Scilab extends AbstractDevice implements DeviceDriverContract {
                 $input['user_function'] = str_replace('[-'.$i.']','('.$i.')', $input['user_function']);
             }
         } else {
-            $input['user_function'] = str_replace('e[0]','error_value', $input['user_function']);
-            $input['user_function'] = str_replace('[0]','(0)', $input['user_function']);
-            
-            for ($i=1; $i <4 ; $i++) { 
-                $input['user_function'] = str_replace('[-'.$i.']','('.$i.')', $input['user_function']);
-            }
+            $input['user_function'] = "error_value=0;";
         }   
-
 
         // resetnutie hodnot v zdielanych suboroch
         $serverPath = base_path();
