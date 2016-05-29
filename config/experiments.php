@@ -8,5 +8,9 @@ return [
 	],
         "segway"	=> [
 		"openmodelica"	=>	["change","init","start"]
+	],
+	"led_cube"	=> [
+		"c"	=>	["change"],
+		"javascript"	=>	["change"]
 	]
 ];
