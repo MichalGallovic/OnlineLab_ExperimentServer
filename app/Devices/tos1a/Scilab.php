@@ -90,12 +90,23 @@ class Scilab extends AbstractDevice implements DeviceDriverContract {
         }   
             
         // prisposobenie vlastnej funkcie pre citatelnost v scilabe
-        $input['user_function'] = str_replace('e[0]','error_value', $input['user_function']);
-        $input['user_function'] = str_replace('[0]','(0)', $input['user_function']);
-        
-        for ($i=1; $i <4 ; $i++) { 
-            $input['user_function'] = str_replace('[-'.$i.']','('.$i.')', $input['user_function']);
-        }
+        if( is_file($input["user_function"]) && file_exists( $input["user_function"]) ) {   
+            $FileChildScheme = file_get_contents($input["user_function"]); 
+            $input['user_function'] = str_replace('e[0]','error_value', $FileChildScheme);
+            $input['user_function'] = str_replace('[0]','(0)', $input['user_function']);
+            
+            for ($i=1; $i <4 ; $i++) { 
+                $input['user_function'] = str_replace('[-'.$i.']','('.$i.')', $input['user_function']);
+            }
+        } else {
+            $input['user_function'] = str_replace('e[0]','error_value', $input['user_function']);
+            $input['user_function'] = str_replace('[0]','(0)', $input['user_function']);
+            
+            for ($i=1; $i <4 ; $i++) { 
+                $input['user_function'] = str_replace('[-'.$i.']','('.$i.')', $input['user_function']);
+            }
+        }   
+
 
         // resetnutie hodnot v zdielanych suboroch
         $serverPath = base_path();
