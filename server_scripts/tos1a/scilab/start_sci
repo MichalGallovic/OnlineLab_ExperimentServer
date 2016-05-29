@@ -42,8 +42,8 @@ shmD="get_shm_command_D='cat $ran_from/shm/change_input_D_$identifier';"
 #echo $port$output$input$userFcn$shmComm$shmP$shmI$shmD$scilabRunFile >> /var/www/olm_app_server/storage/logs/devices/tos1a/scilab/testText.txt
 
 
-export SCIHOME="/home/andrej/.Scilab/scilab-5.5.2"
-export DISPLAY=:1
+export SCIHOME="/home/fei_admin/.Scilab/scilab-5.5.2"
+export DISPLAY=:0
 #xhost +
 
-scilab -d unix:1 -nw -e "$port$output$input$userFcn$shmComm$shmP$shmI$shmD$scilabRunFile"
+scilab -d unix:0 -nw -e "$port$output$input$userFcn$shmComm$shmP$shmI$shmD$scilabRunFile"
