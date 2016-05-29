@@ -10,18 +10,19 @@ use App\Devices\Scripts\StopScript;
 use App\Devices\Scripts\StartScript;
 use App\Devices\Scripts\tos1a\scilab\StartScriptScilab;
 use App\Devices\Contracts\DeviceDriverContract;
+use Illuminate\Support\Facades\Log;
 
 class Scilab extends AbstractDevice implements DeviceDriverContract {
 
 
-	/**
+    /**
      * Paths to read/stop/run scripts relative to
      * $(app_root)/server_scripts folder
      * @var array
      */
-	protected $scriptPaths = [
+    protected $scriptPaths = [
         "start"  => "tos1a/scilab/start_sci",
-        "change"	=> "",
+        "change"    => "",
         "stop"=> "tos1a/stop.py"
     ];
 
@@ -78,10 +79,17 @@ class Scilab extends AbstractDevice implements DeviceDriverContract {
         $input['D'] = str_replace(',','.', $input['D']);
 
 
-        if( is_file($input["uploaded_file"]) && file_exists( $input["uploaded_file"]) ) $input["own_ctrl"] = "2";
-        // prisposobenie vlastnej funkcie pre citatelnost v scilabe  
-        $input["uploaded_file"] = "'".$input["uploaded_file"] ."'";
-
+        if( is_file($input["uploaded_file"]) && file_exists( $input["uploaded_file"]) ) {   
+            $input["own_ctrl"] = "2";
+            $FileScheme = file_get_contents($input["uploaded_file"]);
+            file_put_contents($input["uploaded_file"].".xcos", $FileScheme);
+            $Scheme = $input["uploaded_file"] = $input["uploaded_file"].".xcos";
+            $input["uploaded_file"] = "'".$input["uploaded_file"] ."'";
+        } else {
+            $input["uploaded_file"] = "'".$input["uploaded_file"] ."'";
+        }   
+            
+        // prisposobenie vlastnej funkcie pre citatelnost v scilabe
         $input['user_function'] = str_replace('e[0]','error_value', $input['user_function']);
         $input['user_function'] = str_replace('[0]','(0)', $input['user_function']);
         
@@ -90,7 +98,7 @@ class Scilab extends AbstractDevice implements DeviceDriverContract {
         }
 
         // resetnutie hodnot v zdielanych suboroch
-        $serverPath = str_replace("/public", "", $_SERVER["DOCUMENT_ROOT"]);
+        $serverPath = base_path();
         $fileChange= "$serverPath/server_scripts/tos1a/scilab/shm/change_input_".substr($this->device->port, -4);
         $fileChangeP = "$serverPath/server_scripts/tos1a/scilab/shm/change_input_P_".substr($this->device->port, -4);
         $fileChangeI = "$serverPath/server_scripts/tos1a/scilab/shm/change_input_I_".substr($this->device->port, -4);
@@ -110,8 +118,13 @@ class Scilab extends AbstractDevice implements DeviceDriverContract {
             $this->device,
             $this->experimentLog->output_path
             );
- 
+
          $script->run();
+         
+         if ($input["own_ctrl"] == 2){
+            unlink($Scheme);   
+         }
+
 
     }
 
