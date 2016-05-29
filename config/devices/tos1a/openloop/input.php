@@ -40,18 +40,25 @@ return [
 			"meaning"	=>	"sampling_rate"
 		],
 		[
-			"name"	=>	"schema",
+			"name"	=>	"test_field",
 			"rules"	=>	"",
-			"title"	=>	"Rodicovska schema",
-			"type"	=>	"file",
-			"meaning"	=>	"parent_schema"
+			"title"	=>	"Switcher",
+			"type"	=>	"radio",
+			"values"=>	["Walking","Flying"]
 		],
 		[
-			"name"	=>	"regulator",
+			"name"	=>	"walking",
 			"rules"	=>	"",
-			"title"	=>	"Detska schema",
-			"type"	=>	"file",
-			"meaning"	=>	"child_schema"
+			"title"	=>	"Walking",
+			"type"	=>	"text",
+			"visible"	=>	["test_field" => "Walking"]
+		],
+		[
+			"name"	=>	"flying",
+			"rules"	=>	"",
+			"title"	=>	"Flying",
+			"type"	=>	"text",
+			"visible"	=>	["test_field" => "Walking"]
 		]
 	],
 	"stop" => [],
