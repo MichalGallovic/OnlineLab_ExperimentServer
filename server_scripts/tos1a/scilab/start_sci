@@ -26,6 +26,8 @@ case "$userFcn" in
     userFcn="error_value=0;";
     ;;
 esac
+userFcn=$(echo $userFcn|tr -d '\r')
+userFcn=$(echo $userFcn|tr -d '\n')
 
 userFcn='function y1=user_reg_func(t,u1,u2,u3,u4,u5,u6,u7), global y; global e; P=u5; I=u6; D=u7;'$userFcn'; y(0)=y1;e(0)=error_value;y(5)=null();e(5)=null();endfunction;'
 
@@ -52,4 +54,4 @@ export SCIHOME="/home/fei_admin/.Scilab/scilab-5.5.2"
 export DISPLAY=:0
 #xhost +
 
-scilab -d unix:0 -nw -e "$port$output$input$userFcn$shmComm$shmP$shmI$shmD$scilabRunFile"
+scilab -d unix:0 -e "$port$output$input$userFcn$shmComm$shmP$shmI$shmD$scilabRunFile"
