@@ -20,6 +20,13 @@ input=$(echo $3 | sed "s/\(.*\).\{$n\}/\1/")
 input=$(echo $input | awk '{ print substr( $1, 9, length($1) ) }' | tr : = | tr , ";")
 
 userFcn=$(echo $userFcn  | awk '{ print substr( $userFcn, 15, length($userFcn) ) }')
+
+case "$userFcn" in 
+  *olm_app_server*)
+    userFcn="error_value=0;";
+    ;;
+esac
+
 userFcn='function y1=user_reg_func(t,u1,u2,u3,u4,u5,u6,u7), global y; global e; P=u5; I=u6; D=u7;'$userFcn'; y(0)=y1;e(0)=error_value;y(5)=null();e(5)=null();endfunction;'
 
 #echo $userFcn >> /var/www/olm_app_server/storage/logs/devices/tos1a/scilab/testText.txt
@@ -40,7 +47,6 @@ shmI="get_shm_command_I='cat $ran_from/shm/change_input_I_$identifier';"
 shmD="get_shm_command_D='cat $ran_from/shm/change_input_D_$identifier';"
 
 #echo $port$output$input$userFcn$shmComm$shmP$shmI$shmD$scilabRunFile >> /var/www/olm_app_server/storage/logs/devices/tos1a/scilab/testText.txt
-
 
 export SCIHOME="/home/fei_admin/.Scilab/scilab-5.5.2"
 export DISPLAY=:0
