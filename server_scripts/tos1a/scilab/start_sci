@@ -54,4 +54,4 @@ export SCIHOME="/home/fei_admin/.Scilab/scilab-5.5.2"
 export DISPLAY=:0
 #xhost +
 
-scilab -d unix:0 -e "$port$output$input$userFcn$shmComm$shmP$shmI$shmD$scilabRunFile"
+scilab -d unix:0 -nw -e "$port$output$input$userFcn$shmComm$shmP$shmI$shmD$scilabRunFile"
