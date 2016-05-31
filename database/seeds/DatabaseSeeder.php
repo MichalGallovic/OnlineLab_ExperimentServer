@@ -11,7 +11,8 @@ class DatabaseSeeder extends Seeder{
 		'experiments',
 		'experiment_logs',
 		'process_logs',
-		'failed_process_logs'
+		'failed_process_logs',
+		'users'
 	];
 
 	protected $seeders = [
