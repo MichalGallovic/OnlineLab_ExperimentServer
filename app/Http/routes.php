@@ -18,7 +18,7 @@ use App\Classes\Services\ExperimentService;
 |
 */
 
-Route::group(['prefix' => 'api', 'middleware' => 'webserver.auth'], function() {
+Route::group(['prefix' => 'api', 'middleware' => ['webserver.auth']], function() {
 	
 	Route::get('devices',['uses' => 'DeviceController@statusAll']);
 

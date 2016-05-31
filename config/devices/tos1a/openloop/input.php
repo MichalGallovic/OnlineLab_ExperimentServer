@@ -5,28 +5,28 @@ return [
 		[
 			"name"	=>	"c_fan",
 			"rules"	=>	"required",
-			"title"	=>	"Napätie ventilátor",
+			"title"	=>	"Fan voltage",
 			"placeholder"	=>	20,
 			"type"	=>	"text"
 		],
 		[
 			"name"	=>	"c_lamp",
 			"rules"	=>	"required",
-			"title"	=>	"Napätie lampy",
+			"title"	=>	"Lamp voltage",
 			"placeholder"	=>	60,
 			"type"	=>	"text"
 		],
 		[
 			"name"	=>	"c_led",
 			"rules"	=>	"required",
-			"title"	=>	"Napätie ledky",
+			"title"	=>	"LED voltage",
 			"placeholder"	=>	0,
 			"type"	=>	"text"
 		],
 		[
 			"name"	=>	"t_sim",
 			"rules"	=>	"required",
-			"title"	=>	"Čas simulácie",
+			"title"	=>	"Simulation time",
 			"placeholder"	=>	10,
 			"type"	=>	"text",
 			"meaning"	=>	"experiment_duration"
@@ -34,7 +34,7 @@ return [
 		[
 			"name"	=>	"s_rate",
 			"rules"	=>	"required",
-			"title"	=>	"Vzorkovací čas",
+			"title"	=>	"Sampling rate",
 			"placeholder"	=>	200,
 			"type"	=>	"text",
 			"meaning"	=>	"sampling_rate"
@@ -45,21 +45,21 @@ return [
 		[
 			"name"	=>	"c_fan",
 			"rules"	=>	"required",
-			"title"	=>	"Napätie ventilátor",
+			"title"	=>	"Fan Voltage",
 			"placeholder"	=>	20,
 			"type"	=>	"text"
 		],
 		[
 			"name"	=>	"c_lamp",
 			"rules"	=>	"required",
-			"title"	=>	"Napätie lampy",
+			"title"	=>	"Lamp voltage",
 			"placeholder"	=>	60,
 			"type"	=>	"text"
 		],
 		[
 			"name"	=>	"c_led",
 			"rules"	=>	"required",
-			"title"	=>	"Napätie ledky",
+			"title"	=>	"LED voltage",
 			"placeholder"	=>	0,
 			"type"	=>	"text"
 		]
