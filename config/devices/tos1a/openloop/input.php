@@ -38,20 +38,6 @@ return [
 			"placeholder"	=>	200,
 			"type"	=>	"text",
 			"meaning"	=>	"sampling_rate"
-		],
-		[
-			"name"	=>	"schema",
-			"rules"	=>	"",
-			"title"	=>	"Rodicovska schema",
-			"type"	=>	"file",
-			"meaning"	=>	"parent_schema"
-		],
-		[
-			"name"	=>	"regulator",
-			"rules"	=>	"",
-			"title"	=>	"Detska schema",
-			"type"	=>	"file",
-			"meaning"	=>	"child_schema"
 		]
 	],
 	"stop" => [],
