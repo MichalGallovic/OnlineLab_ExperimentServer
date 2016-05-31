@@ -38,33 +38,6 @@ return [
 			"placeholder"	=>	200,
 			"type"	=>	"text",
 			"meaning"	=>	"sampling_rate"
-		],
-		[
-			"name"	=>	"test_field",
-			"rules"	=>	"",
-			"title"	=>	"Switcher",
-			"type"	=>	"radio",
-			"values"=>	["Walking","Flying"]
-		],
-		[
-			"name"	=>	"walking",
-			"rules"	=>	"",
-			"title"	=>	"Walking",
-			"type"	=>	"text",
-			"visible"	=>	[
-				"name"	=>	"test_field",
-				"value"	=>	"Walking"
-			]
-		],
-		[
-			"name"	=>	"flying",
-			"rules"	=>	"",
-			"title"	=>	"Flying",
-			"type"	=>	"text",
-			"visible"	=>	[
-				"name"	=>	"test_field",
-				"value"	=>	"Flying"
-			]
 		]
 	],
 	"stop" => [],
