@@ -18,7 +18,7 @@ use App\Classes\Services\ExperimentService;
 |
 */
 
-Route::group(['prefix' => 'api'], function() {
+Route::group(['prefix' => 'api', 'middleware' => 'webserver.auth'], function() {
 	
 	Route::get('devices',['uses' => 'DeviceController@statusAll']);
 
@@ -46,7 +46,7 @@ Route::group(['prefix' => 'api'], function() {
 	Route::post('file',['uses' => 'DevelopmentController@upload']);
 });
 
-Route::group(['middleware' => ['web']], function () {
+Route::group(['middleware' => ['web','webserver.auth']], function () {
 	Route::get('/',['uses' => 'DevelopmentController@index']);
 	Route::resource('devicetype', 'DeviceTypeController');
 	Route::resource('software', 'SoftwareController');
